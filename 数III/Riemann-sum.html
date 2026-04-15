@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>区分求積法デモ（安定版）</title>
+  <title>区分求積法デモ（拡張版）</title>
   <style>
     :root {
       --bg: #f7f8fb;
@@ -13,9 +13,11 @@
       --muted: #5f6b85;
       --accent: #3759c7;
       --soft: #eef2ff;
-      --rect-fill: rgba(109, 140, 255, 0.28);
-      --rect-stroke: rgba(109, 140, 255, 0.95);
-      --part-line: rgba(140, 165, 255, 0.9);
+      --rect-fill: rgba(110, 116, 130, 0.14);
+      --rect-stroke: rgba(86, 92, 108, 0.9);
+      --part-line: rgba(120, 128, 148, 0.7);
+      --under-fill: rgba(0, 102, 255, 0.28);
+      --over-fill: rgba(255, 59, 48, 0.26);
     }
     * { box-sizing: border-box; }
     body {
@@ -26,7 +28,7 @@
     }
     .wrap {
       display: grid;
-      grid-template-columns: minmax(640px, 1.35fr) minmax(360px, 0.9fr);
+      grid-template-columns: minmax(640px, 1.35fr) minmax(380px, 0.95fr);
       gap: 14px;
       min-height: 100vh;
       padding: 14px;
@@ -43,10 +45,7 @@
       border-bottom: 1px solid var(--line);
       background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
     }
-    h1 {
-      margin: 0 0 6px;
-      font-size: 22px;
-    }
+    h1 { margin: 0 0 6px; font-size: 22px; }
     .sub {
       margin: 0;
       color: var(--muted);
@@ -59,10 +58,7 @@
       height: calc(100vh - 140px);
       min-height: 720px;
     }
-    #calculator {
-      position: absolute;
-      inset: 0;
-    }
+    #calculator { position: absolute; inset: 0; }
     #overlay {
       position: absolute;
       pointer-events: none;
@@ -78,14 +74,14 @@
       padding: 16px 18px 18px;
       overflow: auto;
     }
-    .control-box {
+    .control-box, .mode-box {
       border: 1px solid var(--line);
       background: #fcfdff;
       border-radius: 14px;
       padding: 14px;
       margin-bottom: 16px;
     }
-    .control-row {
+    .control-row, .mode-row {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
@@ -111,6 +107,37 @@
       color: var(--muted);
       font-size: 13px;
       line-height: 1.5;
+    }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    button {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    button.secondary.active {
+      background: #233b8f;
+      border-color: #233b8f;
+    }
+    .status-line {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
     }
     .stat-grid {
       display: grid;
@@ -202,15 +229,23 @@
       right: 12px;
       top: 12px;
       z-index: 4;
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.94);
       border: 1px solid var(--line);
       border-radius: 10px;
       padding: 8px 10px;
       font-size: 12px;
       color: var(--muted);
       pointer-events: none;
+      line-height: 1.5;
     }
-    .legend strong { color: var(--text); }
+    .swatch {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
     @media (max-width: 1100px) {
       .wrap { grid-template-columns: 1fr; }
       .graph-wrap { height: 68vh; min-height: 520px; }
@@ -223,12 +258,16 @@
     <section class="panel">
       <div class="panel-head">
         <h1>区分求積法：長方形で定積分に近づく</h1>
-        <p class="sub">関数 <span class="mono">y = x²</span> を区間 <span class="mono">[0,1]</span> で、左端の値を使って近似します。グラフ上の長方形と、右側の計算過程が連動します。</p>
+        <p class="sub">関数 <span class="mono">y = x²</span> を区間 <span class="mono">[0,1]</span> で近似します。長方形・誤差の色分け・計算過程が連動します。</p>
       </div>
       <div class="graph-wrap" id="graphWrap">
         <div id="calculator"></div>
         <svg id="overlay" aria-hidden="true"></svg>
-        <div class="legend"><strong>青い長方形</strong><br>左端和の長方形</div>
+        <div class="legend">
+          <div><span class="swatch" style="background:rgba(110,116,130,.22)"></span><strong>長方形</strong></div>
+          <div><span class="swatch" style="background:rgba(0,102,255,.28)"></span>不足分</div>
+          <div><span class="swatch" style="background:rgba(255,59,48,.26)"></span>はみ出し</div>
+        </div>
       </div>
     </section>
 
@@ -238,13 +277,31 @@
         <p class="sub">この画面だけで、図と計算の両方を見られる形です。</p>
       </div>
       <div class="side-inner">
+        <div class="mode-box">
+          <div class="mode-row">
+            <label>代表点の選び方</label>
+            <div class="n-value" id="modeLabel" style="font-size:18px;">左端</div>
+          </div>
+          <div class="button-row">
+            <button id="mode-left" class="active">左端</button>
+            <button id="mode-right">右端</button>
+            <button id="mode-mid">中点</button>
+          </div>
+          <div class="hint" id="modeHint">左端和なので、右上がりの関数では面積を小さめに見積もります。</div>
+        </div>
+
         <div class="control-box">
           <div class="control-row">
             <label for="nSlider">分割数 <span class="mono">n</span></label>
             <div class="n-value" id="nValue">4</div>
           </div>
           <input id="nSlider" type="range" min="2" max="20" step="1" value="4" />
-          <div class="hint">2, 3, 4, 5 … と動かせます。分割数が増えるほど、長方形の和は定積分の値に近づきます。</div>
+          <div class="button-row">
+            <button id="playBtn" class="secondary">自動で増やす</button>
+            <button id="resetBtn">2に戻す</button>
+          </div>
+          <div class="status-line" id="animStatus">手動操作中</div>
+          <div class="hint">分割数が増えるほど、長方形の和は定積分の値に近づきます。</div>
         </div>
 
         <div class="stat-grid">
@@ -274,9 +331,9 @@
             <thead>
               <tr>
                 <th>k</th>
-                <th>x<sub>k</sub></th>
-                <th>高さ f(x<sub>k</sub>)</th>
-                <th>面積 f(x<sub>k</sub>)Δx</th>
+                <th>代表点</th>
+                <th>高さ f(x)</th>
+                <th>面積 f(x)Δx</th>
               </tr>
             </thead>
             <tbody id="stepsBody"></tbody>
@@ -285,13 +342,12 @@
         </div>
 
         <div class="note">
-          <h2>授業で言いやすいポイント</h2>
-          <div class="chip">左端を使う</div>
+          <h2>ポイント</h2>
+          <div class="chip">左端・右端・中点を比較</div>
           <div class="chip">細かく切るほど近づく</div>
-          <div class="chip">和 → 極限 → 定積分</div>
-          <p class="hint" style="margin-top:8px;">
-            今回は <span class="mono">y=x²</span> が右上がりなので、左端の長方形は毎回少し低めになります。だから面積の総和は常に本当の面積より小さくなります。<br>
-            その「不足分」が、分割数を増やすほど小さくなっていく様子を見せられます。
+          <div class="chip">不足分・はみ出しを色で確認</div>
+          <p class="hint" style="margin-top:8px;" id="teacherNote">
+            左端和では不足分が青く見えます。右端和でははみ出しが赤く見えます。中点和では、どちらもかなり小さくなります。
           </p>
         </div>
       </div>
@@ -300,13 +356,12 @@
 
   <script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=e68bd7c3f9034912b18a766090efb96d"></script>
   <script>
-    const a = 0;
-    const b = 1;
     const exact = 1 / 3;
     const xMin = -0.1;
     const xMax = 1.1;
     const yMin = -0.05;
     const yMax = 1.15;
+    const curveSamples = 500;
 
     const elt = document.getElementById('calculator');
     const overlay = document.getElementById('overlay');
@@ -320,6 +375,21 @@
     const formulaBox = document.getElementById('formulaBox');
     const stepsBody = document.getElementById('stepsBody');
     const sumLine = document.getElementById('sumLine');
+    const modeLabel = document.getElementById('modeLabel');
+    const modeHint = document.getElementById('modeHint');
+    const teacherNote = document.getElementById('teacherNote');
+    const playBtn = document.getElementById('playBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const animStatus = document.getElementById('animStatus');
+
+    const modeButtons = {
+      left: document.getElementById('mode-left'),
+      right: document.getElementById('mode-right'),
+      mid: document.getElementById('mode-mid')
+    };
+
+    let currentMode = 'left';
+    let animTimer = null;
 
     const calculator = Desmos.GraphingCalculator(elt, {
       expressions: true,
@@ -342,6 +412,10 @@
       return Number(x).toFixed(6);
     }
 
+    function f(x) {
+      return x * x;
+    }
+
     function mathToPixelX(x, width) {
       return (x - xMin) / (xMax - xMin) * width;
     }
@@ -351,12 +425,7 @@
     }
 
     function getGraphPaperRect() {
-      const candidates = [
-        '.dcg-graph-outer',
-        '.dcg-grapher',
-        '.dcg-graphpaper',
-        '.dcg-svg-background'
-      ];
+      const candidates = ['.dcg-graph-outer', '.dcg-grapher', '.dcg-graphpaper', '.dcg-svg-background'];
       for (const selector of candidates) {
         const node = elt.querySelector(selector);
         if (node) {
@@ -367,17 +436,114 @@
       return elt.getBoundingClientRect();
     }
 
+    function samplePoint(k, n, mode) {
+      if (mode === 'left') return k / n;
+      if (mode === 'right') return (k + 1) / n;
+      return (k + 0.5) / n;
+    }
+
+    function modeInfo(mode) {
+      if (mode === 'left') {
+        return {
+          label: '左端',
+          hint: '左端和なので、右上がりの関数では面積を小さめに見積もります。',
+          note: '左端和では不足分が青く見えます。長方形はグレー系にして、不足分の青が見やすいようにしています。'
+        };
+      }
+      if (mode === 'right') {
+        return {
+          label: '右端',
+          hint: '右端和なので、右上がりの関数では面積を大きめに見積もります。',
+          note: '右端和でははみ出しが赤く見えます。長方形はグレー系にして、はみ出しの赤が見やすいようにしています。'
+        };
+      }
+      return {
+        label: '中点',
+        hint: '中点和では、左端・右端よりも誤差がかなり小さくなります。',
+        note: '中点和では不足分と、はみ出しの両方が小さくなります。青と赤の両方が細く見えるはずです。'
+      };
+    }
+
+    function updateModeUI() {
+      const info = modeInfo(currentMode);
+      modeLabel.textContent = info.label;
+      modeHint.textContent = info.hint;
+      teacherNote.textContent = info.note;
+      Object.entries(modeButtons).forEach(([mode, btn]) => {
+        btn.classList.toggle('active', mode === currentMode);
+      });
+    }
+
     function updateDesmosText(n) {
+      const pointText =
+        currentMode === 'left' ? `左端なので  x_k = k/${n}` :
+        currentMode === 'right' ? `右端なので  x_k = (k+1)/${n}` :
+        `中点なので  x_k = (2k+1)/(2${n})`;
+
+      const sumLatex =
+        currentMode === 'left'
+          ? `S_{${n}}=\\sum_{k=0}^{${n-1}} \\left(\\frac{k}{${n}}\\right)^2\\cdot \\frac{1}{${n}}`
+          : currentMode === 'right'
+          ? `S_{${n}}=\\sum_{k=0}^{${n-1}} \\left(\\frac{k+1}{${n}}\\right)^2\\cdot \\frac{1}{${n}}`
+          : `S_{${n}}=\\sum_{k=0}^{${n-1}} \\left(\\frac{2k+1}{2\\cdot ${n}}\\right)^2\\cdot \\frac{1}{${n}}`;
+
       calculator.setExpressions([
         { id: 'func', latex: 'y=x^2', color: '#2D70B3' },
         { id: 'a', latex: 'a=0' },
         { id: 'b', latex: 'b=1' },
         { id: 'n', latex: `n=${n}` },
-        { id: 'dx', latex: `\\Delta x=\\frac{b-a}{n}=\\frac{1}{${n}}` },
+        { id: 'dxnote', text: `Δx = (b-a)/n = 1/${n}` },
         { id: 'restricted', latex: 'y=x^2\\left\\{0\\le x\\le 1\\right\\}', color: '#2D70B3', lineWidth: 3 },
-        { id: 'sum', latex: `S_${n}=\\sum_{k=0}^{${n-1}}\\left(\\frac{k}{${n}}\\right)^2\\cdot\\frac{1}{${n}}` },
-        { id: 'exact', latex: '\\int_0^1 x^2\\,dx=\\frac{1}{3}' }
+        { id: 'sumlatex', latex: sumLatex },
+        { id: 'pointnote', text: pointText },
+        { id: 'exactnote', text: '∫_0^1 x^2 dx = 1/3' }
       ]);
+    }
+
+    function createSvg(tag) {
+      return document.createElementNS('http://www.w3.org/2000/svg', tag);
+    }
+
+    function rectPolygonPoints(x1, x2, h, width, height) {
+      return [
+        `${mathToPixelX(x1, width)},${mathToPixelY(0, height)}`,
+        `${mathToPixelX(x1, width)},${mathToPixelY(h, height)}`,
+        `${mathToPixelX(x2, width)},${mathToPixelY(h, height)}`,
+        `${mathToPixelX(x2, width)},${mathToPixelY(0, height)}`
+      ].join(' ');
+    }
+
+    function curvePoints(xStart, xEnd, width, height) {
+      const pts = [];
+      const steps = Math.max(12, Math.round(Math.abs(xEnd - xStart) * curveSamples));
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const x = xStart + (xEnd - xStart) * t;
+        pts.push(`${mathToPixelX(x, width)},${mathToPixelY(f(x), height)}`);
+      }
+      return pts;
+    }
+
+    function makeDiffPolygon(kind, x1, x2, h, width, height) {
+      const poly = createSvg('polygon');
+      let pts;
+      if (kind === 'under') {
+        pts = [
+          ...curvePoints(x1, x2, width, height),
+          `${mathToPixelX(x2, width)},${mathToPixelY(h, height)}`,
+          `${mathToPixelX(x1, width)},${mathToPixelY(h, height)}`
+        ];
+        poly.setAttribute('fill', 'var(--under-fill)');
+      } else {
+        pts = [
+          `${mathToPixelX(x1, width)},${mathToPixelY(h, height)}`,
+          `${mathToPixelX(x2, width)},${mathToPixelY(h, height)}`,
+          ...curvePoints(x2, x1, width, height)
+        ];
+        poly.setAttribute('fill', 'var(--over-fill)');
+      }
+      poly.setAttribute('points', pts.join(' '));
+      return poly;
     }
 
     function renderRectangles(n) {
@@ -399,35 +565,41 @@
       for (let k = 0; k < n; k++) {
         const x1 = k / n;
         const x2 = (k + 1) / n;
-        const h = x1 * x1;
+        const xSample = samplePoint(k, n, currentMode);
+        const h = f(xSample);
 
-        const px1 = mathToPixelX(x1, width);
-        const px2 = mathToPixelX(x2, width);
-        const py0 = mathToPixelY(0, height);
-        const pyh = mathToPixelY(h, height);
+        const yLeft = f(x1);
+        const yRight = f(x2);
 
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', px1);
-        rect.setAttribute('y', pyh);
-        rect.setAttribute('width', Math.max(0, px2 - px1));
-        rect.setAttribute('height', Math.max(0, py0 - pyh));
-        rect.setAttribute('fill', 'var(--rect-fill)');
-        rect.setAttribute('stroke', 'var(--rect-stroke)');
-        rect.setAttribute('stroke-width', '1.25');
-        overlay.appendChild(rect);
+        if (h < Math.min(yLeft, yRight) - 1e-12) {
+          overlay.appendChild(makeDiffPolygon('under', x1, x2, h, width, height));
+        } else if (h > Math.max(yLeft, yRight) + 1e-12) {
+          overlay.appendChild(makeDiffPolygon('over', x1, x2, h, width, height));
+        } else {
+          const xm = xSample;
+          overlay.appendChild(makeDiffPolygon('over', x1, xm, h, width, height));
+          overlay.appendChild(makeDiffPolygon('under', xm, x2, h, width, height));
+        }
 
-        const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        divider.setAttribute('x1', px1);
-        divider.setAttribute('x2', px1);
-        divider.setAttribute('y1', py0);
-        divider.setAttribute('y2', pyh);
+        const rectPoly = createSvg('polygon');
+        rectPoly.setAttribute('points', rectPolygonPoints(x1, x2, h, width, height));
+        rectPoly.setAttribute('fill', 'var(--rect-fill)');
+        rectPoly.setAttribute('stroke', 'var(--rect-stroke)');
+        rectPoly.setAttribute('stroke-width', '1.15');
+        overlay.appendChild(rectPoly);
+
+        const divider = createSvg('line');
+        divider.setAttribute('x1', mathToPixelX(x1, width));
+        divider.setAttribute('x2', mathToPixelX(x1, width));
+        divider.setAttribute('y1', mathToPixelY(0, height));
+        divider.setAttribute('y2', mathToPixelY(h, height));
         divider.setAttribute('stroke', 'var(--part-line)');
         divider.setAttribute('stroke-width', '1');
         divider.setAttribute('stroke-dasharray', '4 4');
         overlay.appendChild(divider);
       }
 
-      const lastDivider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      const lastDivider = createSvg('line');
       const lastX = mathToPixelX(1, width);
       lastDivider.setAttribute('x1', lastX);
       lastDivider.setAttribute('x2', lastX);
@@ -439,6 +611,12 @@
       overlay.appendChild(lastDivider);
     }
 
+    function representativeLatex(k, n) {
+      if (currentMode === 'left') return `${k}/${n}`;
+      if (currentMode === 'right') return `${k+1}/${n}`;
+      return `${2*k+1}/${2*n}`;
+    }
+
     function updatePanel(n) {
       const dx = 1 / n;
       let sum = 0;
@@ -446,15 +624,15 @@
       const terms = [];
 
       for (let k = 0; k < n; k++) {
-        const xk = k / n;
-        const height = xk * xk;
+        const xRep = samplePoint(k, n, currentMode);
+        const height = f(xRep);
         const area = height * dx;
         sum += area;
-        terms.push(`(${k}/${n})²×(1/${n})`);
+        terms.push(`(${representativeLatex(k,n)})²×(1/${n})`);
         rows.push(`
           <tr>
             <td>${k}</td>
-            <td>${fmt(xk)}</td>
+            <td>${fmt(xRep)}</td>
             <td>${fmt(height)}</td>
             <td>${fmt(area)}</td>
           </tr>
@@ -462,6 +640,7 @@
       }
 
       const error = Math.abs(exact - sum);
+      const info = modeInfo(currentMode);
 
       nValue.textContent = n;
       dxValue.textContent = fmt(dx);
@@ -470,13 +649,18 @@
       errorValue.textContent = fmt(error);
       stepsBody.innerHTML = rows.join('');
 
+      const repText =
+        currentMode === 'left' ? `x_k = k/${n}` :
+        currentMode === 'right' ? `x_k = (k+1)/${n}` :
+        `x_k = (2k+1)/(2·${n})`;
+
       formulaBox.innerHTML = `
-        <strong>今回の近似</strong><br>
+        <strong>今回の近似（${info.label}）</strong><br>
         区間 <span class="mono">[0,1]</span> を <span class="mono">n=${n}</span> 等分するので、<br>
         <span class="mono">Δx = 1/${n} = ${fmt(dx)}</span><br>
-        左端を使うから、<span class="mono">x<sub>k</sub> = k/${n}</span>（<span class="mono">k=0,1,2,...,${n-1}</span>）<br>
+        代表点は <span class="mono">${repText}</span>（<span class="mono">k=0,1,2,...,${n-1}</span>）<br>
         よって、長方形の面積の総和は<br>
-        <span class="mono">S<sub>${n}</sub> = Σ f(x<sub>k</sub>)Δx = Σ (k/${n})² · (1/${n})</span>
+        <span class="mono">S<sub>${n}</sub> = Σ f(x<sub>k</sub>)Δx</span>
       `;
 
       sumLine.innerHTML = `
@@ -487,14 +671,68 @@
       `;
     }
 
+    function stopAnimation() {
+      if (animTimer) {
+        clearInterval(animTimer);
+        animTimer = null;
+      }
+      playBtn.classList.remove('active');
+      playBtn.textContent = '自動で増やす';
+      animStatus.textContent = '手動操作中';
+    }
+
+    function startAnimation() {
+      stopAnimation();
+      playBtn.classList.add('active');
+      playBtn.textContent = '停止';
+      animStatus.textContent = '自動再生中';
+      animTimer = setInterval(() => {
+        let n = Number(slider.value);
+        if (n >= Number(slider.max)) {
+          n = Number(slider.min);
+        } else {
+          n += 1;
+        }
+        slider.value = n;
+        syncAll();
+      }, 700);
+    }
+
     function syncAll() {
       const n = Number(slider.value);
+      updateModeUI();
       updateDesmosText(n);
       updatePanel(n);
       requestAnimationFrame(() => renderRectangles(n));
     }
 
-    slider.addEventListener('input', syncAll);
+    slider.addEventListener('input', () => {
+      stopAnimation();
+      syncAll();
+    });
+
+    Object.entries(modeButtons).forEach(([mode, btn]) => {
+      btn.addEventListener('click', () => {
+        currentMode = mode;
+        stopAnimation();
+        syncAll();
+      });
+    });
+
+    playBtn.addEventListener('click', () => {
+      if (animTimer) {
+        stopAnimation();
+      } else {
+        startAnimation();
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stopAnimation();
+      slider.value = 2;
+      syncAll();
+    });
+
     window.addEventListener('resize', () => renderRectangles(Number(slider.value)));
 
     setTimeout(() => renderRectangles(Number(slider.value)), 300);
