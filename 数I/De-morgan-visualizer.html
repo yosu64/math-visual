@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ドモルガンの法則 ビジュアル教材</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --sub: #6b7280;
+      --line: #d1d5db;
+      --a: rgba(239, 68, 68, 0.42);
+      --b: rgba(59, 130, 246, 0.42);
+      --result: rgba(34, 197, 94, 0.62);
+      --result-soft: rgba(34, 197, 94, 0.35);
+      --panel-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .wrap {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 1.9rem;
+    }
+
+    .lead {
+      margin: 0 0 20px;
+      color: var(--sub);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    }
+
+    .controls h2,
+    .view h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.9rem;
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: #eef2ff;
+      color: #3730a3;
+      margin-bottom: 10px;
+    }
+
+    .row { margin-bottom: 16px; }
+
+    .row label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    select,
+    input[type="range"],
+    button {
+      width: 100%;
+    }
+
+    select,
+    button {
+      font: inherit;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      background: #f9fafb;
+    }
+
+    button:hover { background: #f3f4f6; }
+
+    .btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .slider-wrap {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .slider-value {
+      min-width: 56px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--sub);
+    }
+
+    .slider-hint,
+    .stage-meta {
+      margin-top: 8px;
+      font-size: 0.94rem;
+      color: var(--sub);
+    }
+
+    .formula {
+      font-size: 1.45rem;
+      font-weight: 700;
+      margin: 6px 0 14px;
+      line-height: 1.45;
+    }
+
+    .ol {
+      text-decoration: overline;
+      text-decoration-thickness: 2px;
+      text-decoration-skip-ink: none;
+    }
+
+    .compare-panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .panel-box {
+      background: var(--panel-bg);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 10px;
+      min-height: 360px;
+    }
+
+    .panel-hidden {
+      opacity: 0.35;
+    }
+
+    .panel-placeholder {
+      display: grid;
+      place-items: center;
+      min-height: 338px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--sub);
+      background: #fafafa;
+      text-align: center;
+      padding: 18px;
+    }
+
+    .panel-placeholder strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      background: #fff;
+      border-radius: 12px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-top: 14px;
+      font-size: 0.92rem;
+      color: var(--sub);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    .timeline {
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid #e5e7eb;
+    }
+
+    .timeline-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .timeline-text {
+      color: var(--sub);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
+      .compare-panels { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>ドモルガンの法則 ビジュアル教材</h1>
+    <p class="lead">左辺を先に考え、その結果を残したまま右辺を見て、最後に同じ領域だと確認できます。</p>
+
+    <div class="grid">
+      <section class="card controls">
+        <div class="pill">授業用インタラクティブ</div>
+        <h2>操作</h2>
+
+        <div class="row">
+          <label for="lawSelect">表示する法則</label>
+          <select id="lawSelect">
+            <option value="union">和集合のドモルガンの法則</option>
+            <option value="intersection">共通部分のドモルガンの法則</option>
+          </select>
+        </div>
+
+        <div class="row">
+          <label for="stageSlider">スライダー</label>
+          <div class="slider-wrap">
+            <input id="stageSlider" type="range" min="0" max="3" step="1" value="0" />
+            <div class="slider-value" id="stageValue">0 / 3</div>
+          </div>
+          <div class="stage-meta" id="stageText">左辺を見る段階です。まず A ∪ B を考えます。</div>
+          <div class="slider-hint">0: 左辺 → 1: 左辺の外側 → 2: 右辺 → 3: 等しい</div>
+        </div>
+
+        <div class="btns row">
+          <button id="prevBtn" type="button">← 戻る</button>
+          <button id="nextBtn" type="button">進む →</button>
+        </div>
+
+        <div class="row">
+          <button id="playBtn" type="button">自動再生</button>
+        </div>
+      </section>
+
+      <section class="card view">
+        <h2>表示</h2>
+        <div class="formula" id="formulaText"><span class="ol">A ∪ B</span> = <span class="ol">A</span> ∩ <span class="ol">B</span></div>
+
+        <div class="compare-panels">
+          <div id="leftPanelWrap">
+            <div class="panel-title" id="leftPanelTitle">左辺を考える：A ∪ B</div>
+            <div class="panel-box">
+              <svg id="leftSvg" viewBox="0 0 420 300" aria-label="左辺のベン図"></svg>
+            </div>
+          </div>
+
+          <div id="rightPanelWrap" class="panel-hidden">
+            <div class="panel-title" id="rightPanelTitle">右辺はまだ考えない</div>
+            <div class="panel-box">
+              <div class="panel-placeholder" id="rightPlaceholder">
+                <div>
+                  <strong>まずは左辺を考えます</strong>
+                  左辺の結果を残したまま、
+                  あとで右辺を表示します。
+                </div>
+              </div>
+              <svg id="rightSvg" viewBox="0 0 420 300" aria-label="右辺のベン図" style="display:none;"></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="legend">
+          <div class="legend-item"><span class="swatch" style="background: var(--a);"></span>集合 A</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--b);"></span>集合 B</div>
+          <div class="legend-item"><span class="swatch" style="background: var(--result);"></span>注目する領域</div>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-title">いま何を見ているか</div>
+          <div class="timeline-text" id="timelineText">まず左辺を見ます。A または B に入る部分を意識させます。</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const U = { x: 30, y: 20, w: 360, h: 240 };
+    const A = { cx: 170, cy: 140, r: 78 };
+    const B = { cx: 250, cy: 140, r: 78 };
+
+    const lawSelect = document.getElementById('lawSelect');
+    const stageSlider = document.getElementById('stageSlider');
+    const stageValue = document.getElementById('stageValue');
+    const stageText = document.getElementById('stageText');
+    const formulaText = document.getElementById('formulaText');
+    const leftPanelTitle = document.getElementById('leftPanelTitle');
+    const rightPanelTitle = document.getElementById('rightPanelTitle');
+    const leftPanelWrap = document.getElementById('leftPanelWrap');
+    const rightPanelWrap = document.getElementById('rightPanelWrap');
+    const rightPlaceholder = document.getElementById('rightPlaceholder');
+    const timelineText = document.getElementById('timelineText');
+    const leftSvg = document.getElementById('leftSvg');
+    const rightSvg = document.getElementById('rightSvg');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    let autoTimer = null;
+
+    const LAW_DATA = {
+      union: {
+        formula: '<span class="ol">A ∪ B</span> = <span class="ol">A</span> ∩ <span class="ol">B</span>',
+        stageTexts: [
+          '左辺を見る段階です。まず A ∪ B を考えます。',
+          '左辺の補集合です。A ∪ B の外側に注目します。',
+          '左辺の結果を残したまま、今度は右辺を考えます。A の外側かつ B の外側を見ます。',
+          '左辺の結果と右辺の結果が同じ領域になりました。だから等しいと分かります。'
+        ],
+        leftTitles: [
+          '左辺を考える：A ∪ B',
+          '左辺を考える：A ∪ B の補集合',
+          '左辺の結果：A ∪ B の補集合',
+          '左辺の結果：A ∪ B の補集合'
+        ],
+        rightTitles: [
+          '右辺はまだ考えない',
+          '右辺はまだ考えない',
+          '右辺を考える：A の補集合 ∩ B の補集合',
+          '右辺の結果：A の補集合 ∩ B の補集合'
+        ],
+        timeline: [
+          'まず左辺を見ます。A または B に入る部分を意識させます。',
+          '次に、その外側だけを残します。これが A ∪ B の補集合です。',
+          'ここからは左辺の結果を残したまま、右辺を作っていきます。A の外側、そして B の外側を同時に満たす部分を考えます。',
+          '左辺に残しておいた結果と、右辺で作った結果が同じなので、ドモルガンの法則が成り立ちます。'
+        ]
+      },
+      intersection: {
+        formula: '<span class="ol">A ∩ B</span> = <span class="ol">A</span> ∪ <span class="ol">B</span>',
+        stageTexts: [
+          '左辺を見る段階です。まず A ∩ B を考えます。',
+          '左辺の補集合です。重なりの外側に注目します。',
+          '左辺の結果を残したまま、今度は右辺を考えます。A の外側または B の外側を見ます。',
+          '左辺の結果と右辺の結果が同じ領域になりました。だから等しいと分かります。'
+        ],
+        leftTitles: [
+          '左辺を考える：A ∩ B',
+          '左辺を考える：A ∩ B の補集合',
+          '左辺の結果：A ∩ B の補集合',
+          '左辺の結果：A ∩ B の補集合'
+        ],
+        rightTitles: [
+          '右辺はまだ考えない',
+          '右辺はまだ考えない',
+          '右辺を考える：A の補集合 ∪ B の補集合',
+          '右辺の結果：A の補集合 ∪ B の補集合'
+        ],
+        timeline: [
+          'まず左辺を見ます。A と B の共通部分を意識させます。',
+          '次に、その外側を残します。これが A ∩ B の補集合です。',
+          'ここからは左辺の結果を残したまま、右辺を作っていきます。A の外側または B の外側を満たす部分を考えます。',
+          '左辺に残しておいた結果と、右辺で作った結果が同じなので、ドモルガンの法則が成り立ちます。'
+        ]
+      }
+    };
+
+    function svgEl(tag, attrs = {}) {
+      const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+      return el;
+    }
+
+    function clearSvg(svg) {
+      while (svg.firstChild) svg.removeChild(svg.firstChild);
+    }
+
+    function pointInCircle(x, y, c) {
+      const dx = x - c.cx;
+      const dy = y - c.cy;
+      return dx * dx + dy * dy <= c.r * c.r;
+    }
+
+    function sampleMask(type, step = 6) {
+      const points = [];
+      for (let y = U.y; y <= U.y + U.h; y += step) {
+        for (let x = U.x; x <= U.x + U.w; x += step) {
+          const inA = pointInCircle(x, y, A);
+          const inB = pointInCircle(x, y, B);
+          let ok = false;
+          switch (type) {
+            case 'union': ok = inA || inB; break;
+            case 'intersection': ok = inA && inB; break;
+            case 'outsideUnion': ok = !(inA || inB); break;
+            case 'outsideIntersection': ok = !(inA && inB); break;
+            case 'compA': ok = !inA; break;
+            case 'compB': ok = !inB; break;
+            case 'compAandB': ok = !inA && !inB; break;
+            case 'compAorB': ok = !inA || !inB; break;
+          }
+          if (ok) points.push([x, y]);
+        }
+      }
+      return points;
+    }
+
+    function drawPointMask(svg, type, fill, opacity = 1, step = 6) {
+      const g = svgEl('g', { opacity: String(opacity) });
+      const points = sampleMask(type, step);
+      for (const [x, y] of points) {
+        g.appendChild(svgEl('rect', {
+          x: String(x - step / 2),
+          y: String(y - step / 2),
+          width: String(step),
+          height: String(step),
+          fill
+        }));
+      }
+      svg.appendChild(g);
+    }
+
+    function drawBase(svg) {
+      clearSvg(svg);
+
+      svg.appendChild(svgEl('rect', {
+        x: '0', y: '0', width: '420', height: '300', fill: '#ffffff'
+      }));
+
+      svg.appendChild(svgEl('rect', {
+        x: String(U.x), y: String(U.y), width: String(U.w), height: String(U.h),
+        rx: '10', ry: '10', fill: '#fefefe', stroke: '#4b5563', 'stroke-width': '2'
+      }));
+
+      const uLabel = svgEl('text', {
+        x: String(U.x + 10), y: String(U.y - 6), fill: '#374151', 'font-size': '16', 'font-weight': '700'
+      });
+      uLabel.textContent = '全体集合 U';
+      svg.appendChild(uLabel);
+
+      svg.appendChild(svgEl('circle', {
+        cx: String(A.cx), cy: String(A.cy), r: String(A.r), fill: 'var(--a)', stroke: '#b91c1c', 'stroke-width': '2'
+      }));
+
+      svg.appendChild(svgEl('circle', {
+        cx: String(B.cx), cy: String(B.cy), r: String(B.r), fill: 'var(--b)', stroke: '#1d4ed8', 'stroke-width': '2'
+      }));
+
+      const aLabel = svgEl('text', {
+        x: String(A.cx - 46), y: String(A.cy - A.r - 12), fill: '#991b1b', 'font-size': '22', 'font-weight': '700'
+      });
+      aLabel.textContent = 'A';
+      svg.appendChild(aLabel);
+
+      const bLabel = svgEl('text', {
+        x: String(B.cx + 32), y: String(B.cy - B.r - 12), fill: '#1e3a8a', 'font-size': '22', 'font-weight': '700'
+      });
+      bLabel.textContent = 'B';
+      svg.appendChild(bLabel);
+    }
+
+    function drawLeft(law, stage) {
+      drawBase(leftSvg);
+      if (law === 'union') {
+        if (stage === 0) {
+          drawPointMask(leftSvg, 'union', 'var(--result)', 0.94);
+        } else {
+          drawPointMask(leftSvg, 'outsideUnion', 'var(--result)', 0.94);
+        }
+      } else {
+        if (stage === 0) {
+          drawPointMask(leftSvg, 'intersection', 'var(--result)', 0.94);
+        } else {
+          drawPointMask(leftSvg, 'outsideIntersection', 'var(--result)', 0.94);
+        }
+      }
+    }
+
+    function drawRight(law, stage) {
+      drawBase(rightSvg);
+      if (law === 'union') {
+        if (stage === 2) {
+          drawPointMask(rightSvg, 'compA', 'rgba(239, 68, 68, 0.16)', 1);
+          drawPointMask(rightSvg, 'compB', 'rgba(59, 130, 246, 0.16)', 1);
+          drawPointMask(rightSvg, 'compAandB', 'var(--result)', 0.82);
+        } else if (stage >= 3) {
+          drawPointMask(rightSvg, 'compAandB', 'var(--result)', 0.94);
+        }
+      } else {
+        if (stage === 2) {
+          drawPointMask(rightSvg, 'compA', 'rgba(239, 68, 68, 0.16)', 1);
+          drawPointMask(rightSvg, 'compB', 'rgba(59, 130, 246, 0.16)', 1);
+          drawPointMask(rightSvg, 'compAorB', 'var(--result)', 0.82);
+        } else if (stage >= 3) {
+          drawPointMask(rightSvg, 'compAorB', 'var(--result)', 0.94);
+        }
+      }
+    }
+
+    function render() {
+      const law = lawSelect.value;
+      const stage = Number(stageSlider.value);
+      const data = LAW_DATA[law];
+
+      formulaText.innerHTML = data.formula;
+      leftPanelTitle.textContent = data.leftTitles[stage];
+      rightPanelTitle.textContent = data.rightTitles[stage];
+      stageValue.textContent = `${stage} / 3`;
+      stageText.textContent = data.stageTexts[stage];
+      timelineText.textContent = data.timeline[stage];
+
+      drawLeft(law, stage);
+
+      if (stage < 2) {
+        rightPlaceholder.style.display = 'grid';
+        rightSvg.style.display = 'none';
+        rightPanelWrap.classList.add('panel-hidden');
+      } else {
+        rightPlaceholder.style.display = 'none';
+        rightSvg.style.display = 'block';
+        rightPanelWrap.classList.remove('panel-hidden');
+        drawRight(law, stage);
+      }
+    }
+
+    function setStage(n) {
+      const value = Math.max(0, Math.min(3, n));
+      stageSlider.value = String(value);
+      render();
+    }
+
+    function togglePlay() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+        playBtn.textContent = '自動再生';
+        return;
+      }
+      playBtn.textContent = '停止';
+      autoTimer = setInterval(() => {
+        let next = Number(stageSlider.value) + 1;
+        if (next > 3) next = 0;
+        setStage(next);
+      }, 1500);
+    }
+
+    lawSelect.addEventListener('change', () => setStage(0));
+    stageSlider.addEventListener('input', render);
+    prevBtn.addEventListener('click', () => setStage(Number(stageSlider.value) - 1));
+    nextBtn.addEventListener('click', () => setStage(Number(stageSlider.value) + 1));
+    playBtn.addEventListener('click', togglePlay);
+
+    render();
+  </script>
+</body>
+</html>
