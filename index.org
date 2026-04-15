@@ -48,7 +48,7 @@
 :PROPERTIES:
 :PATH: ./数III/Riemann-sum.html
 :TEXTBOOK: 深進数学III
-:PAGE: 164
+:PAGE: 146
 :APP: Desmos
 :APP_URL: https://www.desmos.com/
 :PUBLISHED: 2026-04-15
