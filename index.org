@@ -1,0 +1,58 @@
+* サイト情報
+:PROPERTIES:
+:TITLE: 数学ビジュアル教材
+:DESCRIPTION: 分野ごとに教材ページへ移動できます。
+:END:
+* 数I
+:PROPERTIES:
+:TEXTBOOK: 深進数学I
+:END:
+
+** ドモルガンの法則
+:PROPERTIES:
+:PATH: ./数I/De-morgan-visualizer.html
+:TEXTBOOK: 深進数学I
+:PAGE: 90
+:APP: HTML
+:PUBLISHED: 2026-04-15
+:UPDATED: 2026-04-15
+:END:
+ベン図を用いてドモルガンの法則を視覚的に理解する教材。
+左辺を先に考え、その結果を残したまま右辺を構成し、同じ領域になることを確認できる。
+スライダー操作により、思考の流れに沿って段階的に理解できる。
+
+* 数C
+:PROPERTIES:
+:TEXTBOOK: 深進数学C
+:END:
+
+** 空間ベクトル分解
+:PROPERTIES:
+:PATH: ./数C/space-vector-decomposition-with-reference.html
+:TEXTBOOK: 深進数学C
+:PAGE: 45
+:APP: Three.js
+:APP_URL: https://threejs.org/
+:PUBLISHED: 2026-04-15
+:UPDATED: 2026-04-15
+:END:
+ベクトル p を sa + tb + uc の合成として視覚的に理解する教材。
+スライダーで係数を動かしながら、空間での分解を確認できる。
+
+* 数III
+:PROPERTIES:
+:TEXTBOOK: 深進数学III
+:END:
+
+** 区分求積法
+:PROPERTIES:
+:PATH: ./数III/Riemann-sum.html
+:TEXTBOOK: 深進数学III
+:PAGE: 164
+:APP: Desmos
+:APP_URL: https://www.desmos.com/
+:PUBLISHED: 2026-04-15
+:UPDATED: 2026-04-15
+:END:
+関数 y = x^2 の定積分を、長方形の和を使って視覚的に理解する教材。
+分割数 n を変えながら、区分求積法による近似と定積分への近づき方を確認できる。
