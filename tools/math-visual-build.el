@@ -136,6 +136,17 @@ write the generated UTF-8 HTML to the repository root `index.html'."
    "  <meta charset=\"UTF-8\">\n"
    "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
    "  <title>" (math-visual-build--escape-html (or (alist-get 'title site) "")) "</title>\n"
+   "  <script>\n"
+   "    window.MathJax = {\n"
+   "      tex: {\n"
+   "        inlineMath: [['\\\\(', '\\\\)'], ['$', '$']]\n"
+   "      },\n"
+   "      svg: {\n"
+   "        fontCache: 'global'\n"
+   "      }\n"
+   "    };\n"
+   "  </script>\n"
+   "  <script defer src=\"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js\"></script>\n"
    "  <style>\n"
    (math-visual-build--stylesheet) "\n"
    "  </style>\n"
@@ -194,7 +205,7 @@ write the generated UTF-8 HTML to the repository root `index.html'."
      "</p>\n"
      "          </div>\n"
      "          <p class=\"item-description\">"
-     (math-visual-build--escape-html description)
+     (math-visual-build--escape-description-html description)
      "</p>\n"
      "          <p class=\"item-meta-inline\">"
      meta-inline
@@ -417,6 +428,32 @@ write the generated UTF-8 HTML to the repository root `index.html'."
 (defun math-visual-build--escape-attribute (value)
   "Escape VALUE for HTML attribute usage."
   (math-visual-build--escape-html value))
+
+(defun math-visual-build--escape-description-html (value)
+  "Escape VALUE for HTML while preserving MathJax inline math delimiters."
+  (let ((placeholders nil)
+        (index 0)
+        (cursor 0)
+        (text (or value "")))
+    (while (string-match "\\\\(" text cursor)
+      (let ((start (match-beginning 0)))
+        (if (string-match "\\\\)" text (match-end 0))
+            (let* ((end (match-end 0))
+                   (math-fragment (substring text start end))
+                   (placeholder (format "@@MATHJAX-%d@@" index)))
+              (push (cons placeholder math-fragment) placeholders)
+              (setq text (concat (substring text 0 start)
+                                 placeholder
+                                 (substring text end)))
+              (setq cursor (+ start (length placeholder)))
+              (setq index (1+ index)))
+          (setq cursor (match-end 0)))))
+    (setq text (math-visual-build--escape-html text))
+    (dolist (entry placeholders text)
+      (setq text (replace-regexp-in-string
+                  (regexp-quote (car entry))
+                  (cdr entry)
+                  text t t)))))
 
 (defun math-visual-build--present-string (value)
   "Return VALUE when it is a non-empty trimmed string."

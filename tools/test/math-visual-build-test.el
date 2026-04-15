@@ -22,7 +22,7 @@
 :PUBLISHED: 2026-04-15
 :UPDATED: 2026-04-15
 :END:
-ベン図を用いて理解する教材。
+ベン図を用いて \\(A \\cup B\\) の関係を理解する教材。
 
 * 数C
 
@@ -36,7 +36,7 @@
 :PUBLISHED: 2026-04-15
 :UPDATED: 2026-04-15
 :END:
-空間ベクトルの合成を確認できる。
+ベクトル \\(\\vec{p}\\) を \\(s\\vec{a} + t\\vec{b} + u\\vec{c}\\) の合成として確認できる。
 ")
 
 (ert-deftest math-visual-build-parse-org-file ()
@@ -50,7 +50,7 @@
           (should (equal (alist-get 'description site) "分野ごとに教材ページへ移動できます。"))
           (should (= (length sections) 2))
           (should (equal (alist-get 'textbook first-item) "深進数学I"))
-          (should (equal (alist-get 'description first-item) "ベン図を用いて理解する教材。"))
+          (should (equal (alist-get 'description first-item) "ベン図を用いて \\(A \\cup B\\) の関係を理解する教材。"))
           (should (equal (alist-get 'app-url second-item) "https://threejs.org/")))
       (delete-file input-file))))
 
@@ -64,9 +64,11 @@
             (insert-file-contents output-file)
             (let ((html (buffer-string)))
               (should (string-match-p "<title>数学ビジュアル教材</title>" html))
+              (should (string-match-p "window.MathJax" html))
               (should (string-match-p "href=\"\\./数I/De-morgan-visualizer.html\"" html))
               (should (string-match-p "class=\"item-head\"" html))
               (should (string-match-p "深進数学C p\\.45" html))
+              (should (string-match-p "\\\\(\\\\vec{p}\\\\)" html))
               (should (string-match-p "<p class=\"item-meta-inline\"><a class=\"external-link\" href=\"https://threejs.org/\"" html)))))
       (delete-file input-file)
       (delete-file output-file))))

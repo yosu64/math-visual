@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>数学ビジュアル教材</title>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
   <style>
 :root {
   color-scheme: light;
@@ -198,7 +209,7 @@ a:hover {
             <h3 class="item-title"><a href="./数C/space-vector-decomposition-with-reference.html">空間ベクトル分解</a></h3>
             <p class="item-book-page">深進数学C p.45</p>
           </div>
-          <p class="item-description">ベクトル p を sa + tb + uc の合成として視覚的に理解する教材。
+          <p class="item-description">ベクトル \\(\\vec{p}\\) を \\(s\\vec{a} + t\\vec{b} + u\\vec{c}\\) の合成として視覚的に理解する教材。
 スライダーで係数を動かしながら、空間での分解を確認できる。</p>
           <p class="item-meta-inline"><a class="external-link" href="https://threejs.org/" target="_blank" rel="noopener noreferrer">Three.js</a> / 2026-04-15（公開）・2026-04-15（更新）</p>
         </article>
@@ -214,8 +225,8 @@ a:hover {
             <h3 class="item-title"><a href="./数III/Riemann-sum.html">区分求積法</a></h3>
             <p class="item-book-page">深進数学III p.164</p>
           </div>
-          <p class="item-description">関数 y = x^2 の定積分を、長方形の和を使って視覚的に理解する教材。
-分割数 n を変えながら、区分求積法による近似と定積分への近づき方を確認できる。</p>
+          <p class="item-description">関数 \\(y=x^2\\) の定積分を、長方形の和を使って視覚的に理解する教材。
+分割数 \\(n\\) を変えながら、区分求積法による近似と定積分への近づき方を確認できる。</p>
           <p class="item-meta-inline"><a class="external-link" href="https://www.desmos.com/" target="_blank" rel="noopener noreferrer">Desmos</a> / 2026-04-15（公開）・2026-04-15（更新）</p>
         </article>
       </div>
