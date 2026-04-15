@@ -434,7 +434,7 @@ write the generated UTF-8 HTML to the repository root `index.html'."
   (let ((placeholders nil)
         (index 0)
         (cursor 0)
-        (text (or value "")))
+        (text (math-visual-build--normalize-math-fragment (or value ""))))
     (while (string-match "\\\\(" text cursor)
       (let ((start (match-beginning 0)))
         (if (string-match "\\\\)" text (match-end 0))
@@ -454,6 +454,13 @@ write the generated UTF-8 HTML to the repository root `index.html'."
                   (regexp-quote (car entry))
                   (cdr entry)
                   text t t)))))
+
+(defun math-visual-build--normalize-math-fragment (value)
+  "Normalize LaTeX escapes in VALUE for MathJax output.
+
+This converts doubled backslashes such as `\\\\(' and `\\\\vec' to the
+single-backslash form MathJax expects in static HTML."
+  (replace-regexp-in-string "\\\\\\\\" "\\" value t t))
 
 (defun math-visual-build--present-string (value)
   "Return VALUE when it is a non-empty trimmed string."
