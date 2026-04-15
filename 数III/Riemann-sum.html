@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>区分求積法デモ（安定版）</title>
+  <style>
+    :root {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --line: #d9deea;
+      --text: #1f2a44;
+      --muted: #5f6b85;
+      --accent: #3759c7;
+      --soft: #eef2ff;
+      --rect-fill: rgba(109, 140, 255, 0.28);
+      --rect-stroke: rgba(109, 140, 255, 0.95);
+      --part-line: rgba(140, 165, 255, 0.9);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .wrap {
+      display: grid;
+      grid-template-columns: minmax(640px, 1.35fr) minmax(360px, 0.9fr);
+      gap: 14px;
+      min-height: 100vh;
+      padding: 14px;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    .panel-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #fafbff 100%);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .graph-wrap {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 140px);
+      min-height: 720px;
+    }
+    #calculator {
+      position: absolute;
+      inset: 0;
+    }
+    #overlay {
+      position: absolute;
+      pointer-events: none;
+      z-index: 3;
+      overflow: visible;
+    }
+    .side {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 28px);
+    }
+    .side-inner {
+      padding: 16px 18px 18px;
+      overflow: auto;
+    }
+    .control-box {
+      border: 1px solid var(--line);
+      background: #fcfdff;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 16px;
+    }
+    .control-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    label {
+      font-weight: 700;
+      font-size: 14px;
+    }
+    input[type="range"] {
+      width: 100%;
+      margin: 8px 0 4px;
+    }
+    .n-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+      min-width: 3em;
+      text-align: right;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 13px;
+      background: white;
+    }
+    .stat .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .stat .v {
+      font-size: 20px;
+      font-weight: 800;
+    }
+    .formula {
+      background: var(--soft);
+      border: 1px solid #d8e0ff;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      line-height: 1.7;
+      font-size: 14px;
+    }
+    .steps {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+    .steps h2, .note h2 {
+      font-size: 16px;
+      margin: 0 0 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 7px;
+      text-align: right;
+      vertical-align: top;
+    }
+    th:first-child, td:first-child { text-align: center; }
+    th {
+      background: #f5f7ff;
+      font-size: 12px;
+    }
+    tr:last-child td { border-bottom: none; }
+    .sum-line {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8faff;
+      border: 1px solid var(--line);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .note {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .chip {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #edf2ff;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .legend {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      z-index: 4;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .legend strong { color: var(--text); }
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; }
+      .graph-wrap { height: 68vh; min-height: 520px; }
+      .side { height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <div class="panel-head">
+        <h1>区分求積法：長方形で定積分に近づく</h1>
+        <p class="sub">関数 <span class="mono">y = x²</span> を区間 <span class="mono">[0,1]</span> で、左端の値を使って近似します。グラフ上の長方形と、右側の計算過程が連動します。</p>
+      </div>
+      <div class="graph-wrap" id="graphWrap">
+        <div id="calculator"></div>
+        <svg id="overlay" aria-hidden="true"></svg>
+        <div class="legend"><strong>青い長方形</strong><br>左端和の長方形</div>
+      </div>
+    </section>
+
+    <aside class="panel side">
+      <div class="panel-head">
+        <h1 style="font-size:20px;">解説パネル</h1>
+        <p class="sub">この画面だけで、図と計算の両方を見られる形です。</p>
+      </div>
+      <div class="side-inner">
+        <div class="control-box">
+          <div class="control-row">
+            <label for="nSlider">分割数 <span class="mono">n</span></label>
+            <div class="n-value" id="nValue">4</div>
+          </div>
+          <input id="nSlider" type="range" min="2" max="20" step="1" value="4" />
+          <div class="hint">2, 3, 4, 5 … と動かせます。分割数が増えるほど、長方形の和は定積分の値に近づきます。</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="k">長方形の幅 Δx</div>
+            <div class="v" id="dxValue">0.250000</div>
+          </div>
+          <div class="stat">
+            <div class="k">定積分の正確な値</div>
+            <div class="v" id="exactValue">0.333333</div>
+          </div>
+          <div class="stat">
+            <div class="k">長方形の面積の総和</div>
+            <div class="v" id="sumValue">0.218750</div>
+          </div>
+          <div class="stat">
+            <div class="k">誤差（正確な値との差）</div>
+            <div class="v" id="errorValue">0.114583</div>
+          </div>
+        </div>
+
+        <div class="formula" id="formulaBox"></div>
+
+        <div class="steps">
+          <h2>各長方形の計算</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>k</th>
+                <th>x<sub>k</sub></th>
+                <th>高さ f(x<sub>k</sub>)</th>
+                <th>面積 f(x<sub>k</sub>)Δx</th>
+              </tr>
+            </thead>
+            <tbody id="stepsBody"></tbody>
+          </table>
+          <div class="sum-line" id="sumLine"></div>
+        </div>
+
+        <div class="note">
+          <h2>授業で言いやすいポイント</h2>
+          <div class="chip">左端を使う</div>
+          <div class="chip">細かく切るほど近づく</div>
+          <div class="chip">和 → 極限 → 定積分</div>
+          <p class="hint" style="margin-top:8px;">
+            今回は <span class="mono">y=x²</span> が右上がりなので、左端の長方形は毎回少し低めになります。だから面積の総和は常に本当の面積より小さくなります。<br>
+            その「不足分」が、分割数を増やすほど小さくなっていく様子を見せられます。
+          </p>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script src="https://www.desmos.com/api/v1.11/calculator.js?apiKey=e68bd7c3f9034912b18a766090efb96d"></script>
+  <script>
+    const a = 0;
+    const b = 1;
+    const exact = 1 / 3;
+    const xMin = -0.1;
+    const xMax = 1.1;
+    const yMin = -0.05;
+    const yMax = 1.15;
+
+    const elt = document.getElementById('calculator');
+    const overlay = document.getElementById('overlay');
+    const graphWrap = document.getElementById('graphWrap');
+    const slider = document.getElementById('nSlider');
+    const nValue = document.getElementById('nValue');
+    const dxValue = document.getElementById('dxValue');
+    const exactValue = document.getElementById('exactValue');
+    const sumValue = document.getElementById('sumValue');
+    const errorValue = document.getElementById('errorValue');
+    const formulaBox = document.getElementById('formulaBox');
+    const stepsBody = document.getElementById('stepsBody');
+    const sumLine = document.getElementById('sumLine');
+
+    const calculator = Desmos.GraphingCalculator(elt, {
+      expressions: true,
+      settingsMenu: false,
+      zoomButtons: true,
+      expressionsTopbar: false,
+      keypad: false,
+      border: false,
+      showGrid: true,
+      trace: false,
+      pointsOfInterest: false,
+      xAxisLabel: 'x',
+      yAxisLabel: 'y',
+      lockViewport: true
+    });
+
+    calculator.setMathBounds({ left: xMin, right: xMax, bottom: yMin, top: yMax });
+
+    function fmt(x) {
+      return Number(x).toFixed(6);
+    }
+
+    function mathToPixelX(x, width) {
+      return (x - xMin) / (xMax - xMin) * width;
+    }
+
+    function mathToPixelY(y, height) {
+      return height - (y - yMin) / (yMax - yMin) * height;
+    }
+
+    function getGraphPaperRect() {
+      const candidates = [
+        '.dcg-graph-outer',
+        '.dcg-grapher',
+        '.dcg-graphpaper',
+        '.dcg-svg-background'
+      ];
+      for (const selector of candidates) {
+        const node = elt.querySelector(selector);
+        if (node) {
+          const r = node.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) return r;
+        }
+      }
+      return elt.getBoundingClientRect();
+    }
+
+    function updateDesmosText(n) {
+      calculator.setExpressions([
+        { id: 'func', latex: 'y=x^2', color: '#2D70B3' },
+        { id: 'a', latex: 'a=0' },
+        { id: 'b', latex: 'b=1' },
+        { id: 'n', latex: `n=${n}` },
+        { id: 'dx', latex: `\\Delta x=\\frac{b-a}{n}=\\frac{1}{${n}}` },
+        { id: 'restricted', latex: 'y=x^2\\left\\{0\\le x\\le 1\\right\\}', color: '#2D70B3', lineWidth: 3 },
+        { id: 'sum', latex: `S_${n}=\\sum_{k=0}^{${n-1}}\\left(\\frac{k}{${n}}\\right)^2\\cdot\\frac{1}{${n}}` },
+        { id: 'exact', latex: '\\int_0^1 x^2\\,dx=\\frac{1}{3}' }
+      ]);
+    }
+
+    function renderRectangles(n) {
+      const wrapRect = graphWrap.getBoundingClientRect();
+      const paperRect = getGraphPaperRect();
+
+      const left = Math.max(0, paperRect.left - wrapRect.left);
+      const top = Math.max(0, paperRect.top - wrapRect.top);
+      const width = paperRect.width;
+      const height = paperRect.height;
+
+      overlay.style.left = `${left}px`;
+      overlay.style.top = `${top}px`;
+      overlay.style.width = `${width}px`;
+      overlay.style.height = `${height}px`;
+      overlay.setAttribute('viewBox', `0 0 ${width} ${height}`);
+      overlay.innerHTML = '';
+
+      for (let k = 0; k < n; k++) {
+        const x1 = k / n;
+        const x2 = (k + 1) / n;
+        const h = x1 * x1;
+
+        const px1 = mathToPixelX(x1, width);
+        const px2 = mathToPixelX(x2, width);
+        const py0 = mathToPixelY(0, height);
+        const pyh = mathToPixelY(h, height);
+
+        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        rect.setAttribute('x', px1);
+        rect.setAttribute('y', pyh);
+        rect.setAttribute('width', Math.max(0, px2 - px1));
+        rect.setAttribute('height', Math.max(0, py0 - pyh));
+        rect.setAttribute('fill', 'var(--rect-fill)');
+        rect.setAttribute('stroke', 'var(--rect-stroke)');
+        rect.setAttribute('stroke-width', '1.25');
+        overlay.appendChild(rect);
+
+        const divider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        divider.setAttribute('x1', px1);
+        divider.setAttribute('x2', px1);
+        divider.setAttribute('y1', py0);
+        divider.setAttribute('y2', pyh);
+        divider.setAttribute('stroke', 'var(--part-line)');
+        divider.setAttribute('stroke-width', '1');
+        divider.setAttribute('stroke-dasharray', '4 4');
+        overlay.appendChild(divider);
+      }
+
+      const lastDivider = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      const lastX = mathToPixelX(1, width);
+      lastDivider.setAttribute('x1', lastX);
+      lastDivider.setAttribute('x2', lastX);
+      lastDivider.setAttribute('y1', mathToPixelY(0, height));
+      lastDivider.setAttribute('y2', mathToPixelY(1, height));
+      lastDivider.setAttribute('stroke', 'var(--part-line)');
+      lastDivider.setAttribute('stroke-width', '1');
+      lastDivider.setAttribute('stroke-dasharray', '4 4');
+      overlay.appendChild(lastDivider);
+    }
+
+    function updatePanel(n) {
+      const dx = 1 / n;
+      let sum = 0;
+      const rows = [];
+      const terms = [];
+
+      for (let k = 0; k < n; k++) {
+        const xk = k / n;
+        const height = xk * xk;
+        const area = height * dx;
+        sum += area;
+        terms.push(`(${k}/${n})²×(1/${n})`);
+        rows.push(`
+          <tr>
+            <td>${k}</td>
+            <td>${fmt(xk)}</td>
+            <td>${fmt(height)}</td>
+            <td>${fmt(area)}</td>
+          </tr>
+        `);
+      }
+
+      const error = Math.abs(exact - sum);
+
+      nValue.textContent = n;
+      dxValue.textContent = fmt(dx);
+      exactValue.textContent = fmt(exact);
+      sumValue.textContent = fmt(sum);
+      errorValue.textContent = fmt(error);
+      stepsBody.innerHTML = rows.join('');
+
+      formulaBox.innerHTML = `
+        <strong>今回の近似</strong><br>
+        区間 <span class="mono">[0,1]</span> を <span class="mono">n=${n}</span> 等分するので、<br>
+        <span class="mono">Δx = 1/${n} = ${fmt(dx)}</span><br>
+        左端を使うから、<span class="mono">x<sub>k</sub> = k/${n}</span>（<span class="mono">k=0,1,2,...,${n-1}</span>）<br>
+        よって、長方形の面積の総和は<br>
+        <span class="mono">S<sub>${n}</sub> = Σ f(x<sub>k</sub>)Δx = Σ (k/${n})² · (1/${n})</span>
+      `;
+
+      sumLine.innerHTML = `
+        <strong>総和の書き下し</strong><br>
+        <span class="mono">S<sub>${n}</sub> = ${terms.join(' + ')}</span><br>
+        <strong>＝ ${fmt(sum)}</strong><br>
+        定積分の値 <span class="mono">∫<sub>0</sub><sup>1</sup>x²dx = 1/3 ≈ ${fmt(exact)}</span> との差は <strong>${fmt(error)}</strong>。
+      `;
+    }
+
+    function syncAll() {
+      const n = Number(slider.value);
+      updateDesmosText(n);
+      updatePanel(n);
+      requestAnimationFrame(() => renderRectangles(n));
+    }
+
+    slider.addEventListener('input', syncAll);
+    window.addEventListener('resize', () => renderRectangles(Number(slider.value)));
+
+    setTimeout(() => renderRectangles(Number(slider.value)), 300);
+    syncAll();
+  </script>
+</body>
+</html>

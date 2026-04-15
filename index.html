@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数学ビジュアル教材</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f2;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --accent: #0f766e;
+      --border: #d1d5db;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    main {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 48px 20px 64px;
+    }
+
+    h1, h2 {
+      line-height: 1.2;
+    }
+
+    section {
+      margin-top: 32px;
+      padding: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 0;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    p {
+      color: var(--muted);
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>数学ビジュアル教材</h1>
+    <p>分野ごとに教材ページへ移動できます。</p>
+
+    <section>
+      <h2>数C</h2>
+      <ul>
+        <li><a href="./数C/space-vector-decomposition-with-reference.html">空間ベクトル分解</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>数III</h2>
+      <ul>
+        <li><a href="./数III/Riemann-sum.html">リーマン和</a></li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

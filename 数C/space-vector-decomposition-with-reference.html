@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>空間ベクトルの分解</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      background: #f5f7fb;
+    }
+
+    #app {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      height: 100%;
+    }
+
+    #panel {
+      box-sizing: border-box;
+      padding: 16px 16px 20px;
+      background: #ffffff;
+      border-right: 1px solid #d9e0ea;
+      overflow-y: auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
+    }
+
+    .desc {
+      line-height: 1.7;
+      font-size: 0.96rem;
+      margin-bottom: 14px;
+    }
+
+    .formula {
+      background: #f3f6fb;
+      border: 1px solid #d9e0ea;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 14px;
+      line-height: 1.8;
+      font-size: 0.98rem;
+    }
+
+    .group {
+      margin-bottom: 16px;
+      padding: 12px;
+      border: 1px solid #dfe5ef;
+      border-radius: 10px;
+      background: #fbfcfe;
+    }
+
+    .group-title {
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 0.96rem;
+    }
+
+    .slider-row {
+      margin-bottom: 10px;
+    }
+
+    .slider-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .slider-row label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    .btns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid #cfd8e6;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 8px;
+      font-size: 0.94rem;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #f3f7ff;
+    }
+
+    .legend {
+      line-height: 1.9;
+      font-size: 0.94rem;
+    }
+
+    .legend span {
+      display: inline-block;
+      width: 1.1em;
+      font-weight: 700;
+    }
+
+    #sceneWrap {
+      position: relative;
+      overflow: hidden;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    #scene {
+      width: 100%;
+      height: 100%;
+      min-height: 100vh;
+    }
+
+    .overlay {
+      position: absolute;
+      left: 14px;
+      top: 14px;
+      background: rgba(255,255,255,0.92);
+      border: 1px solid #d9e0ea;
+      border-radius: 12px;
+      padding: 10px 12px;
+      line-height: 1.7;
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+
+    .hint, .small {
+      color: #445;
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 900px) {
+      #app {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+      }
+
+      #panel {
+        border-right: none;
+        border-bottom: 1px solid #d9e0ea;
+      }
+
+      #scene {
+        min-height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="panel">
+      <h1>空間ベクトルの分解</h1>
+
+      <div class="desc">
+        ベクトル <strong>p</strong> を、3方向の移動
+        <strong>s a</strong>, <strong>t b</strong>, <strong>u c</strong>
+        の合成として見るデモです。
+      </div>
+
+      <div class="formula">
+        <div><strong>p = s a + t b + u c</strong></div>
+        <div id="coordText"></div>
+        <div id="stageText"></div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">スライダー</div>
+
+        <div class="slider-row">
+          <label for="sSlider"><span>s</span><strong id="sVal">1.0</strong></label>
+          <input id="sSlider" type="range" min="-1" max="2" step="0.1" value="1" />
+        </div>
+
+        <div class="slider-row">
+          <label for="tSlider"><span>t</span><strong id="tVal">1.0</strong></label>
+          <input id="tSlider" type="range" min="-1" max="2" step="0.1" value="1" />
+        </div>
+
+        <div class="slider-row">
+          <label for="uSlider"><span>u</span><strong id="uVal">1.0</strong></label>
+          <input id="uSlider" type="range" min="-1" max="2" step="0.1" value="1" />
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">段階表示</div>
+        <div class="btns">
+          <button data-stage="1">① a方向</button>
+          <button data-stage="2">② a + b</button>
+          <button data-stage="3">③ a + b + c</button>
+          <button id="resetStage">リセット</button>
+        </div>
+        <div class="hint">
+          薄い矢印と薄い箱は <strong>s=t=u=1</strong> の見本です。<br>
+          濃い矢印が今の値です。
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">表示</div>
+        <div class="btns">
+          <button id="toggleBox">平行六面体 ON/OFF</button>
+          <button id="toggleReference">見本 ON/OFF</button>
+          <button id="resetView">視点リセット</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="group-title">色の意味</div>
+        <div class="legend">
+          <div><span style="color:#d33;">■</span> 赤：<strong>s a</strong></div>
+          <div><span style="color:#2c9a45;">■</span> 緑：<strong>t b</strong></div>
+          <div><span style="color:#2f5bff;">■</span> 青：<strong>u c</strong></div>
+          <div><span style="color:#111;">■</span> 黒：<strong>p</strong></div>
+          <div><span style="color:#9aa7ba;">■</span> 薄色：<strong>s=t=u=1 の見本</strong></div>
+        </div>
+      </div>
+
+      <div class="small">
+        緑の <strong>b</strong> は、原点からの基底ベクトルも薄く表示しています。<br>
+        それを平行移動して L→M に置いたものが、分解で使う緑の矢印です。
+      </div>
+    </div>
+
+    <div id="sceneWrap">
+      <div id="scene"></div>
+      <div class="overlay">
+        <div><strong>見方</strong></div>
+        <div>O → L が <span style="color:#d33;"><strong>s a</strong></span></div>
+        <div>L → M が <span style="color:#2c9a45;"><strong>t b</strong></span></div>
+        <div>M → P が <span style="color:#2f5bff;"><strong>u c</strong></span></div>
+        <div>O → P が <span style="color:#111;"><strong>p</strong></span></div>
+        <div style="color:#7f8da3;">薄い図は s=t=u=1 の見本</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js?module';
+    import { OrbitControls } from 'https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js?module';
+
+    const sceneEl = document.getElementById("scene");
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf5f7fb);
+
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      sceneEl.clientWidth / sceneEl.clientHeight,
+      0.1,
+      100
+    );
+    camera.position.set(8, 7, 10);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(sceneEl.clientWidth, sceneEl.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    sceneEl.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(2.0, 1.4, 1.4);
+    controls.enableDamping = true;
+    controls.update();
+
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
+
+    const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+    dir.position.set(8, 12, 10);
+    scene.add(dir);
+
+    // a,b が底面、c が高さ
+    const a = new THREE.Vector3(3, 0, 0);
+    const b = new THREE.Vector3(0, 0, 3);
+    const c = new THREE.Vector3(0, 3, 0);
+
+    scene.add(new THREE.AxesHelper(4.5));
+
+    const grid = new THREE.GridHelper(12, 12, 0xb7c1d1, 0xd8dfeb);
+    scene.add(grid);
+
+    function makeArrow(color, headLength = 0.35, headWidth = 0.2) {
+      const arrow = new THREE.ArrowHelper(
+        new THREE.Vector3(1, 0, 0),
+        new THREE.Vector3(0, 0, 0),
+        1,
+        color,
+        headLength,
+        headWidth
+      );
+      scene.add(arrow);
+      return arrow;
+    }
+
+    const arrowA  = makeArrow(0xd33a2c, 0.38, 0.22);
+    const arrowB  = makeArrow(0x2c9a45, 0.38, 0.22);
+    const arrowC  = makeArrow(0x2f5bff, 0.38, 0.22);
+    const arrowP  = makeArrow(0x111111, 0.45, 0.26);
+    const arrowB0 = makeArrow(0x8bcf98, 0.30, 0.18);
+
+    // 見本（s=t=u=1）
+    const refArrowA  = makeArrow(0xf2b6b1, 0.30, 0.18);
+    const refArrowB  = makeArrow(0xb8dfc0, 0.30, 0.18);
+    const refArrowC  = makeArrow(0xb8c6ff, 0.30, 0.18);
+    const refArrowP  = makeArrow(0x9aa7ba, 0.34, 0.20);
+    const refArrowB0 = makeArrow(0xcfead4, 0.24, 0.15);
+
+    function makePoint(color, r = 0.08, opacity = 1) {
+      const mesh = new THREE.Mesh(
+        new THREE.SphereGeometry(r, 24, 24),
+        new THREE.MeshStandardMaterial({
+          color,
+          transparent: opacity < 1,
+          opacity
+        })
+      );
+      scene.add(mesh);
+      return mesh;
+    }
+
+    const pointO = makePoint(0x333333, 0.10);
+    const pointL = makePoint(0xd33a2c, 0.11);
+    const pointM = makePoint(0x2c9a45, 0.11);
+    const pointP = makePoint(0x111111, 0.14);
+
+    const refPointL = makePoint(0xf2b6b1, 0.08, 0.7);
+    const refPointM = makePoint(0xb8dfc0, 0.08, 0.7);
+    const refPointP = makePoint(0x9aa7ba, 0.10, 0.8);
+
+    const boxEdgesMaterial = new THREE.LineBasicMaterial({
+      color: 0x7f8da3,
+      transparent: true,
+      opacity: 0.75
+    });
+
+    const boxFaceMaterial = new THREE.MeshBasicMaterial({
+      color: 0xa7b6cc,
+      transparent: true,
+      opacity: 0.14,
+      side: THREE.DoubleSide
+    });
+
+    const boxGroup = new THREE.Group();
+    scene.add(boxGroup);
+
+    const refBoxEdgesMaterial = new THREE.LineBasicMaterial({
+      color: 0xbac4d3,
+      transparent: true,
+      opacity: 0.75
+    });
+
+    const refBoxFaceMaterial = new THREE.MeshBasicMaterial({
+      color: 0xdfe5ef,
+      transparent: true,
+      opacity: 0.10,
+      side: THREE.DoubleSide
+    });
+
+    const refBoxGroup = new THREE.Group();
+    scene.add(refBoxGroup);
+
+    function clearGroup(group) {
+      while (group.children.length) {
+        const child = group.children.pop();
+        if (child.geometry) child.geometry.dispose();
+      }
+    }
+
+    function addEdge(group, material, p1, p2) {
+      const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+      group.add(new THREE.Line(geom, material));
+    }
+
+    function addFace(group, material, p1, p2, p3, p4) {
+      const geom = new THREE.BufferGeometry();
+      const vertices = new Float32Array([
+        p1.x, p1.y, p1.z,
+        p2.x, p2.y, p2.z,
+        p3.x, p3.y, p3.z,
+        p1.x, p1.y, p1.z,
+        p3.x, p3.y, p3.z,
+        p4.x, p4.y, p4.z
+      ]);
+      geom.setAttribute("position", new THREE.BufferAttribute(vertices, 3));
+      geom.computeVertexNormals();
+      group.add(new THREE.Mesh(geom, material));
+    }
+
+    function rebuildBoxToGroup(group, edgeMat, faceMat, s, t, u) {
+      clearGroup(group);
+
+      const O = new THREE.Vector3(0, 0, 0);
+      const A = a.clone().multiplyScalar(s);
+      const B = b.clone().multiplyScalar(t);
+      const C = c.clone().multiplyScalar(u);
+      const AB = A.clone().add(B);
+      const AC = A.clone().add(C);
+      const BC = B.clone().add(C);
+      const ABC = A.clone().add(B).add(C);
+
+      addEdge(group, edgeMat, O, A); addEdge(group, edgeMat, O, B); addEdge(group, edgeMat, O, C);
+      addEdge(group, edgeMat, A, AB); addEdge(group, edgeMat, A, AC);
+      addEdge(group, edgeMat, B, AB); addEdge(group, edgeMat, B, BC);
+      addEdge(group, edgeMat, C, AC); addEdge(group, edgeMat, C, BC);
+      addEdge(group, edgeMat, AB, ABC); addEdge(group, edgeMat, AC, ABC); addEdge(group, edgeMat, BC, ABC);
+
+      addFace(group, faceMat, O, A, AB, B);
+      addFace(group, faceMat, O, A, AC, C);
+      addFace(group, faceMat, O, B, BC, C);
+      addFace(group, faceMat, A, AB, ABC, AC);
+      addFace(group, faceMat, B, AB, ABC, BC);
+      addFace(group, faceMat, C, AC, ABC, BC);
+    }
+
+    function setArrow(arrow, start, vec, headLength, headWidth) {
+      const len = vec.length();
+      if (len < 1e-6) {
+        arrow.visible = false;
+        return;
+      }
+      arrow.visible = true;
+      arrow.position.copy(start);
+      arrow.setDirection(vec.clone().normalize());
+      arrow.setLength(len, headLength, headWidth);
+    }
+
+    function makeLabel(text, color, scale = 1.2, opacity = 1) {
+      const canvas = document.createElement("canvas");
+      canvas.width = 256;
+      canvas.height = 128;
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "bold 42px sans-serif";
+      ctx.fillStyle = color;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.needsUpdate = true;
+
+      const material = new THREE.SpriteMaterial({
+        map: texture,
+        transparent: true,
+        opacity
+      });
+      const sprite = new THREE.Sprite(material);
+      sprite.scale.set(scale, scale * 0.5, 1);
+      scene.add(sprite);
+      return sprite;
+    }
+
+    const labelSa = makeLabel("sa", "#d33a2c");
+    const labelTb = makeLabel("tb", "#2c9a45");
+    const labelUc = makeLabel("uc", "#2f5bff");
+    const labelP  = makeLabel("p", "#111111");
+    const labelB0 = makeLabel("b", "#8bcf98");
+
+    const refLabelSa = makeLabel("sa= a", "#e4a6a2", 1.0, 0.8);
+    const refLabelTb = makeLabel("tb= b", "#a8d2b0", 1.0, 0.8);
+    const refLabelUc = makeLabel("uc= c", "#aebcff", 1.0, 0.8);
+    const refLabelP  = makeLabel("p(1,1,1)", "#8f9db1", 1.0, 0.85);
+
+    const sSlider = document.getElementById("sSlider");
+    const tSlider = document.getElementById("tSlider");
+    const uSlider = document.getElementById("uSlider");
+    const sVal = document.getElementById("sVal");
+    const tVal = document.getElementById("tVal");
+    const uVal = document.getElementById("uVal");
+    const coordText = document.getElementById("coordText");
+    const stageText = document.getElementById("stageText");
+
+    let stage = 3;
+    let showBox = true;
+    let showReference = true;
+
+    function updateScene() {
+      const s = parseFloat(sSlider.value);
+      const t = parseFloat(tSlider.value);
+      const u = parseFloat(uSlider.value);
+
+      sVal.textContent = s.toFixed(1);
+      tVal.textContent = t.toFixed(1);
+      uVal.textContent = u.toFixed(1);
+
+      const O = new THREE.Vector3(0, 0, 0);
+      const L = a.clone().multiplyScalar(s);
+      const M = L.clone().add(b.clone().multiplyScalar(t));
+      const P = M.clone().add(c.clone().multiplyScalar(u));
+      const B0 = b.clone().multiplyScalar(t);
+
+      const refL = a.clone();
+      const refM = a.clone().add(b);
+      const refP = a.clone().add(b).add(c);
+      const refB0 = b.clone();
+
+      pointO.position.copy(O);
+      pointL.position.copy(L);
+      pointM.position.copy(M);
+      pointP.position.copy(P);
+
+      refPointL.position.copy(refL);
+      refPointM.position.copy(refM);
+      refPointP.position.copy(refP);
+
+      pointL.visible = stage >= 1;
+      pointM.visible = stage >= 2;
+      pointP.visible = stage >= 1;
+
+      refPointL.visible = showReference && stage >= 1;
+      refPointM.visible = showReference && stage >= 2;
+      refPointP.visible = showReference && stage >= 1;
+
+      setArrow(arrowA,  O, L.clone(),            0.38, 0.22);
+      setArrow(arrowB,  L, M.clone().sub(L),     0.38, 0.22);
+      setArrow(arrowC,  M, P.clone().sub(M),     0.38, 0.22);
+      setArrow(arrowP,  O, P.clone(),            0.45, 0.26);
+      setArrow(arrowB0, O, B0.clone(),           0.30, 0.18);
+
+      setArrow(refArrowA,  O, refL.clone(),           0.30, 0.18);
+      setArrow(refArrowB,  refL, refM.clone().sub(refL), 0.30, 0.18);
+      setArrow(refArrowC,  refM, refP.clone().sub(refM), 0.30, 0.18);
+      setArrow(refArrowP,  O, refP.clone(),           0.34, 0.20);
+      setArrow(refArrowB0, O, refB0.clone(),          0.24, 0.15);
+
+      arrowA.visible  = stage >= 1 && arrowA.visible;
+      arrowB.visible  = stage >= 2 && arrowB.visible;
+      arrowC.visible  = stage >= 3 && arrowC.visible;
+      arrowP.visible  = stage >= 1 && arrowP.visible;
+      arrowB0.visible = stage >= 2 && arrowB0.visible;
+
+      refArrowA.visible  = showReference && stage >= 1 && refArrowA.visible;
+      refArrowB.visible  = showReference && stage >= 2 && refArrowB.visible;
+      refArrowC.visible  = showReference && stage >= 3 && refArrowC.visible;
+      refArrowP.visible  = showReference && stage >= 1 && refArrowP.visible;
+      refArrowB0.visible = showReference && stage >= 2 && refArrowB0.visible;
+
+      labelSa.position.copy(O.clone().lerp(L, 0.55).add(new THREE.Vector3(0, 0.18, 0)));
+      labelTb.position.copy(L.clone().lerp(M, 0.55).add(new THREE.Vector3(0, 0.18, 0)));
+      labelUc.position.copy(M.clone().lerp(P, 0.55).add(new THREE.Vector3(0, 0.18, 0)));
+      labelP.position.copy(O.clone().lerp(P, 0.55).add(new THREE.Vector3(0.15, 0.18, 0)));
+      labelB0.position.copy(O.clone().lerp(B0, 0.55).add(new THREE.Vector3(0, 0.12, 0)));
+
+      refLabelSa.position.copy(O.clone().lerp(refL, 0.60).add(new THREE.Vector3(0, -0.10, 0)));
+      refLabelTb.position.copy(refL.clone().lerp(refM, 0.60).add(new THREE.Vector3(0, -0.10, 0)));
+      refLabelUc.position.copy(refM.clone().lerp(refP, 0.60).add(new THREE.Vector3(0.15, 0, 0)));
+      refLabelP.position.copy(O.clone().lerp(refP, 0.60).add(new THREE.Vector3(0.18, -0.12, 0)));
+
+      labelSa.visible = stage >= 1;
+      labelTb.visible = stage >= 2;
+      labelUc.visible = stage >= 3;
+      labelP.visible  = stage >= 1;
+      labelB0.visible = stage >= 2;
+
+      refLabelSa.visible = showReference && stage >= 1;
+      refLabelTb.visible = showReference && stage >= 2;
+      refLabelUc.visible = showReference && stage >= 3;
+      refLabelP.visible  = showReference && stage >= 1;
+
+      rebuildBoxToGroup(boxGroup, boxEdgesMaterial, boxFaceMaterial, s, t, u);
+      boxGroup.visible = showBox;
+
+      rebuildBoxToGroup(refBoxGroup, refBoxEdgesMaterial, refBoxFaceMaterial, 1, 1, 1);
+      refBoxGroup.visible = showBox && showReference;
+
+      coordText.textContent =
+        `今の p = (${(3 * s).toFixed(1)}, ${(3 * u).toFixed(1)}, ${(3 * t).toFixed(1)}) ／ 見本は (3.0, 3.0, 3.0)`;
+
+      if (stage === 0) {
+        stageText.textContent = "段階表示：まだ表示していません";
+      } else if (stage === 1) {
+        stageText.textContent = "段階表示：まず s a を見る";
+      } else if (stage === 2) {
+        stageText.textContent = "段階表示：次に t b を底面に足す";
+      } else {
+        stageText.textContent = "段階表示：最後に u c を高さとして足して p になる";
+      }
+    }
+
+    [sSlider, tSlider, uSlider].forEach(sl => {
+      sl.addEventListener("input", updateScene);
+    });
+
+    document.querySelectorAll("button[data-stage]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        stage = Number(btn.dataset.stage);
+        updateScene();
+      });
+    });
+
+    document.getElementById("resetStage").addEventListener("click", () => {
+      stage = 0;
+      updateScene();
+    });
+
+    document.getElementById("toggleBox").addEventListener("click", () => {
+      showBox = !showBox;
+      updateScene();
+    });
+
+    document.getElementById("toggleReference").addEventListener("click", () => {
+      showReference = !showReference;
+      updateScene();
+    });
+
+    document.getElementById("resetView").addEventListener("click", () => {
+      camera.position.set(8, 7, 10);
+      controls.target.set(2.0, 1.4, 1.4);
+      controls.update();
+    });
+
+    function onResize() {
+      const w = sceneEl.clientWidth;
+      const h = sceneEl.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    }
+
+    window.addEventListener("resize", onResize);
+    onResize();
+    updateScene();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+  </script>
+</body>
+</html>
