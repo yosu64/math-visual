@@ -56,3 +56,16 @@
 :END:
 関数 \\(y=x^2\\) の定積分を、長方形の和を使って視覚的に理解する教材。
 分割数 \\(n\\) を変えながら、区分求積法による近似と定積分への近づき方を確認できる。
+
+** 円柱の斜め切断
+:PROPERTIES:
+:PATH: ./数III/cylinder-slice-integral.html
+:TEXTBOOK: 深進数学III
+:PAGE: 159
+:APP: Three.js
+:APP_URL: https://threejs.org/
+:PUBLISHED: 2026-04-16
+:UPDATED: 2026-04-16
+:END:
+円柱を斜めの平面で切ったときの断面積 \\(S(x)\\) と体積の積分を、立体表示で視覚的に理解する教材。
+切断面の移動、断面の表示、薄片の積み上げを通して、\\(V=\\int_{-r}^{r} S(x)\\,dx\\) の意味を確認できる。

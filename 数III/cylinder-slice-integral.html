@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>円柱の斜め切断（問題文一致・軽量版）</title>
+
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  background: #fff;
+}
+
+#ui {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  background: rgba(255,255,255,0.95);
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  width: 330px;
+  z-index: 10;
+  font-size: 14px;
+}
+
+#ui hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+
+#ui button {
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+#ui button:hover {
+  background: #efefef;
+}
+
+#info {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  background: rgba(255,255,255,0.95);
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  width: 360px;
+  z-index: 10;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+}
+
+#hint {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  background: rgba(255,255,255,0.92);
+  padding: 8px 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  font-size: 12px;
+  z-index: 10;
+}
+</style>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+
+<body>
+
+<div id="ui">
+  <b>モード</b><br>
+  <label><input type="radio" name="mode" id="modeSplit" checked> ① 切断</label><br>
+  <label><input type="radio" name="mode" id="modeSlice"> ② 断面</label>
+
+  <hr>
+
+  <label><input id="autoCut" type="checkbox"> 切断アニメーション</label><br>
+  <label><input id="autoSlice" type="checkbox"> 断面アニメーション</label>
+
+  <hr>
+
+  <b>x</b><br>
+  <input id="xSlider" type="range" min="-2" max="2" step="0.001" value="0" style="width:100%;">
+  <div id="xLabel">x = 0.000</div>
+
+  <hr>
+
+  <label><input id="showSlices" type="checkbox"> 薄片を表示</label><br>
+  <label><input id="showPreview" type="checkbox" checked> 完成形を表示</label><br>
+  <label><input id="showPlane" type="checkbox" checked> 切断平面を表示</label>
+
+  <hr>
+
+  <button id="resetView">位置リセット</button>
+</div>
+
+<div id="info">
+  <b>この問題の見方</b>
+  <div class="mono">断面の面積  S(x) = 1/2 (r² - x²)
+体積        V = ∫[-r,r] S(x) dx</div>
+  <hr>
+  <div id="dynamicText" class="mono"></div>
+</div>
+
+<div id="hint">左ドラッグで回転 / ホイールで拡大縮小 / 右ドラッグで平行移動</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const R = 2;
+
+// ========================================
+// Scene / Camera / Renderer
+// ========================================
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+
+const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.up.set(0, 0, 1);
+camera.position.set(6.4, -7.4, 4.2);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.localClippingEnabled = true;
+document.body.appendChild(renderer.domElement);
+
+// ========================================
+// Controls
+// ========================================
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 0.55, 1.0);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.maxPolarAngle = Math.PI / 2 - 0.05;
+controls.minDistance = 4;
+controls.maxDistance = 20;
+controls.update();
+controls.saveState();
+
+// ========================================
+// UI
+// ========================================
+const modeSplit = document.getElementById('modeSplit');
+const modeSlice = document.getElementById('modeSlice');
+const autoCut = document.getElementById('autoCut');
+const autoSlice = document.getElementById('autoSlice');
+const slider = document.getElementById('xSlider');
+const xLabel = document.getElementById('xLabel');
+const showSlices = document.getElementById('showSlices');
+const showPreview = document.getElementById('showPreview');
+const showPlane = document.getElementById('showPlane');
+const resetView = document.getElementById('resetView');
+const dynamicText = document.getElementById('dynamicText');
+
+// ========================================
+// Lights
+// ========================================
+scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.0);
+keyLight.position.set(5, -5, 8);
+scene.add(keyLight);
+
+// ========================================
+// Materials
+// ========================================
+const matWanted = new THREE.MeshPhongMaterial({
+  color: 0x2dbb5f,
+  opacity: 0.60,
+  transparent: true,
+  side: THREE.DoubleSide
+});
+
+const matDiscard = new THREE.MeshPhongMaterial({
+  color: 0xbfc8d6,
+  opacity: 0.08,
+  transparent: true,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+
+const matPlane = new THREE.MeshPhongMaterial({
+  color: 0x4f7dff,
+  opacity: 0.18,
+  transparent: true,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+
+const matSection = new THREE.MeshPhongMaterial({
+  color: 0xffe100,
+  emissive: 0x665500,
+  opacity: 0.96,
+  transparent: true,
+  side: THREE.DoubleSide
+});
+
+const matSlice = new THREE.MeshPhongMaterial({
+  color: 0xd94b3d,
+  opacity: 0.82,
+  transparent: true,
+  side: THREE.DoubleSide
+});
+
+const matPreview = new THREE.MeshPhongMaterial({
+  color: 0x2dbb5f,
+  opacity: 0.42,
+  transparent: true,
+  side: THREE.DoubleSide,
+  depthWrite: false
+});
+
+// ========================================
+// Helpers
+// ========================================
+function sectionLength(x) {
+  return Math.sqrt(Math.max(0, R * R - x * x));
+}
+
+function disposeMesh(mesh) {
+  if (!mesh) return;
+  if (mesh.geometry) mesh.geometry.dispose();
+  scene.remove(mesh);
+}
+
+function disposeGroup(group) {
+  while (group.children.length > 0) {
+    const child = group.children.pop();
+    if (child.geometry) child.geometry.dispose();
+    group.remove(child);
+  }
+}
+
+// ========================================
+// Cutting plane z = y + s
+// ========================================
+const movingWantedPlane = new THREE.Plane(
+  new THREE.Vector3(0, 1, -1).normalize(),
+  0
+);
+const movingDiscardPlane = movingWantedPlane.clone().negate();
+
+const planeMesh = new THREE.Mesh(
+  new THREE.PlaneGeometry(6, 6),
+  matPlane
+);
+scene.add(planeMesh);
+
+function updatePlaneVisual(s) {
+  planeMesh.rotation.x = Math.PI / 4;
+  planeMesh.position.set(0, -s / 2, s / 2);
+}
+
+function updateMovingClipPlane(s) {
+  movingWantedPlane.constant = s / Math.sqrt(2);
+  movingDiscardPlane.copy(movingWantedPlane).negate();
+  updatePlaneVisual(s);
+}
+
+// ========================================
+// Stage 1 cylinder
+// x^2 + y^2 <= r^2, 0 <= z <= 2r
+// center = (0,0,r)
+// ========================================
+const cylinderGeo = new THREE.CylinderGeometry(R, R, 2 * R, 96, 1, false);
+
+const splitWantedMesh = new THREE.Mesh(
+  cylinderGeo,
+  matWanted.clone()
+);
+splitWantedMesh.material.clippingPlanes = [movingWantedPlane];
+
+const splitDiscardMesh = new THREE.Mesh(
+  cylinderGeo,
+  matDiscard.clone()
+);
+splitDiscardMesh.material.clippingPlanes = [movingDiscardPlane];
+
+splitWantedMesh.rotation.x = Math.PI / 2;
+splitDiscardMesh.rotation.x = Math.PI / 2;
+splitWantedMesh.position.set(0, 0, R);
+splitDiscardMesh.position.set(0, 0, R);
+
+scene.add(splitWantedMesh, splitDiscardMesh);
+
+// ========================================
+// Stage 2 exact green solid
+// Region: x^2 + y^2 <= r^2, 0 <= z <= y
+// Build boundary surfaces directly
+// ========================================
+function buildWantedSolidGeometry(nx = 64, nt = 64, nz = 20) {
+  const positions = [];
+  const indices = [];
+  let offset = 0;
+
+  function pushTri(a, b, c) {
+    positions.push(...a, ...b, ...c);
+    indices.push(offset, offset + 1, offset + 2);
+    offset += 3;
+  }
+
+  function pushQuad(a, b, c, d) {
+    pushTri(a, b, c);
+    pushTri(a, c, d);
+  }
+
+  // ------------------------------------
+  // Bottom half-disk: z=0, y>=0
+  // parameterized by x in [-R,R], y in [0, sqrt(R^2-x^2)]
+  // ------------------------------------
+  for (let i = 0; i < nx; i++) {
+    const x0 = -R + (2 * R * i) / nx;
+    const x1 = -R + (2 * R * (i + 1)) / nx;
+    const y0m = sectionLength(x0);
+    const y1m = sectionLength(x1);
+
+    for (let j = 0; j < nt; j++) {
+      const t0 = j / nt;
+      const t1 = (j + 1) / nt;
+
+      const a = [x0, y0m * t0, 0];
+      const b = [x1, y1m * t0, 0];
+      const c = [x1, y1m * t1, 0];
+      const d = [x0, y0m * t1, 0];
+
+      pushQuad(a, b, c, d);
+    }
+  }
+
+  // ------------------------------------
+  // Top surface: z=y over half-disk
+  // ------------------------------------
+  for (let i = 0; i < nx; i++) {
+    const x0 = -R + (2 * R * i) / nx;
+    const x1 = -R + (2 * R * (i + 1)) / nx;
+    const y0m = sectionLength(x0);
+    const y1m = sectionLength(x1);
+
+    for (let j = 0; j < nt; j++) {
+      const t0 = j / nt;
+      const t1 = (j + 1) / nt;
+
+      const a = [x0, y0m * t0, y0m * t0];
+      const b = [x1, y1m * t0, y1m * t0];
+      const c = [x1, y1m * t1, y1m * t1];
+      const d = [x0, y0m * t1, y0m * t1];
+
+      // reverse orientation for outward normal
+      pushQuad(a, d, c, b);
+    }
+  }
+
+  // ------------------------------------
+  // Cylindrical side: x^2 + y^2 = R^2, y>=0, 0<=z<=y
+  // theta from 0 to pi
+  // ------------------------------------
+  for (let i = 0; i < nt; i++) {
+    const th0 = Math.PI * i / nt;
+    const th1 = Math.PI * (i + 1) / nt;
+
+    const x0 = R * Math.cos(th0);
+    const y0 = R * Math.sin(th0);
+    const x1 = R * Math.cos(th1);
+    const y1 = R * Math.sin(th1);
+
+    for (let k = 0; k < nz; k++) {
+      const u0 = k / nz;
+      const u1 = (k + 1) / nz;
+
+      const a = [x0, y0, y0 * u0];
+      const b = [x1, y1, y1 * u0];
+      const c = [x1, y1, y1 * u1];
+      const d = [x0, y0, y0 * u1];
+
+      pushQuad(a, b, c, d);
+    }
+  }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+const exactWantedSolid = new THREE.Mesh(
+  buildWantedSolidGeometry(),
+  matPreview
+);
+scene.add(exactWantedSolid);
+
+// keep a ghost of the removed part at the final plane z=y
+const finalDiscardPlane = new THREE.Plane(
+  new THREE.Vector3(0, 1, -1).normalize(),
+  0
+).negate();
+
+const exactDiscardedMesh = new THREE.Mesh(
+  cylinderGeo,
+  new THREE.MeshPhongMaterial({
+    color: 0xbfc8d6,
+    opacity: 0.06,
+    transparent: true,
+    clippingPlanes: [finalDiscardPlane],
+    side: THREE.DoubleSide,
+    depthWrite: false
+  })
+);
+exactDiscardedMesh.rotation.x = Math.PI / 2;
+exactDiscardedMesh.position.set(0, 0, R);
+scene.add(exactDiscardedMesh);
+
+// ========================================
+// Origin and x-axis
+// ========================================
+const origin = new THREE.Mesh(
+  new THREE.SphereGeometry(0.08, 24, 16),
+  new THREE.MeshPhongMaterial({ color: 0xff0000 })
+);
+origin.position.set(0, 0, 0);
+scene.add(origin);
+
+const xAxis = new THREE.Line(
+  new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-R * 1.2, 0, 0),
+    new THREE.Vector3(R * 1.2, 0, 0)
+  ]),
+  new THREE.LineBasicMaterial({ color: 0x111111 })
+);
+scene.add(xAxis);
+
+// ========================================
+// Stage 2 section and slices
+// ========================================
+const sliceGroup = new THREE.Group();
+scene.add(sliceGroup);
+
+let sectionMesh = null;
+
+function makeSectionGeometry(x) {
+  const l = sectionLength(x);
+  const vertices = new Float32Array([
+    x, 0, 0,
+    x, l, 0,
+    x, l, l
+  ]);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+  geo.setIndex([0, 1, 2]);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function updateSection(x) {
+  disposeMesh(sectionMesh);
+
+  sectionMesh = new THREE.Mesh(
+    makeSectionGeometry(x),
+    matSection
+  );
+  scene.add(sectionMesh);
+}
+
+function makeSlabGeometry(x0, x1) {
+  const xm = 0.5 * (x0 + x1);
+  const l = sectionLength(xm);
+
+  const A0 = [x0, 0, 0];
+  const B0 = [x0, l, 0];
+  const C0 = [x0, l, l];
+
+  const A1 = [x1, 0, 0];
+  const B1 = [x1, l, 0];
+  const C1 = [x1, l, l];
+
+  const verts = new Float32Array([
+    ...A0, ...B0, ...C0,
+    ...A1, ...B1, ...C1
+  ]);
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+  geo.setIndex([
+    0, 1, 2,
+    3, 5, 4,
+    0, 3, 4,  0, 4, 1,
+    1, 4, 5,  1, 5, 2,
+    2, 5, 3,  2, 3, 0
+  ]);
+  geo.computeVertexNormals();
+  return geo;
+}
+
+function buildSlices(currentX) {
+  disposeGroup(sliceGroup);
+
+  const n = 36;
+  const dx = 2 * R / n;
+
+  for (let i = 0; i < n; i++) {
+    const x0 = -R + i * dx;
+    const x1 = x0 + dx;
+    const xm = 0.5 * (x0 + x1);
+
+    if (xm > currentX) continue;
+
+    const mesh = new THREE.Mesh(
+      makeSlabGeometry(x0, x1),
+      matSlice
+    );
+    sliceGroup.add(mesh);
+  }
+}
+
+// ========================================
+// Text
+// ========================================
+function updateText(x) {
+  const l = sectionLength(x);
+  const area = 0.5 * (R * R - x * x);
+  xLabel.textContent = `x = ${x.toFixed(3)}`;
+
+  if (modeSplit.checked) {
+    dynamicText.textContent =
+`第1段階: 平面 z = y で切る
+緑: 求める立体
+灰: 切り取って使わない部分
+最大高さは r`;
+  } else {
+    dynamicText.textContent =
+`第2段階: 断面を集める
+A = (x,0,0)
+B = (x,√(r²-x²),0)
+C = (x,√(r²-x²),√(r²-x²))
+
+r = ${R.toFixed(3)}
+x = ${x.toFixed(3)}
+√(r² - x²) = ${l.toFixed(3)}
+S(x) = 1/2 (r² - x²) = ${area.toFixed(3)}`;
+  }
+}
+
+// ========================================
+// Scene update
+// ========================================
+function updateScene() {
+  const x = parseFloat(slider.value);
+
+  if (modeSplit.checked) {
+    splitWantedMesh.visible = true;
+    splitDiscardMesh.visible = true;
+    planeMesh.visible = showPlane.checked;
+
+    exactWantedSolid.visible = false;
+    exactDiscardedMesh.visible = false;
+
+    disposeGroup(sliceGroup);
+    disposeMesh(sectionMesh);
+    sectionMesh = null;
+  }
+
+  if (modeSlice.checked) {
+    splitWantedMesh.visible = false;
+    splitDiscardMesh.visible = false;
+    planeMesh.visible = showPlane.checked;
+
+    exactWantedSolid.visible = showPreview.checked;
+    exactDiscardedMesh.visible = true;
+
+    updateSection(x);
+
+    if (showSlices.checked) {
+      buildSlices(x);
+    } else {
+      disposeGroup(sliceGroup);
+    }
+  }
+
+  updateText(x);
+}
+
+// ========================================
+// Animations
+// ========================================
+let cutting = false;
+let cutT = 0;
+
+let slicing = false;
+let sliceT = 0;
+
+function animateCutPlane() {
+  const sStart = R * 1.2;
+  const sEnd = 0.0;
+  const s = sStart + (sEnd - sStart) * cutT;
+  updateMovingClipPlane(s);
+}
+
+function animateSliceBuild() {
+  const xStart = -R;
+  const xEnd = R;
+  const x = xStart + (xEnd - xStart) * sliceT;
+
+  slider.value = x.toFixed(3);
+  updateSection(x);
+  buildSlices(x);
+  updateText(x);
+}
+
+// ========================================
+// Events
+// ========================================
+slider.addEventListener('input', () => {
+  slicing = false;
+  autoSlice.checked = false;
+  updateScene();
+});
+
+showSlices.addEventListener('change', updateScene);
+showPreview.addEventListener('change', updateScene);
+showPlane.addEventListener('change', updateScene);
+
+modeSplit.addEventListener('change', () => {
+  slicing = false;
+  autoSlice.checked = false;
+  updateScene();
+});
+
+modeSlice.addEventListener('change', updateScene);
+
+autoCut.addEventListener('change', () => {
+  cutting = autoCut.checked;
+  cutT = 0;
+  modeSplit.checked = true;
+  modeSlice.checked = false;
+  updateScene();
+});
+
+autoSlice.addEventListener('change', () => {
+  slicing = autoSlice.checked;
+  sliceT = 0;
+  modeSlice.checked = true;
+  modeSplit.checked = false;
+  showSlices.checked = true;
+  updateScene();
+});
+
+resetView.addEventListener('click', () => {
+  controls.reset();
+  controls.update();
+});
+
+// ========================================
+// Init
+// ========================================
+updateMovingClipPlane(R * 1.2);
+updateScene();
+
+// ========================================
+// Resize
+// ========================================
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ========================================
+// Loop
+// ========================================
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (cutting) {
+    cutT += 0.015;
+    if (cutT > 1) {
+      cutT = 1;
+      cutting = false;
+      autoCut.checked = false;
+    }
+    animateCutPlane();
+  }
+
+  if (slicing) {
+    sliceT += 0.01;
+    if (sliceT > 1) {
+      sliceT = 1;
+      slicing = false;
+      autoSlice.checked = false;
+    }
+    animateSliceBuild();
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>
