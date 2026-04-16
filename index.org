@@ -34,7 +34,7 @@
 :APP: Three.js
 :APP_URL: https://threejs.org/
 :PUBLISHED: 2026-04-15
-:UPDATED: 2026-04-15
+:UPDATED: 2026-04-16
 :END:
 ベクトル \\(\\vec{p}\\) を \\(s\\vec{a} + t\\vec{b} + u\\vec{c}\\) の合成として視覚的に理解する教材。
 スライダーで係数を動かしながら、空間での分解を確認できる。
