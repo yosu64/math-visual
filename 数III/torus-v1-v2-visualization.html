@@ -15,7 +15,7 @@ body {
   position: fixed;
   left: 10px;
   top: 10px;
-  width: 350px;
+  width: 360px;
   z-index: 10;
   background: rgba(255,255,255,0.96);
   padding: 12px;
@@ -38,19 +38,6 @@ body {
   font-size: 14px;
 }
 #ui button:hover { background: #efefef; }
-#info {
-  position: fixed;
-  right: 10px;
-  top: 10px;
-  width: 400px;
-  z-index: 10;
-  background: rgba(255,255,255,0.96);
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
-  font-size: 14px;
-  line-height: 1.7;
-}
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   white-space: pre-wrap;
@@ -150,23 +137,6 @@ body {
   </div>
 </div>
 
-<div id="info">
-  <div class="mono" id="dynamicText"></div>
-  <hr>
-  <b>式との対応</b>
-  <div class="mono">x² + (y - b)² = a²
-
-上半分: y = b + √(a² - x²)
-下半分: y = b - √(a² - x²)
-
-V₁ = π∫[-a,a] (b + √(a² - x²))² dx
-V₂ = π∫[-a,a] (b - √(a² - x²))² dx
-
-V = V₁ - V₂</div>
-  <hr>
-  
-</div>
-
 <div id="hint">左ドラッグで回転 / ホイールで拡大縮小 / 右ドラッグで平行移動</div>
 
 <script type="module">
@@ -219,7 +189,6 @@ const showCenterLine = document.getElementById('showCenterLine');
 const transparentBody = document.getElementById('transparentBody');
 const frontView = document.getElementById('frontView');
 const obliqueView = document.getElementById('obliqueView');
-const dynamicText = document.getElementById('dynamicText');
 
 // Lights
 scene.add(new THREE.AmbientLight(0xffffff, 1.15));
@@ -403,80 +372,7 @@ function makeStackedSolidAccurate(f, a, color, opacity, sweepDeg=360, dx=0.06) {
 }
 
 function updateText(R, r, deg) {
-  const p = circleCenterPosition(R, deg);
-  if (modeGenerate.checked) {
-    dynamicText.textContent =
-`回転角 θ = ${deg.toFixed(0)}°
-大きい半径 b = ${R.toFixed(1)}
-小さい半径 a = ${r.toFixed(2)}
-
-円の中心
-(0, ${p.y.toFixed(2)}, ${p.z.toFixed(2)})
-
-・濃い青の円が、今動いている円
-・薄い青の面が、すでに通った跡
-・円が通過した部分が少しずつ円環体(トーラス)になる`;
-  } else if (modeCircleOnly.checked) {
-    dynamicText.textContent =
-`回転角 θ = ${deg.toFixed(0)}
-大きい半径 b = ${R.toFixed(1)}
-
-・まず「円の中心」が軌道を1周する
-・その中心に半径 a の円が乗っている
-・円環体(トーラス)は、この円が回ってできる面`;
-  } else if (showV1Build.checked) {
-    dynamicText.textContent =
-`V₁ ができる様子（正確版）
-
-・x の範囲は最初から [-a, a] で固定
-・各 x の円盤の幅は一定
-・増えるのは回転角だけ
-・濃い青 = 今回している曲線
-・薄い青 = すでに通った跡`;
-  } else if (showV2Build.checked) {
-    dynamicText.textContent =
-`V₂ ができる様子（正確版）
-
-・x の範囲は最初から [-a, a] で固定
-・各 x の円盤の幅は一定
-・増えるのは回転角だけ
-・濃い灰 = 今回している曲線
-・薄い灰 = すでに通った跡`;
-  } else if (showV1.checked) {
-    dynamicText.textContent =
-`V₁ だけ
-
-・上半分を1回転してできる
-  外側の回転体
-・各 x で半径
-  b + √(a² - x²)
-  の円盤を並べた立体`;
-  } else if (showV2.checked) {
-    dynamicText.textContent =
-`V₂ だけ
-
-・下半分を1回転してできる
-  内側の回転体
-・各 x で半径
-  b - √(a² - x²)
-  の円盤を並べた立体`;
-  } else if (showBoth.checked) {
-    dynamicText.textContent =
-`V₁ と V₂ を重ねて表示
-
-青 = V₁（外側）
-灰 = V₂（内側）
-
-・2つとも中が詰まった立体
-・求めたい体積は V = V₁ − V₂`;
-  } else {
-    dynamicText.textContent =
-`V₁ − V₂（結果）
-
-・V₁ から V₂ を引いた結果が
-  円環体(トーラス)になる
-`;
-  }
+  // right panel removed
 }
 
 function rebuild() {
