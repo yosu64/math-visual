@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>円環体(トーラス)のできかた</title>
+<style>
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  background: #fff;
+}
+#ui {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  width: 350px;
+  z-index: 10;
+  background: rgba(255,255,255,0.96);
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  font-size: 14px;
+  line-height: 1.6;
+}
+#ui hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 10px 0;
+}
+#ui button {
+  border: 1px solid #ccc;
+  background: #f7f7f7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+#ui button:hover { background: #efefef; }
+#info {
+  position: fixed;
+  right: 10px;
+  top: 10px;
+  width: 400px;
+  z-index: 10;
+  background: rgba(255,255,255,0.96);
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+}
+#hint {
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  z-index: 10;
+  background: rgba(255,255,255,0.92);
+  padding: 8px 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  font-size: 12px;
+}
+.title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.blue { color: #2563eb; font-weight: 700; }
+.small { color: #555; font-size: 12px; }
+.row-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+.subbox {
+  display:none;
+  margin-top:8px;
+  padding:8px;
+  background:#f8fafc;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="ui">
+  <div class="title">円環体(トーラス)のできかた</div>
+  小さい円を <span class="blue">x軸のまわり</span> に回転させると、円環体(トーラス)ができます。<br>
+  画面中央の赤い点が回転の中心です。
+
+  <hr>
+
+  <b>表示モード</b><br>
+  <label><input type="radio" name="mode" id="modeGenerate" checked> ① 円環体(トーラス)の生成</label><br>
+  <label><input type="radio" name="mode" id="modeCircleOnly"> ② 動く円だけ見る</label><br>
+  <label><input type="radio" name="mode" id="modeVolumeIdea"> ③ V<sub>1</sub> − V<sub>2</sub> の考え方</label>
+
+  <div id="volumeSubmodeBox" class="subbox">
+    <b>V<sub>1</sub> − V<sub>2</sub> モードの表示</b><br>
+    <label><input type="radio" name="volmode" id="showV1Build" checked> V<sub>1</sub> ができる様子</label><br>
+    <label><input type="radio" name="volmode" id="showV2Build"> V<sub>2</sub> ができる様子</label><br>
+    <label><input type="radio" name="volmode" id="showV1"> V<sub>1</sub> だけ</label><br>
+    <label><input type="radio" name="volmode" id="showV2"> V<sub>2</sub> だけ</label><br>
+    <label><input type="radio" name="volmode" id="showBoth"> V<sub>1</sub> と V<sub>2</sub></label><br>
+    <label><input type="radio" name="volmode" id="showResult"> V<sub>1</sub> − V<sub>2</sub>（円環体(トーラス)）</label>
+  </div>
+
+  <hr>
+
+  <b>回転角 θ</b><br>
+  <input id="angleSlider" type="range" min="0" max="360" step="1" value="0" style="width:100%;">
+  <div id="angleLabel">θ = 0°</div>
+
+  <hr>
+
+  <b>パラメータ</b><br>
+  <label>b（大きい半径）</label><br>
+  <input id="bSlider" type="range" min="1.6" max="4.5" step="0.1" value="2.8" style="width:100%;">
+  <div id="bLabel">b = 2.8</div>
+  <label>a（小さい半径）</label><br>
+  <input id="aSlider" type="range" min="0.4" max="1.6" step="0.05" value="0.9" style="width:100%;">
+  <div id="aLabel">a = 0.90</div>
+
+  <hr>
+
+  <label><input id="autoRotate" type="checkbox"> 自動で回す</label><br>
+  <label><input id="showGhost" type="checkbox" checked> 完成した立体を薄く表示</label><br>
+  <label><input id="showAxis" type="checkbox" checked> x軸を表示</label><br>
+  <label><input id="showOrbit" type="checkbox" checked> 円の中心の軌道を表示</label><br>
+  <label><input id="showCenterLine" type="checkbox" checked> 中心から円の中心への線を表示</label><br>
+  <label><input id="transparentBody" type="checkbox"> 面を薄くする</label>
+
+  <hr>
+
+  <div class="row-buttons">
+    <button id="frontView">真横視点</button>
+    <button id="obliqueView">斜め視点</button>
+    
+  </div>
+</div>
+
+<div id="info">
+  <div class="mono" id="dynamicText"></div>
+  <hr>
+  <b>式との対応</b>
+  <div class="mono">x² + (y - b)² = a²
+
+上半分: y = b + √(a² - x²)
+下半分: y = b - √(a² - x²)
+
+V₁ = π∫[-a,a] (b + √(a² - x²))² dx
+V₂ = π∫[-a,a] (b - √(a² - x²))² dx
+
+V = V₁ - V₂</div>
+  <hr>
+  
+</div>
+
+<div id="hint">左ドラッグで回転 / ホイールで拡大縮小 / 右ドラッグで平行移動</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.enablePan = true;
+controls.minDistance = 4;
+controls.maxDistance = 30;
+
+// 上下方向の回転制限を外して、ぐりぐり回せるようにする
+controls.minPolarAngle = 0;
+controls.maxPolarAngle = Math.PI;
+controls.enableRotate = true;
+
+// UI refs
+const modeGenerate = document.getElementById('modeGenerate');
+const modeCircleOnly = document.getElementById('modeCircleOnly');
+const modeVolumeIdea = document.getElementById('modeVolumeIdea');
+const showV1Build = document.getElementById('showV1Build');
+const showV2Build = document.getElementById('showV2Build');
+const showV1 = document.getElementById('showV1');
+const showV2 = document.getElementById('showV2');
+const showBoth = document.getElementById('showBoth');
+const showResult = document.getElementById('showResult');
+const volumeSubmodeBox = document.getElementById('volumeSubmodeBox');
+const angleSlider = document.getElementById('angleSlider');
+const bSlider = document.getElementById('bSlider');
+const aSlider = document.getElementById('aSlider');
+const angleLabel = document.getElementById('angleLabel');
+const bLabel = document.getElementById('bLabel');
+const aLabel = document.getElementById('aLabel');
+const autoRotate = document.getElementById('autoRotate');
+const showGhost = document.getElementById('showGhost');
+const showAxis = document.getElementById('showAxis');
+const showOrbit = document.getElementById('showOrbit');
+const showCenterLine = document.getElementById('showCenterLine');
+const transparentBody = document.getElementById('transparentBody');
+const frontView = document.getElementById('frontView');
+const obliqueView = document.getElementById('obliqueView');
+const dynamicText = document.getElementById('dynamicText');
+
+// Lights
+scene.add(new THREE.AmbientLight(0xffffff, 1.15));
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+keyLight.position.set(7, -5, 8);
+scene.add(keyLight);
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.45);
+fillLight.position.set(-6, 5, 4);
+scene.add(fillLight);
+
+const root = new THREE.Group();
+scene.add(root);
+const helperGroup = new THREE.Group();
+const modelGroup = new THREE.Group();
+root.add(helperGroup);
+root.add(modelGroup);
+
+let refs = [];
+function track(obj, group) { group.add(obj); refs.push(obj); return obj; }
+function disposeObj(obj) {
+  if (!obj) return;
+  if (obj.parent) obj.parent.remove(obj);
+  if (obj.geometry) obj.geometry.dispose();
+  if (obj.material) {
+    if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+    else obj.material.dispose();
+  }
+}
+function clearTracked() {
+  for (const obj of refs) disposeObj(obj);
+  refs = [];
+}
+
+function setFrontView() {
+  camera.position.set(11.5, 0, 0);
+  camera.up.set(0, 0, 1);
+  controls.target.set(0, 0, 0);
+  controls.update();
+}
+function setObliqueView() {
+  camera.position.set(9.0, -7.4, 5.2);
+  camera.up.set(0, 0, 1);
+  controls.target.set(0, 0, 0);
+  controls.update();
+}
+function fitCamera(R, r) {
+  const radius = Math.max(4.2, R + r + 1.0);
+  const fov = THREE.MathUtils.degToRad(camera.fov);
+  const dist = radius / Math.sin(fov / 2);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  controls.target.set(0, 0, 0);
+  camera.position.copy(dir.multiplyScalar(dist * 1.10));
+  controls.update();
+}
+
+// Helpers
+function circleCenterPosition(R, deg) {
+  const theta = THREE.MathUtils.degToRad(deg);
+  return new THREE.Vector3(0, R * Math.cos(theta), R * Math.sin(theta));
+}
+function makeAxis(length = 7.0) {
+  const geo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-length, 0, 0),
+    new THREE.Vector3(length, 0, 0)
+  ]);
+  return new THREE.Line(geo, new THREE.LineBasicMaterial({ color: 0x222222 }));
+}
+function makeOrbit(R) {
+  const pts = [];
+  for (let i = 0; i <= 240; i++) {
+    const t = i / 240 * Math.PI * 2;
+    pts.push(new THREE.Vector3(0, R * Math.cos(t), R * Math.sin(t)));
+  }
+  const geo = new THREE.BufferGeometry().setFromPoints(pts);
+  const mat = new THREE.LineDashedMaterial({
+    color: 0x7fb0ff, dashSize: 0.14, gapSize: 0.10, transparent: true, opacity: 0.95
+  });
+  const line = new THREE.Line(geo, mat);
+  line.computeLineDistances();
+  return line;
+}
+function makeCenterDot() {
+  return new THREE.Mesh(
+    new THREE.SphereGeometry(0.09, 20, 16),
+    new THREE.MeshPhongMaterial({ color: 0xff2d20 })
+  );
+}
+function makeCenterToCircleLine(R, deg) {
+  const p = circleCenterPosition(R, deg);
+  const geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), p]);
+  const mat = new THREE.LineDashedMaterial({
+    color: 0x93c5fd, dashSize: 0.18, gapSize: 0.12, transparent: true, opacity: 0.95
+  });
+  const line = new THREE.Line(geo, mat);
+  line.computeLineDistances();
+  return line;
+}
+function makeCircleCenterDot(pos, color=0x2563eb, size=0.07) {
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(size, 20, 16),
+    new THREE.MeshPhongMaterial({ color })
+  );
+  mesh.position.copy(pos);
+  return mesh;
+}
+
+// Geometry
+function makeProfileCircleForTorus(R, r, deg, color=0x0b57d0) {
+  const pts = [];
+  const theta = THREE.MathUtils.degToRad(deg);
+  const ct = Math.cos(theta), st = Math.sin(theta);
+  for (let i = 0; i <= 180; i++) {
+    const phi = i / 180 * Math.PI * 2;
+    const x = r * Math.sin(phi);
+    const rr = R + r * Math.cos(phi);
+    const y = rr * ct;
+    const z = rr * st;
+    pts.push(new THREE.Vector3(x, y, z));
+  }
+  return new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color })
+  );
+}
+function makeProfileCurveForFunction(f, a, deg, color=0x0b57d0) {
+  const pts = [];
+  const theta = THREE.MathUtils.degToRad(-deg); // 生成部分と向きを合わせる
+  const ct = Math.cos(theta), st = Math.sin(theta);
+  for (let i = 0; i <= 180; i++) {
+    const x = -a + (2 * a * i) / 180;
+    const rad = f(x);
+    pts.push(new THREE.Vector3(x, rad * ct, rad * st));
+  }
+  return new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color })
+  );
+}
+function makePartialTorus(R, r, sweepDeg, opacity=0.36, color=0x7bb3ff) {
+  const geo = new THREE.TorusGeometry(R, r, 64, 220, THREE.MathUtils.degToRad(Math.max(0.2, sweepDeg)));
+  const mat = new THREE.MeshPhongMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.y = Math.PI / 2;
+  return mesh;
+}
+function makeCompleteTorus(R, r, opacity=0.10, color=0xbec9d8) {
+  const geo = new THREE.TorusGeometry(R, r, 48, 220);
+  const mat = new THREE.MeshPhongMaterial({
+    color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.y = Math.PI / 2;
+  return mesh;
+}
+
+// 正確版: x の範囲は常に [-a, a] 固定。増えるのは扇形角だけ。
+function makeStackedSolidAccurate(f, a, color, opacity, sweepDeg=360, dx=0.06) {
+  const group = new THREE.Group();
+  const sweep = THREE.MathUtils.degToRad(Math.max(0.2, sweepDeg));
+  const xStart = -a;
+  const xEnd = a;
+  const count = Math.max(1, Math.floor((xEnd - xStart) / dx));
+
+  for (let i = 0; i < count; i++) {
+    const x0 = xStart + (xEnd - xStart) * i / count;
+    const x1 = xStart + (xEnd - xStart) * (i + 1) / count;
+    const xm = 0.5 * (x0 + x1);
+    const rad = f(xm);
+    const h = Math.max(0.002, x1 - x0);
+
+    const geo = new THREE.CylinderGeometry(rad, rad, h, 48, 1, false, 0, sweep);
+    const mat = new THREE.MeshPhongMaterial({
+      color, transparent: true, opacity, side: THREE.DoubleSide, shininess: 85
+    });
+    const cyl = new THREE.Mesh(geo, mat);
+    cyl.rotation.z = Math.PI / 2;
+    cyl.position.set(xm, 0, 0);
+    group.add(cyl);
+  }
+  return group;
+}
+
+function updateText(R, r, deg) {
+  const p = circleCenterPosition(R, deg);
+  if (modeGenerate.checked) {
+    dynamicText.textContent =
+`回転角 θ = ${deg.toFixed(0)}°
+大きい半径 b = ${R.toFixed(1)}
+小さい半径 a = ${r.toFixed(2)}
+
+円の中心
+(0, ${p.y.toFixed(2)}, ${p.z.toFixed(2)})
+
+・濃い青の円が、今動いている円
+・薄い青の面が、すでに通った跡
+・円が通過した部分が少しずつ円環体(トーラス)になる`;
+  } else if (modeCircleOnly.checked) {
+    dynamicText.textContent =
+`回転角 θ = ${deg.toFixed(0)}
+大きい半径 b = ${R.toFixed(1)}
+
+・まず「円の中心」が軌道を1周する
+・その中心に半径 a の円が乗っている
+・円環体(トーラス)は、この円が回ってできる面`;
+  } else if (showV1Build.checked) {
+    dynamicText.textContent =
+`V₁ ができる様子（正確版）
+
+・x の範囲は最初から [-a, a] で固定
+・各 x の円盤の幅は一定
+・増えるのは回転角だけ
+・濃い青 = 今回している曲線
+・薄い青 = すでに通った跡`;
+  } else if (showV2Build.checked) {
+    dynamicText.textContent =
+`V₂ ができる様子（正確版）
+
+・x の範囲は最初から [-a, a] で固定
+・各 x の円盤の幅は一定
+・増えるのは回転角だけ
+・濃い灰 = 今回している曲線
+・薄い灰 = すでに通った跡`;
+  } else if (showV1.checked) {
+    dynamicText.textContent =
+`V₁ だけ
+
+・上半分を1回転してできる
+  外側の回転体
+・各 x で半径
+  b + √(a² - x²)
+  の円盤を並べた立体`;
+  } else if (showV2.checked) {
+    dynamicText.textContent =
+`V₂ だけ
+
+・下半分を1回転してできる
+  内側の回転体
+・各 x で半径
+  b - √(a² - x²)
+  の円盤を並べた立体`;
+  } else if (showBoth.checked) {
+    dynamicText.textContent =
+`V₁ と V₂ を重ねて表示
+
+青 = V₁（外側）
+灰 = V₂（内側）
+
+・2つとも中が詰まった立体
+・求めたい体積は V = V₁ − V₂`;
+  } else {
+    dynamicText.textContent =
+`V₁ − V₂（結果）
+
+・V₁ から V₂ を引いた結果が
+  円環体(トーラス)になる
+`;
+  }
+}
+
+function rebuild() {
+  const R = parseFloat(bSlider.value);
+  const r = parseFloat(aSlider.value);
+  const deg = parseFloat(angleSlider.value);
+
+  angleLabel.textContent = `θ = ${deg.toFixed(0)}°`;
+  bLabel.textContent = `b = ${R.toFixed(1)}`;
+  aLabel.textContent = `a = ${r.toFixed(2)}`;
+
+  clearTracked();
+  volumeSubmodeBox.style.display = modeVolumeIdea.checked ? 'block' : 'none';
+
+  track(makeCenterDot(), helperGroup);
+  if (showAxis.checked) track(makeAxis(Math.max(6.8, R + 2.0)), helperGroup);
+  if (showOrbit.checked && !modeVolumeIdea.checked) track(makeOrbit(R), helperGroup);
+
+  if (modeGenerate.checked) {
+    track(makePartialTorus(R, r, deg, transparentBody.checked ? 0.22 : 0.34, 0x8fc0ff), modelGroup);
+    if (showGhost.checked) track(makeCompleteTorus(R, r, 0.09, 0xb9c3d1), modelGroup);
+    track(makeProfileCircleForTorus(R, r, deg, 0x0b57d0), modelGroup);
+    track(makeCircleCenterDot(circleCenterPosition(R, deg), 0x0b57d0, 0.07), modelGroup);
+    if (showCenterLine.checked) track(makeCenterToCircleLine(R, deg), modelGroup);
+
+  } else if (modeCircleOnly.checked) {
+    track(makeProfileCircleForTorus(R, r, deg, 0x0b57d0), modelGroup);
+    track(makeCircleCenterDot(circleCenterPosition(R, deg), 0x0b57d0, 0.075), modelGroup);
+    if (showCenterLine.checked) track(makeCenterToCircleLine(R, deg), modelGroup);
+
+  } else {
+    const f1 = x => R + Math.sqrt(Math.max(0, r*r - x*x));
+    const f2 = x => R - Math.sqrt(Math.max(0, r*r - x*x));
+
+    if (showV1Build.checked) {
+      track(makeStackedSolidAccurate(f1, r, 0x7bb3ff, transparentBody.checked ? 0.16 : 0.26, deg), modelGroup);
+      if (showGhost.checked) track(makeStackedSolidAccurate(f1, r, 0x7bb3ff, 0.06, 360), modelGroup);
+      track(makeProfileCurveForFunction(f1, r, deg, 0x0b57d0), modelGroup);
+
+    } else if (showV2Build.checked) {
+      track(makeStackedSolidAccurate(f2, r, 0x94a3b8, transparentBody.checked ? 0.18 : 0.30, deg), modelGroup);
+      if (showGhost.checked) track(makeStackedSolidAccurate(f2, r, 0x94a3b8, 0.06, 360), modelGroup);
+      track(makeProfileCurveForFunction(f2, r, deg, 0x4b5563), modelGroup);
+
+    } else if (showV1.checked) {
+      track(makeStackedSolidAccurate(f1, r, 0x7bb3ff, 0.32, 360), modelGroup);
+
+    } else if (showV2.checked) {
+      track(makeStackedSolidAccurate(f2, r, 0x94a3b8, 0.36, 360), modelGroup);
+
+    } else if (showBoth.checked) {
+      track(makeStackedSolidAccurate(f1, r, 0x7bb3ff, 0.18, 360), modelGroup);
+      track(makeStackedSolidAccurate(f2, r, 0x94a3b8, 0.40, 360), modelGroup);
+
+    } else {
+      track(makeCompleteTorus(R, r, 0.72, 0x7bb3ff), modelGroup);
+    }
+  }
+
+  updateText(R, r, deg);
+}
+
+// Events
+angleSlider.addEventListener('input', rebuild);
+aSlider.addEventListener('input', () => {
+  if (parseFloat(aSlider.value) >= parseFloat(bSlider.value)) {
+    aSlider.value = (parseFloat(bSlider.value) - 0.05).toFixed(2);
+  }
+  rebuild();
+  fitCamera(parseFloat(bSlider.value), parseFloat(aSlider.value));
+});
+bSlider.addEventListener('input', () => {
+  if (parseFloat(aSlider.value) >= parseFloat(bSlider.value)) {
+    aSlider.value = (parseFloat(bSlider.value) - 0.05).toFixed(2);
+  }
+  rebuild();
+  fitCamera(parseFloat(bSlider.value), parseFloat(aSlider.value));
+});
+
+[
+  modeGenerate, modeCircleOnly, modeVolumeIdea,
+  showV1Build, showV2Build, showV1, showV2, showBoth, showResult,
+  showGhost, showAxis, showOrbit, showCenterLine, transparentBody
+].forEach(el => el.addEventListener('change', rebuild));
+
+frontView.addEventListener('click', () => { setFrontView(); fitCamera(parseFloat(bSlider.value), parseFloat(aSlider.value)); });
+obliqueView.addEventListener('click', () => { setObliqueView(); fitCamera(parseFloat(bSlider.value), parseFloat(aSlider.value)); });
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// Init
+setFrontView();
+controls.saveState();
+rebuild();
+fitCamera(parseFloat(bSlider.value), parseFloat(aSlider.value));
+
+// Animation
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate.checked) {
+    let v = parseFloat(angleSlider.value) + 1.2;
+    if (v > 360) v = 0;
+    angleSlider.value = v.toFixed(0);
+    rebuild();
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+
+</body>
+</html>
