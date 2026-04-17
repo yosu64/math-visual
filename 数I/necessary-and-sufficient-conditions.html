@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>必要条件と十分条件</title>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+  <style>
+    :root {
+      --bg: #f7f9fc;
+      --card: #ffffff;
+      --text: #1f2937;
+      --sub: #4b5563;
+      --accent: #0f766e;
+      --accent-soft: #dff6f3;
+      --warn: #b45309;
+      --border: #d1d5db;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.8;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0f766e, #115e59);
+      color: white;
+      padding: 56px 20px 40px;
+    }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.2;
+    }
+
+    .lead {
+      font-size: 1.1rem;
+      opacity: 0.95;
+      margin: 0;
+    }
+
+    main {
+      padding: 28px 20px 56px;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 {
+      margin-top: 0;
+      margin-bottom: 14px;
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 1.1rem;
+    }
+
+    .box {
+      background: var(--accent-soft);
+      border-left: 6px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin: 14px 0;
+    }
+
+    .formula {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      background: #fcfefe;
+    }
+
+    .em {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .sub {
+      font-size: 0.85em;
+      color: #9ca3af;
+      line-height: 1.4;
+    }
+
+    .big-rule {
+      text-align: center;
+      font-size: clamp(1.1rem, 2.4vw, 1.5rem);
+      font-weight: 700;
+      padding: 20px;
+      background: #ecfeff;
+      border: 2px dashed var(--accent);
+      border-radius: 16px;
+      margin-top: 14px;
+    }
+
+    .blank {
+      display: inline-block;
+      width: 3em;
+      height: 1em;
+      border: 2px solid #1f2937;
+      vertical-align: middle;
+      margin: 0 0.15em;
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f0fdfa;
+    }
+
+    .concept-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 24px;
+      align-items: center;
+    }
+
+    .concept-text .box {
+      margin: 0;
+    }
+
+    .concept-figure {
+      background: #f8fbfd;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.4);
+    }
+
+    .concept-figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      background: white;
+    }
+
+    .figure-caption {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--sub);
+      text-align: center;
+    }
+
+    footer {
+      color: var(--sub);
+      text-align: center;
+      padding: 12px 20px 40px;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 860px) {
+      .concept-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .concept-figure {
+        padding: 12px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 42px 16px 28px;
+      }
+
+      main {
+        padding: 18px 12px 40px;
+      }
+
+      section {
+        padding: 18px;
+      }
+
+      .big-rule {
+        padding: 16px;
+      }
+
+      th, td {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>必要条件と十分条件</h1>
+      <p class="lead">解き方の手順をしっかり身につけよう</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+      <section>
+        <h2>まずは定義</h2>
+        <div class="grid">
+          <div class="mini-card">
+            <h3>十分条件</h3>
+            <p class="formula">\(p \to q\) が真</p>
+            <p>このとき、<span class="em">\(p\) は \(q\) であるための十分条件</span>です。</p>
+            <p>つまり、<strong>\(p\) が成り立てば \(q\) まで言える</strong>、という意味です。</p>
+          </div>
+
+          <div class="mini-card">
+            <h3>必要条件</h3>
+            <p class="formula">\(p \to q\) が真</p>
+            <p>このとき、<span class="em">\(q\) は \(p\) であるための必要条件</span>です。</p>
+            <p>つまり、<strong>\(p\) が成り立つためには、\(q\) が成り立っている必要があります。</strong></p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>必要条件のイメージ（絞る条件）</h2>
+
+        <div class="concept-layout">
+          <div class="concept-text">
+            <div class="box">
+              <p>
+                例えば、\(-30\) から \(30\) までのたくさんの整数があるとします。
+              </p>
+
+              <p>
+                その中から、\(1\) だけを見つけたいとします。
+              </p>
+
+              <p>
+                その中のある数を \(x\) とおくと、いきなり「\(x=1\)」と言うのは難しいですが、
+                「\(x^2=1\)」と分かれば、\(x=1\) または \(x=-1\) に絞ることができます。
+              </p>
+
+              <p>
+                まだ \(x=1\) とは言えませんが、何も分からない状態よりはかなり近づいています。
+              </p>
+
+              <p>
+                したがって、\(x=1\) であるためには \(x^2=1\) が必要であり、
+                \(x^2=1\) は \(x=1\) の必要条件です。
+              </p>
+
+              <p>
+                このように、あることが成り立つときに必ず一緒に成り立っている条件を必要条件といいます。
+              </p>
+            </div>
+          </div>
+
+          <figure class="concept-figure">
+            <img src="images/necessary.png" alt="必要条件のイメージ。たくさんの整数の中から x^2=1 を使って -1 と 1 に候補を絞る図。" />
+            <figcaption class="figure-caption">
+              候補は絞れるが、まだ 1 つには決まらない
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <h2>十分条件のイメージ（一発で決まる条件）</h2>
+
+        <div class="concept-layout">
+          <div class="concept-text">
+            <div class="box">
+              <p>
+                例えば、\(-30\) から \(30\) までのたくさんの整数があるとします。
+              </p>
+
+              <p>
+                その中のある数を \(x\) とおくと、
+                「\(x=1\)」と分かれば、
+                「\(x^2=1\)」は必ず成り立ちます。
+              </p>
+
+              <p>
+                つまり、\(x^2=1\) となるような \(x\) を探しているとき、
+                \(x=1\) と分かれば、それだけで <strong>十分</strong> です。
+              </p>
+
+              <p>
+                したがって、\(x=1\) は \(x^2=1\) であるための十分条件です。
+              </p>
+
+              <p>
+                このように、ある条件が成り立てば、それだけで目的が言えるとき、その条件を十分条件といいます。
+              </p>
+            </div>
+          </div>
+
+          <figure class="concept-figure">
+            <img src="images/sufficient.png" alt="十分条件のイメージ。x=1 から x^2=1 へ矢印でつながる図。" />
+            <figcaption class="figure-caption">
+              これが分かれば、その時点で結果が決まる
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <h2>見方の整理</h2>
+
+        <div class="grid">
+          <div class="mini-card">
+            <p class="formula">命題 \(p \to q\) が真なら</p>
+            <p><span class="em">\(p\) は \(q\) であるための十分条件</span></p>
+            <p>\(q\) は \(p\) であるための必要条件</p>
+          </div>
+
+          <div class="mini-card">
+            <p class="formula">命題 \(q \to p\) が真なら</p>
+            <p>\(q\) は \(p\) であるための十分条件</p>
+            <p><span class="em">\(p\) は \(q\) であるための必要条件</span></p>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>問題の答え方のコツ</h2>
+
+        <p>問題で</p>
+
+        <div class="big-rule">
+          「\(p\) は \(q\) であるための <span class="blank"></span> 条件か？」
+        </div>
+
+        <p>と聞かれたら、まず \(p \to q\) を作ります。</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>調べる命題</th>
+              <th>成り立ったら何と言えるか</th>
+              <th>問題文にそのまま使えるか</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="formula">\(p \to q\)</span></td>
+              <td>
+                <span class="em">\(p\) は \(q\) であるための十分条件</span><br />
+                <span class="sub">同時に、\(q\) は \(p\) であるための必要条件</span>
+              </td>
+              <td>
+                <strong>十分</strong>はそのまま使えます。<br />
+                <span class="sub">必要の方は主語が \(q\) になっていて、問題文の並びと逆なので、そのままでは答えになりません。</span>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="formula">\(q \to p\)</span></td>
+              <td>
+                <span class="em">\(p\) は \(q\) であるための必要条件</span><br />
+                <span class="sub">同時に、\(q\) は \(p\) であるための十分条件</span>
+              </td>
+              <td>
+                <strong>必要</strong>を答えたいときは、こちらを調べる必要があります。
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="box">
+          <strong>解き方のポイント：</strong><br />
+          「\(p\) は \(q\) であるための <span class="blank"></span> 条件か？」と聞かれているとき、<br />
+          \(p \to q\) から分かるのは \(p\) が十分かどうかです。<br />
+          \(p\) が必要かどうかを知るには、\(q \to p\) も調べる必要があります。
+        </div>
+      </section>
+
+      <section>
+        <h2>解き方の手順</h2>
+        <div class="big-rule">
+          「\(p\) は \(q\) であるための <span class="blank"></span> 条件か？」<br />
+          ↓<br />
+          まず \(p \to q\) を作る<br /><br />
+          \(p \to q\) が真なら 十分<br />
+          \(q \to p\) が真なら 必要
+        </div>
+      </section>
+      
+      <section>
+        <h2>例</h2>
+        <h3>例：\(x = 1\) は \(x^2 = 1\) であるための何条件か</h3>
+
+        <div class="grid">
+          <div class="mini-card">
+            <p class="formula">\(x = 1 \to x^2 = 1\)</p>
+            <p>これは真です。</p>
+            <p>したがって、<strong>\(x = 1\) は \(x^2 = 1\) であるための十分条件</strong>です。</p>
+          </div>
+
+          <div class="mini-card">
+            <p class="formula">\(x^2 = 1 \to x = 1\)</p>
+            <p>これは偽です。\(x = -1\) のときも \(x^2 = 1\) だからです。</p>
+            <p>したがって、<strong>必要条件ではありません。</strong></p>
+          </div>
+        </div>
+
+        <p>
+          以上より、\(x = 1\) は \(x^2 = 1\) であるための<strong>十分条件</strong>であるが、
+          必要条件ではないことが分かります。
+        </p>
+      </section>
+
+    </div>
+  </main>
+</body>
+</html>
