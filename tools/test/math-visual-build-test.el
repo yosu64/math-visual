@@ -16,7 +16,7 @@
 
 ** ドモルガンの法則
 :PROPERTIES:
-:PATH: ./数I/De-morgan-visualizer.html
+:PATH: ./math-i/De-morgan-visualizer.html
 :PAGE: 90
 :APP: HTML
 :PUBLISHED: 2026-04-15
@@ -28,7 +28,7 @@
 
 ** 空間ベクトル分解
 :PROPERTIES:
-:PATH: ./数C/space-vector-decomposition-with-reference.html
+:PATH: ./math-c/space-vector-decomposition-with-reference.html
 :TEXTBOOK: 深進数学C
 :PAGE: 45
 :APP: Three.js
@@ -65,7 +65,7 @@
             (let ((html (buffer-string)))
               (should (string-match-p "<title>数学ビジュアル教材</title>" html))
               (should (string-match-p "window.MathJax" html))
-              (should (string-match-p "href=\"\\./数I/De-morgan-visualizer.html\"" html))
+              (should (string-match-p "href=\"\\./math-i/De-morgan-visualizer.html\"" html))
               (should (string-match-p "class=\"item-head\"" html))
               (should (string-match-p "深進数学C p\\.45" html))
               (should (string-match-p (regexp-quote "\\(\\vec{p}\\)") html))

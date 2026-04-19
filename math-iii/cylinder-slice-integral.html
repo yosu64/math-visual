@@ -45,6 +45,19 @@ body {
   background: #efefef;
 }
 
+#topLink {
+  margin-bottom: 10px;
+}
+
+#topLink a {
+  color: #0f766e;
+  text-decoration: none;
+}
+
+#topLink a:hover {
+  text-decoration: underline;
+}
+
 #info {
   position: fixed;
   right: 10px;
@@ -90,6 +103,7 @@ body {
 <body>
 
 <div id="ui">
+  <div id="topLink"><a href="../index.html">トップへ戻る</a></div>
   <b>モード</b><br>
   <label><input type="radio" name="mode" id="modeSplit" checked> ① 切断</label><br>
   <label><input type="radio" name="mode" id="modeSlice"> ② 断面</label>

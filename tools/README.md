@@ -36,7 +36,7 @@ Emacs を開いている場合は `M-x load-file` で `tools/math-visual-build.e
 
 - `/Users/yosu64/math-visual/index.html`
 
-生成される HTML は UTF-8 で書き出され、CSS は当面 `index.html` に埋め込みます。`PATH` がある教材名は内部リンクになり、`APP_URL` がある場合だけ APP 表示の横に外部リンクが付きます。
+生成される HTML は UTF-8 で書き出され、CSS は当面 `index.html` に埋め込みます。`PATH` がある教材名は内部リンクになり、`APP_URL` がある場合だけ APP 表示の横に外部リンクが付きます。公開 URL を安定させるため、`PATH` には `./math-i/...` `./math-iii/...` `./math-c/...` のような英語ディレクトリ名を使います。
 
 ## 将来拡張の余地
 

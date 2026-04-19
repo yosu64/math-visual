@@ -10,7 +10,7 @@
 
 ** ドモルガンの法則
 :PROPERTIES:
-:PATH: ./数I/De-morgan-visualizer.html
+:PATH: ./math-i/De-morgan-visualizer.html
 :TEXTBOOK: 深進数学I
 :PAGE: 90
 :APP: HTML
@@ -22,7 +22,7 @@
 
 ** 必要条件と十分条件
 :PROPERTIES:
-:PATH: ./数I/necessary-and-sufficient-conditions.html
+:PATH: ./math-i/necessary-and-sufficient-conditions.html
 :TEXTBOOK: 深進数学I
 :PAGE: 94
 :APP: HTML / MathJax
@@ -39,7 +39,7 @@
 
 ** 空間ベクトル分解
 :PROPERTIES:
-:PATH: ./数C/space-vector-decomposition-with-reference.html
+:PATH: ./math-c/space-vector-decomposition-with-reference.html
 :TEXTBOOK: 深進数学C
 :PAGE: 45
 :APP: Three.js
@@ -56,7 +56,7 @@
 
 ** 区分求積法
 :PROPERTIES:
-:PATH: ./数III/Riemann-sum.html
+:PATH: ./math-iii/Riemann-sum.html
 :TEXTBOOK: 深進数学III
 :PAGE: 146
 :APP: Desmos
@@ -68,7 +68,7 @@
 
 ** 円柱の斜め切断
 :PROPERTIES:
-:PATH: ./数III/cylinder-slice-integral.html
+:PATH: ./math-iii/cylinder-slice-integral.html
 :TEXTBOOK: 深進数学III
 :PAGE: 159
 :APP: Three.js
@@ -80,7 +80,7 @@
 
 ** 円環体（トーラス）の体積可視化
 :PROPERTIES:
-:PATH: ./数III/torus-v1-v2-visualization.html
+:PATH: ./math-iii/torus-v1-v2-visualization.html
 :TEXTBOOK: 深進数学III
 :PAGE: 162
 :APP: Three.js
