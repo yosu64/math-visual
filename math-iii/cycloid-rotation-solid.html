@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>サイクロイドの回転体</title>
+<style>
+body{
+  margin:0;
+  overflow:hidden;
+  font-family:sans-serif;
+  background:#fff;
+}
+#ui{
+  position:fixed;
+  left:10px;
+  top:10px;
+  width:380px;
+  z-index:10;
+  background:rgba(255,255,255,0.96);
+  padding:12px;
+  border-radius:10px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.10);
+  font-size:14px;
+  line-height:1.6;
+}
+#hint{
+  position:fixed;
+  left:10px;
+  bottom:10px;
+  z-index:10;
+  background:rgba(255,255,255,0.92);
+  padding:8px 10px;
+  border-radius:10px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.08);
+  font-size:12px;
+}
+#ui hr{
+  border:none;
+  border-top:1px solid #ddd;
+  margin:10px 0;
+}
+#ui button{
+  border:1px solid #ccc;
+  background:#f7f7f7;
+  border-radius:8px;
+  padding:8px 12px;
+  cursor:pointer;
+  font-size:14px;
+}
+#ui button:hover{ background:#efefef; }
+#topLink{
+  margin-bottom:10px;
+  font-size:13px;
+}
+#topLink a{
+  color:#0f766e;
+  text-decoration:none;
+}
+#topLink a:hover{
+  text-decoration:underline;
+}
+.title{
+  font-size:18px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+.blue{ color:#2563eb; font-weight:700; }
+.row-buttons{ display:flex; gap:8px; flex-wrap:wrap; }
+.small{ color:#555; font-size:12px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+
+<div id="ui">
+  <div id="topLink"><a href="../index.html">トップへ戻る</a></div>
+  <div class="title">サイクロイドの回転体</div>
+  サイクロイド
+  <span class="blue">x=a(θ-sinθ), y=a(1-cosθ)</span>
+  を x軸のまわりに回転させた立体です。
+
+  <hr>
+
+  <b>表示モード</b><br>
+  <label><input type="radio" name="mode" id="modeBuild" checked> ① 回転体ができる様子</label><br>
+  <label><input type="radio" name="mode" id="modeCurve"> ② サイクロイドだけ</label><br>
+  <label><input type="radio" name="mode" id="modeSolid"> ③ 回転体だけ</label>
+
+  <hr>
+
+  <b>θ</b><br>
+  <input id="thetaSlider" type="range" min="0" max="360" step="1" value="0" style="width:100%;">
+  <div id="thetaLabel">θ = 0°</div>
+
+  <hr>
+
+  <b>a</b><br>
+  <input id="aSlider" type="range" min="0.6" max="2.2" step="0.1" value="1.0" style="width:100%;">
+  <div id="aLabel">a = 1.0</div>
+
+  <hr>
+
+  <label><input id="autoRotate" type="checkbox"> 自動で進める</label><br>
+  <label><input id="showGhost" type="checkbox" checked> 完成した立体を薄く表示</label><br>
+  <label><input id="showAxis" type="checkbox" checked> x軸を表示</label><br>
+  <label><input id="showPoint" type="checkbox" checked> 動点を表示</label><br>
+  <label><input id="showGuides" type="checkbox" checked> 補助線を表示</label><br>
+  <label><input id="transparentBody" type="checkbox"> 生成部分を薄くする</label>
+
+  <hr>
+
+  <div class="row-buttons">
+    <button id="frontView">真横視点</button>
+    <button id="obliqueView">斜め視点</button>
+  </div>
+
+  <hr>
+  <div class="small">
+    1つのアーチ 0 ≤ θ ≤ 2π を扱います。<br>
+    体積は <b>V = 5π²a³</b> です。
+  </div>
+</div>
+
+<div id="hint">左ドラッグで回転 / ホイールで拡大縮小 / 右ドラッグで平行移動</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xffffff);
+
+const camera = new THREE.PerspectiveCamera(38, window.innerWidth / window.innerHeight, 0.1, 300);
+const renderer = new THREE.WebGLRenderer({ antialias:true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+document.body.appendChild(renderer.domElement);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.enablePan = true;
+controls.minDistance = 4;
+controls.maxDistance = 80;
+controls.minPolarAngle = 0;
+controls.maxPolarAngle = Math.PI;
+
+const modeBuild = document.getElementById('modeBuild');
+const modeCurve = document.getElementById('modeCurve');
+const modeSolid = document.getElementById('modeSolid');
+const thetaSlider = document.getElementById('thetaSlider');
+const aSlider = document.getElementById('aSlider');
+const thetaLabel = document.getElementById('thetaLabel');
+const aLabel = document.getElementById('aLabel');
+const autoRotate = document.getElementById('autoRotate');
+const showGhost = document.getElementById('showGhost');
+const showAxis = document.getElementById('showAxis');
+const showPoint = document.getElementById('showPoint');
+const showGuides = document.getElementById('showGuides');
+const transparentBody = document.getElementById('transparentBody');
+const frontView = document.getElementById('frontView');
+const obliqueView = document.getElementById('obliqueView');
+
+scene.add(new THREE.AmbientLight(0xffffff, 1.15));
+const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+keyLight.position.set(7, -5, 8);
+scene.add(keyLight);
+const fillLight = new THREE.DirectionalLight(0xffffff, 0.45);
+fillLight.position.set(-6, 5, 4);
+scene.add(fillLight);
+
+const root = new THREE.Group();
+scene.add(root);
+const helperGroup = new THREE.Group();
+const modelGroup = new THREE.Group();
+root.add(helperGroup);
+root.add(modelGroup);
+
+let refs = [];
+function track(obj, group){ group.add(obj); refs.push(obj); return obj; }
+function disposeObj(obj){
+  if (!obj) return;
+  if (obj.parent) obj.parent.remove(obj);
+  if (obj.geometry) obj.geometry.dispose();
+  if (obj.material){
+    if (Array.isArray(obj.material)) obj.material.forEach(m => m.dispose());
+    else obj.material.dispose();
+  }
+}
+function clearTracked(){
+  for (const obj of refs) disposeObj(obj);
+  refs = [];
+}
+
+function cycloid(a, t){
+  return new THREE.Vector3(
+    a * (t - Math.sin(t)),
+    a * (1 - Math.cos(t)),
+    0
+  );
+}
+
+function setFrontView(a){
+  camera.position.set(10*a, 0, 0);
+  camera.up.set(0,0,1);
+  controls.target.set(Math.PI * a, 0, a);
+  controls.update();
+}
+function setObliqueView(a){
+  camera.position.set(7.5*a, -8.5*a, 5.2*a);
+  camera.up.set(0,0,1);
+  controls.target.set(Math.PI * a, 0, a);
+  controls.update();
+}
+function fitCamera(a){
+  const radius = Math.max(6, 7*a);
+  const fov = THREE.MathUtils.degToRad(camera.fov);
+  const dist = radius / Math.sin(fov/2);
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  controls.target.set(Math.PI * a, 0, a);
+  camera.position.copy(dir.multiplyScalar(dist*1.05).add(controls.target));
+  controls.update();
+}
+
+function makeAxis(a){
+  const L = 2*Math.PI*a + 1.2*a;
+  const geo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-0.4*a, 0, 0),
+    new THREE.Vector3(L, 0, 0)
+  ]);
+  return new THREE.Line(geo, new THREE.LineBasicMaterial({color:0x222222}));
+}
+
+function makeCurve(a, tMax, color=0x0b57d0, n=260){
+  const pts = [];
+  for(let i=0;i<=n;i++){
+    const t = tMax * i / n;
+    pts.push(cycloid(a,t));
+  }
+  return new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({color})
+  );
+}
+
+function makePoint(a, t){
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.08*a, 20, 16),
+    new THREE.MeshPhongMaterial({color:0xff2d20})
+  );
+  mesh.position.copy(cycloid(a,t));
+  return mesh;
+}
+
+function makeGuides(a, t){
+  const p = cycloid(a,t);
+  const pts1 = [new THREE.Vector3(p.x, 0, 0), new THREE.Vector3(p.x, p.y, 0)];
+  const line1 = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(pts1),
+    new THREE.LineBasicMaterial({color:0x4b5563})
+  );
+  const group = new THREE.Group();
+  group.add(line1);
+  return group;
+}
+
+function makeSolidOfRevolution(a, tMax, color, opacity){
+  const group = new THREE.Group();
+  const n = 220;
+  for(let i=0;i<n;i++){
+    const t0 = tMax * i / n;
+    const t1 = tMax * (i+1) / n;
+    const p0 = cycloid(a,t0);
+    const p1 = cycloid(a,t1);
+    const pm = cycloid(a,0.5*(t0+t1));
+    const dx = Math.max(0.003*a, p1.x - p0.x);
+    const rad = Math.max(0.0001, pm.y);
+
+    const geo = new THREE.CylinderGeometry(rad, rad, dx, 40, 1, false);
+    const mat = new THREE.MeshPhongMaterial({
+      color, transparent:true, opacity, side:THREE.DoubleSide, shininess:80
+    });
+    const cyl = new THREE.Mesh(geo, mat);
+    cyl.rotation.z = Math.PI / 2;
+    cyl.position.set(pm.x, 0, 0);
+    group.add(cyl);
+  }
+  return group;
+}
+
+function rebuild(){
+  const a = parseFloat(aSlider.value);
+  const tDeg = parseFloat(thetaSlider.value);
+  const t = THREE.MathUtils.degToRad(tDeg);
+
+  thetaLabel.textContent = `θ = ${tDeg.toFixed(0)}°`;
+  aLabel.textContent = `a = ${a.toFixed(1)}`;
+
+  clearTracked();
+
+  if(showAxis.checked){
+    track(makeAxis(a), helperGroup);
+  }
+
+  if(modeBuild.checked){
+    track(makeSolidOfRevolution(a, t, 0x8fc0ff, transparentBody.checked ? 0.16 : 0.30), modelGroup);
+    if(showGhost.checked){
+      track(makeSolidOfRevolution(a, 2*Math.PI, 0xb9c3d1, 0.06), modelGroup);
+    }
+    track(makeCurve(a, t, 0x0b57d0), modelGroup);
+    if(showGhost.checked){
+      track(makeCurve(a, 2*Math.PI, 0x93c5fd), modelGroup);
+    }
+  } else if(modeCurve.checked){
+    track(makeCurve(a, 2*Math.PI, 0x0b57d0), modelGroup);
+  } else {
+    track(makeSolidOfRevolution(a, 2*Math.PI, 0x7bb3ff, 0.62), modelGroup);
+  }
+
+  if(showPoint.checked){
+    track(makePoint(a, t), modelGroup);
+  }
+  if(showGuides.checked){
+    track(makeGuides(a, t), modelGroup);
+  }
+}
+
+thetaSlider.addEventListener('input', rebuild);
+aSlider.addEventListener('input', () => {
+  rebuild();
+});
+[
+  modeBuild, modeCurve, modeSolid,
+  autoRotate, showGhost, showAxis, showPoint, showGuides, transparentBody
+].forEach(el => el.addEventListener('change', rebuild));
+
+frontView.addEventListener('click', () => {
+  const a = parseFloat(aSlider.value);
+  setFrontView(a);
+  fitCamera(a);
+});
+obliqueView.addEventListener('click', () => {
+  const a = parseFloat(aSlider.value);
+  setObliqueView(a);
+  fitCamera(a);
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+const initA = parseFloat(aSlider.value);
+setFrontView(initA);
+controls.saveState();
+rebuild();
+fitCamera(initA);
+
+function animate(){
+  requestAnimationFrame(animate);
+  if(autoRotate.checked){
+    let v = (parseInt(thetaSlider.value, 10) + 1) % 361;
+    if (v === 360) v = 0;
+    thetaSlider.value = String(v);
+    rebuild();
+  }
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

@@ -89,3 +89,15 @@
 :UPDATED: 2026-04-17
 :END:
 円の回転でできる円環体の構造と体積の考え方を視覚的に理解する。
+
+** サイクロイドの回転体
+:PROPERTIES:
+:PATH: ./math-iii/cycloid-rotation-solid.html
+:TEXTBOOK: 深進数学III
+:PAGE: 163
+:APP: Three.js
+:APP_URL: https://threejs.org/
+:PUBLISHED: 2026-04-19
+:UPDATED: 2026-04-19
+:END:
+サイクロイドを \\(x\\) 軸のまわりに回転させてできる立体を視覚的に理解する。
