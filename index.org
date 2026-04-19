@@ -32,6 +32,24 @@
 命題 \\(p \\to q\\) と具体例を通して、必要条件と十分条件の意味を整理する教材。
 必要条件と十分条件の違いを、図とあわせて確認できる。
 
+* 数B
+:PROPERTIES:
+:TEXTBOOK: 深進数学B
+:END:
+
+** 二項分布ビジュアライザ
+:PROPERTIES:
+:PATH: ./math-b/binomial-visualizer.html
+:TEXTBOOK: 深進数学B
+:PAGE: 60
+:APP: Chart.js
+:APP_URL: https://www.chartjs.org/
+:PUBLISHED: 2026-04-19
+:UPDATED: 2026-04-19
+:END:
+二項分布 \\(B(n,p)\\) の確率、平均、分散を表とグラフで視覚的に理解する。
+試行回数 \\(n\\) と成功確率 \\(p\\) を変えながら、分布の形の変化を確認できる。
+
 * 数C
 :PROPERTIES:
 :TEXTBOOK: 深進数学C

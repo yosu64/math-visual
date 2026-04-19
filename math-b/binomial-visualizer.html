@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>二項分布ビジュアライザ</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)'], ['$', '$']],
+        displayMath: [['\\[', '\\]']]
+      },
+      chtml: {
+        scale: 1
+      },
+      startup: {
+        typeset: false
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #d9e0ec;
+      --line-strong: #c8d1df;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --thead: #f7f9fd;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic",
+                   "Noto Sans JP", "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    h1 {
+      margin: 0 0 18px;
+      font-size: 2.2rem;
+      line-height: 1.25;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .top-link {
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+    }
+
+    .top-link a {
+      color: #0f766e;
+      text-decoration: none;
+    }
+
+    .top-link a:hover {
+      text-decoration: underline;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 0 rgba(20, 32, 60, 0.02);
+    }
+
+    .lead p,
+    .summary p {
+      margin: 10px 0;
+    }
+
+    .lead-intro {
+      text-align: left;
+      margin-bottom: 10px;
+    }
+
+    .formula-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 14px 0;
+      min-height: 2.8em;
+      text-align: center;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px 18px;
+    }
+
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .field input {
+      width: 140px;
+      height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 1rem;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .field input[type="number"] {
+      width: 110px;
+    }
+
+    .btn {
+      height: 44px;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn:hover {
+      background: #f8fafc;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .error {
+      margin-top: 10px;
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 18px;
+      align-items: center;
+    }
+
+    .summary-label {
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .summary-value {
+      min-height: 1.8em;
+    }
+
+    .math-inline {
+      display: inline-flex;
+      align-items: center;
+      vertical-align: middle;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(360px, 0.95fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .result-grid .card {
+      margin-bottom: 0;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      min-width: 0;
+    }
+
+    table {
+      width: 100%;
+      min-width: 920px;
+      border-collapse: collapse;
+      background: #fff;
+    }
+
+    th, td {
+      border: 1px solid var(--line-strong);
+      padding: 12px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: var(--thead);
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .rowhead {
+      background: var(--thead);
+      font-weight: 800;
+      white-space: nowrap;
+      width: 96px;
+    }
+
+    .table-math {
+      min-width: 150px;
+      min-height: 2.2em;
+      font-size: 1.02rem;
+    }
+
+    .chart-box {
+      min-width: 0;
+    }
+
+    #distChart {
+      width: 100% !important;
+      height: 360px !important;
+      display: block;
+    }
+
+    .chart-note {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    mjx-container {
+      margin: 0 !important;
+    }
+
+    .math-inline mjx-container {
+      display: inline-block !important;
+      vertical-align: middle !important;
+    }
+
+    .formula-display mjx-container {
+      display: block !important;
+    }
+
+    .table-math mjx-container {
+      display: inline-block !important;
+      vertical-align: middle !important;
+    }
+
+    @media (max-width: 1040px) {
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #distChart {
+        height: 320px !important;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .container {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 14px;
+      }
+
+      .controls {
+        align-items: stretch;
+      }
+
+      .field {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .field input,
+      .field input[type="number"] {
+        width: 140px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <p class="top-link"><a href="../index.html">トップへ戻る</a></p>
+    <h1>二項分布ビジュアライザ</h1>
+
+    <section class="card lead">
+      <div class="lead-intro" id="leadIntro"></div>
+      <div class="formula-display" id="leadFormula"></div>
+      <p id="leadTextBottom"></p>
+    </section>
+
+    <section class="card">
+      <div class="controls">
+        <label class="field">
+          <span>試行回数 n</span>
+          <input id="nInput" type="number" min="1" max="30" step="1" value="3" />
+        </label>
+
+        <label class="field">
+          <span>成功確率 p</span>
+          <input id="pInput" type="text" value="1/3" />
+        </label>
+
+        <button id="presetButton" class="btn" type="button">教科書例に戻す</button>
+        <button id="coinPresetButton" class="btn" type="button">コイン（p=1/2）</button>
+        <span class="hint">例: 1/3, 0.4, 0.25</span>
+      </div>
+      <div id="errorMessage" class="error"></div>
+    </section>
+
+    <section class="card summary">
+      <div class="summary-grid">
+        <div class="summary-label">現在の設定は</div>
+        <div class="summary-value" id="summaryBin"></div>
+
+        <div class="summary-label">平均（期待値）は</div>
+        <div class="summary-value" id="summaryMean"></div>
+
+        <div class="summary-label">分散は</div>
+        <div class="summary-value" id="summaryVar"></div>
+      </div>
+    </section>
+
+    <div class="result-grid">
+      <section class="card table-wrap">
+        <table id="distTable"></table>
+      </section>
+
+      <section class="card chart-box">
+        <canvas id="distChart"></canvas>
+        <div class="chart-note">横軸は r、縦軸は P(X=r) です。</div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let chart = null;
+
+    function gcd(a, b) {
+      let x = Math.abs(a);
+      let y = Math.abs(b);
+      while (y !== 0) {
+        const t = x % y;
+        x = y;
+        y = t;
+      }
+      return x;
+    }
+
+    function simplifyFraction(num, den) {
+      const sign = den < 0 ? -1 : 1;
+      const n = num * sign;
+      const d = den * sign;
+      const g = gcd(n, d);
+      return { num: n / g, den: d / g };
+    }
+
+    function fractionToTex(num, den) {
+      if (den === 1) return String(num);
+      return `\\frac{${num}}{${den}}`;
+    }
+
+    function combinationTex(n, r) {
+      return `{}_{${n}}\\mathrm{C}_{${r}}`;
+    }
+
+    function wrappedPowerTex(baseTex, exponent) {
+      return `\\left(${baseTex}\\right)^{${exponent}}`;
+    }
+
+    function formatTrimmedDecimal(x) {
+      return x.toFixed(6).replace(/\.?0+$/, "");
+    }
+
+    function formatFixedDecimal(x) {
+      return x.toFixed(4);
+    }
+
+    function parseProbabilityInput(input) {
+      const s = input.trim();
+
+      if (s === "") {
+        throw new Error("成功確率 p を入力してください。");
+      }
+
+      if (s.includes("/")) {
+        const parts = s.split("/");
+        if (parts.length !== 2) {
+          throw new Error("分数は a/b の形で入力してください。");
+        }
+
+        const rawNum = Number(parts[0].trim());
+        const rawDen = Number(parts[1].trim());
+
+        if (!Number.isInteger(rawNum) || !Number.isInteger(rawDen) || rawDen === 0) {
+          throw new Error("分数の入力が正しくありません。");
+        }
+
+        const reduced = simplifyFraction(rawNum, rawDen);
+        return {
+          value: reduced.num / reduced.den,
+          tex: fractionToTex(reduced.num, reduced.den),
+          kind: "fraction",
+          num: reduced.num,
+          den: reduced.den
+        };
+      }
+
+      const value = Number(s);
+      if (!Number.isFinite(value)) {
+        throw new Error("成功確率 p の入力が正しくありません。");
+      }
+
+      return {
+        value,
+        tex: formatTrimmedDecimal(value),
+        kind: "decimal"
+      };
+    }
+
+    function buildComplementProbability(parsedP) {
+      if (parsedP.kind === "fraction") {
+        const reduced = simplifyFraction(parsedP.den - parsedP.num, parsedP.den);
+        return {
+          value: 1 - parsedP.value,
+          tex: fractionToTex(reduced.num, reduced.den)
+        };
+      }
+
+      const value = 1 - parsedP.value;
+      return {
+        value,
+        tex: formatTrimmedDecimal(value)
+      };
+    }
+
+    function combination(n, r) {
+      if (r < 0 || r > n) return 0;
+      const k = Math.min(r, n - r);
+      let value = 1;
+      for (let i = 1; i <= k; i++) {
+        value = value * (n - k + i) / i;
+      }
+      return value;
+    }
+
+    function binomialProbability(n, r, p) {
+      return combination(n, r) * Math.pow(p, r) * Math.pow(1 - p, n - r);
+    }
+
+    function validateInputs(n, parsedP) {
+      if (!Number.isInteger(n) || n < 1 || n > 30) {
+        return "試行回数 n は 1 以上 30 以下の整数にしてください。";
+      }
+      if (!Number.isFinite(parsedP.value) || parsedP.value < 0 || parsedP.value > 1) {
+        return "成功確率 p は 0 以上 1 以下にしてください。";
+      }
+      return "";
+    }
+
+    function debounce(fn, delay = 200) {
+      let timerId = null;
+      return (...args) => {
+        clearTimeout(timerId);
+        timerId = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    async function renderMath(tex, display = false) {
+      await MathJax.startup.promise;
+      const node = await MathJax.tex2chtmlPromise(tex, { display });
+      return MathJax.startup.adaptor.outerHTML(node);
+    }
+
+    async function buildLead() {
+      document.getElementById("leadIntro").innerHTML =
+        `Xは二項分布 <span class="math-inline">${await renderMath(`B(n,p)`)}</span> に従うとする。`;
+
+      document.getElementById("leadFormula").innerHTML =
+        await renderMath(
+          `P(X=r)=${combinationTex("n", "r")}p^r(1-p)^{n-r}\\qquad (r=0,1,2,\\ldots,n)`,
+          true
+        );
+
+      document.getElementById("leadTextBottom").textContent =
+        "下で n と p を変えると、分布表とグラフが自動で更新されます。";
+    }
+
+    async function updateSummary(n, parsedP) {
+      const expectation = n * parsedP.value;
+      const variance = n * parsedP.value * (1 - parsedP.value);
+
+      document.getElementById("summaryBin").innerHTML =
+        `<span class="math-inline">${await renderMath(`B(${n},${parsedP.tex})`)}</span>`;
+
+      document.getElementById("summaryMean").innerHTML =
+        `<span class="math-inline">${await renderMath(`np=${n}\\times ${parsedP.tex}=${formatTrimmedDecimal(expectation)}`)}</span>`;
+
+      document.getElementById("summaryVar").innerHTML =
+        `<span class="math-inline">${await renderMath(`np(1-p)=${formatTrimmedDecimal(variance)}`)}</span>`;
+    }
+
+    async function buildFormulaCell(n, r, parsedP) {
+      const qInfo = buildComplementProbability(parsedP);
+      const tex =
+        `P(X=${r})=` +
+        `${combinationTex(n, r)}` +
+        `${wrappedPowerTex(parsedP.tex, r)}` +
+        `${wrappedPowerTex(qInfo.tex, n - r)}`;
+
+      return await renderMath(tex, false);
+    }
+
+    async function buildTable(n, parsedP) {
+      const table = document.getElementById("distTable");
+
+      let headerRow = `<tr><th class="rowhead">r</th>`;
+      let formulaRow = `<tr><td class="rowhead">確率</td>`;
+      let decimalRow = `<tr><td class="rowhead">小数</td>`;
+
+      for (let r = 0; r <= n; r++) {
+        const prob = binomialProbability(n, r, parsedP.value);
+        const formulaHtml = await buildFormulaCell(n, r, parsedP);
+
+        headerRow += `<th>${r}</th>`;
+        formulaRow += `<td class="table-math">${formulaHtml}</td>`;
+        decimalRow += `<td>${formatFixedDecimal(prob)}</td>`;
+      }
+
+      headerRow += `</tr>`;
+      formulaRow += `</tr>`;
+      decimalRow += `</tr>`;
+
+      table.innerHTML = headerRow + formulaRow + decimalRow;
+    }
+
+    function buildChart(n, parsedP) {
+      const labels = [];
+      const data = [];
+
+      for (let r = 0; r <= n; r++) {
+        labels.push(String(r));
+        data.push(binomialProbability(n, r, parsedP.value));
+      }
+
+      const ctx = document.getElementById("distChart").getContext("2d");
+
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "P(X=r)",
+            data
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return ` P(X=${context.label}) = ${formatFixedDecimal(context.raw)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: "r"
+              }
+            },
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "P(X=r)"
+              }
+            }
+          }
+        }
+      });
+    }
+
+    async function updateView() {
+      const n = Number(document.getElementById("nInput").value);
+      const pRaw = document.getElementById("pInput").value;
+      const errorMessage = document.getElementById("errorMessage");
+      const table = document.getElementById("distTable");
+
+      let parsedP;
+
+      try {
+        parsedP = parseProbabilityInput(pRaw);
+      } catch (e) {
+        errorMessage.textContent = e.message;
+        document.getElementById("summaryBin").innerHTML = "";
+        document.getElementById("summaryMean").innerHTML = "";
+        document.getElementById("summaryVar").innerHTML = "";
+        table.innerHTML = "";
+        if (chart) {
+          chart.destroy();
+          chart = null;
+        }
+        return;
+      }
+
+      const error = validateInputs(n, parsedP);
+      if (error) {
+        errorMessage.textContent = error;
+        document.getElementById("summaryBin").innerHTML = "";
+        document.getElementById("summaryMean").innerHTML = "";
+        document.getElementById("summaryVar").innerHTML = "";
+        table.innerHTML = "";
+        if (chart) {
+          chart.destroy();
+          chart = null;
+        }
+        return;
+      }
+
+      errorMessage.textContent = "";
+      await updateSummary(n, parsedP);
+      await buildTable(n, parsedP);
+      buildChart(n, parsedP);
+    }
+
+    const updateViewDebounced = debounce(updateView, 200);
+
+    document.getElementById("presetButton").addEventListener("click", async () => {
+      document.getElementById("nInput").value = 3;
+      document.getElementById("pInput").value = "1/3";
+      await updateView();
+    });
+
+    document.getElementById("coinPresetButton").addEventListener("click", async () => {
+      document.getElementById("pInput").value = "1/2";
+      await updateView();
+    });
+
+    document.getElementById("nInput").addEventListener("input", updateViewDebounced);
+    document.getElementById("pInput").addEventListener("input", updateViewDebounced);
+
+    document.getElementById("pInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        updateView();
+      }
+    });
+
+    window.addEventListener("load", async () => {
+      await buildLead();
+      await updateView();
+    });
+  </script>
+</body>
+</html>
