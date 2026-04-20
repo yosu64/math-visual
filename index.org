@@ -32,6 +32,23 @@
 命題 \\(p \\to q\\) と具体例を通して、必要条件と十分条件の意味を整理する教材。
 必要条件と十分条件の違いを、図とあわせて確認できる。
 
+* 数II
+:PROPERTIES:
+:TEXTBOOK: 深進数学II
+:END:
+
+** 二項定理の係数の決まり方
+:PROPERTIES:
+:PATH: ./math-ii/binomial-coefficient-visualizer.html
+:TEXTBOOK: 深進数学II
+:PAGE: 9
+:APP: HTML / MathJax
+:PUBLISHED: 2026-04-20
+:UPDATED: 2026-04-20
+:END:
+\\((a+b)^n\\) の展開で、各項がどのように生まれ、係数が決まるかを視覚的に理解する教材。
+\\(a\\) と \\(b\\) の選び方をたどりながら、組合せ \\(nCr\\) と係数の対応を確認できる。
+
 * 数B
 :PROPERTIES:
 :TEXTBOOK: 深進数学B
