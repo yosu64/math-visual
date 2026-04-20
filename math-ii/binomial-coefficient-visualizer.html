@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>二項定理の係数の決まり方</title>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(', '\\)'], ['$', '$']],
+    displayMath: [['\\[', '\\]']]
+  },
+  chtml: {
+    scale: 1
+  },
+  startup: {
+    typeset: false
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+<style>
+body {
+  font-family: sans-serif;
+  background: #f7f9fc;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 28px;
+  margin-bottom: 10px;
+  min-height: 1.8em;
+}
+
+.explain {
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.controls {
+  text-align: center;
+  margin: 10px 0;
+}
+
+.controls select,
+.controls button {
+  font-size: 16px;
+  padding: 6px 12px;
+  margin: 0 4px;
+}
+
+.panel {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.source-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.source-title {
+  font-weight: bold;
+}
+
+.source-note {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.7;
+}
+
+.expanded-expr {
+  margin: 8px 0;
+  font-size: 16px;
+  word-break: break-all;
+  line-height: 1.8;
+}
+
+.source-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.item {
+  background: #eee;
+  text-align: center;
+  padding: 3px;
+  line-height: 1.8;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item.active {
+  background: yellow;
+}
+
+.item.done {
+  opacity: 0.3;
+}
+
+.bridge-note {
+  text-align: center;
+  margin: 10px 0 14px;
+  line-height: 1.8;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.group {
+  border: 2px solid #ccc;
+  padding: 10px;
+  border-radius: 8px;
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+}
+
+.group h3 {
+  margin: 0 0 4px;
+  line-height: 1.6;
+}
+
+.block-title {
+  font-weight: bold;
+  margin-top: 6px;
+  text-align: left;
+}
+
+.group-items {
+  flex: 1;
+  min-height: 72px;
+  line-height: 1.8;
+  margin-top: 4px;
+}
+
+.arrow {
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+
+.extra {
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.group.showC .extra {
+  opacity: 1;
+}
+
+.bottom-block {
+  margin-top: auto;
+  padding-top: 10px;
+  text-align: left;
+}
+
+.formula-line {
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 4px;
+  text-align: left;
+  line-height: 1.8;
+}
+
+.final-line {
+  margin-top: 10px;
+  font-weight: bold;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.result-panel {
+  display: none;
+  margin-top: 20px;
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.result-panel.show {
+  display: block;
+}
+
+.result-formula {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 1.8;
+}
+
+.theorem-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  line-height: 1.8;
+}
+
+.math-inline {
+  display: inline-flex;
+  align-items: center;
+}
+
+.group-count {
+  font-size: 0.95em;
+}
+
+.mjx-container {
+  margin: 0;
+}
+
+.result-formula .mjx-container[display="true"] {
+  margin: 0.35em 0;
+}
+
+@media (max-width: 700px) {
+  .subtitle {
+    font-size: 22px;
+  }
+
+  .result-formula {
+    font-size: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h1>二項定理の係数の決まり方</h1>
+<div id="subtitle" class="subtitle">\( (a+b)^4 \)</div>
+
+<div id="explainText" class="explain">
+  \( (a+b)^n \) は、それぞれのカッコから \( a \) または \( b \) を選ぶことで展開される。
+</div>
+
+<div class="controls">
+  n:
+  <select id="nSelect" onchange="start()">
+    <option>2</option>
+    <option>3</option>
+    <option selected>4</option>
+    <option>5</option>
+    <option>6</option>
+    <option>7</option>
+  </select>
+
+  <button onclick="autoPlay()">自動再生</button>
+  <button onclick="stop()">停止</button>
+</div>
+
+<div class="panel">
+  <div class="source-header">
+    <div class="source-title">展開して出てくるすべての項</div>
+    <div class="source-note">
+      それぞれのカッコから a または b を 1つずつ選んで、<br>
+      展開して出てくる項をすべて書き並べたもの。
+    </div>
+  </div>
+
+  <div id="expandedExpr" class="expanded-expr"></div>
+  <div id="source" class="source-grid"></div>
+</div>
+
+<div class="panel">
+  <div id="bridgeNote" class="bridge-note"></div>
+  <div id="groups" class="groups-grid"></div>
+</div>
+
+<div id="resultPanel" class="result-panel">
+  <div id="resultFormula" class="result-formula"></div>
+  <div id="theoremText" class="theorem-box"></div>
+</div>
+
+<script>
+let n = 4;
+let patterns = [];
+let index = 0;
+let timer = null;
+const SPEED = 150;
+let typesetChain = Promise.resolve();
+
+function mathInline(tex) {
+  return `\\(${tex}\\)`;
+}
+
+function mathDisplay(tex) {
+  return `\\[${tex}\\]`;
+}
+
+function combinationTex(nValue, rValue) {
+  return `{}_{${nValue}}\\mathrm{C}_{${rValue}}`;
+}
+
+function powerTex(base, exponent) {
+  if (exponent === 0) {
+    return "";
+  }
+  if (exponent === 1) {
+    return base;
+  }
+  return `${base}^{${exponent}}`;
+}
+
+function queueTypeset(elements = []) {
+  if (!window.MathJax || !MathJax.typesetPromise || !MathJax.startup) {
+    return Promise.resolve();
+  }
+  const targets = elements.filter(Boolean);
+  typesetChain = typesetChain
+    .then(async () => {
+      await MathJax.startup.promise;
+      if (targets.length > 0) {
+        await MathJax.typesetPromise(targets);
+      } else {
+        await MathJax.typesetPromise();
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  return typesetChain;
+}
+
+function comb(n, r) {
+  if (r === 0 || r === n) {
+    return 1;
+  }
+  let num = 1;
+  let den = 1;
+  for (let i = 1; i <= r; i++) {
+    num *= n - r + i;
+    den *= i;
+  }
+  return num / den;
+}
+
+function generate() {
+  patterns = [];
+  function dfs(cur) {
+    if (cur.length === n) {
+      patterns.push(cur);
+      return;
+    }
+    dfs(cur + "a");
+    dfs(cur + "b");
+  }
+  dfs("");
+}
+
+function render() {
+  const source = document.getElementById("source");
+  const groups = document.getElementById("groups");
+  const bridge = document.getElementById("bridgeNote");
+  const expandedExpr = document.getElementById("expandedExpr");
+  const theoremText = document.getElementById("theoremText");
+  const resultFormula = document.getElementById("resultFormula");
+
+  source.innerHTML = "";
+  groups.innerHTML = "";
+  document.getElementById("resultPanel").classList.remove("show");
+  theoremText.innerHTML = "";
+  resultFormula.innerHTML = "";
+
+  let expr = "";
+  for (let i = 0; i < n; i++) {
+    expr += "(a+b)";
+  }
+  expandedExpr.innerHTML = mathInline(expr);
+
+  bridge.innerHTML =
+    `並べて数えた個数は、<strong>${n} 個の箱</strong>のうち、どの箱に b を入れるかの選び方の総数と同じなので、` +
+    `数学Aで学習した組合せ <strong>${mathInline(combinationTex(n, "k"))}</strong>（k は b の個数）で計算できる。`;
+
+  patterns.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "item";
+    div.id = "item-" + i;
+    div.textContent = p;
+    source.appendChild(div);
+  });
+
+  for (let k = 0; k <= n; k++) {
+    const count = comb(n, k);
+    const aPow = n - k;
+
+    const div = document.createElement("div");
+    div.className = "group";
+    div.id = "group-" + k;
+
+    div.innerHTML = `
+      <h3 id="label-${k}">${mathInline(`b^{${k}}`)} <span class="group-count">(0)</span></h3>
+
+      <div class="block-title">実際に並べて数える</div>
+      <div id="items-${k}" class="group-items"></div>
+      <div id="count-${k}" class="arrow"></div>
+
+      <div class="bottom-block">
+        <div class="extra">
+          <div class="block-title">C を使って計算できる</div>
+          <div class="formula-line">${mathInline(`${combinationTex(n, k)} = ${count}`)}</div>
+        </div>
+
+        <div class="extra final-line">
+          ${mathInline(`${powerTex("a", aPow)}${powerTex("b", k)}`)} の係数は ${count}
+        </div>
+      </div>
+    `;
+    groups.appendChild(div);
+  }
+
+  queueTypeset([expandedExpr, bridge, source, groups]);
+}
+
+function updateCount(k) {
+  const items = document.getElementById("items-" + k);
+  const count = items.children.length;
+  const aPow = n - k;
+  const label = document.getElementById("label-" + k);
+  const countLine = document.getElementById("count-" + k);
+
+  label.innerHTML = `${mathInline(`b^{${k}}`)} <span class="group-count">(${count})</span>`;
+  countLine.innerHTML =
+    `→ ${count} 個（すべて ${mathInline(`${powerTex("a", aPow)}${powerTex("b", k)}`)}）`;
+
+  queueTypeset([label, countLine]);
+}
+
+function nextStep() {
+  if (index >= patterns.length) {
+    showC();
+    showResult();
+    stop();
+    return;
+  }
+
+  const str = patterns[index];
+  const item = document.getElementById("item-" + index);
+  item.classList.add("active");
+
+  const bCount = (str.match(/b/g) || []).length;
+  const target = document.getElementById("items-" + bCount);
+
+  const div = document.createElement("div");
+  div.textContent = str;
+  target.appendChild(div);
+
+  updateCount(bCount);
+
+  setTimeout(() => {
+    item.classList.remove("active");
+    item.classList.add("done");
+  }, 120);
+
+  index++;
+}
+
+function showC() {
+  for (let k = 0; k <= n; k++) {
+    document.getElementById("group-" + k).classList.add("showC");
+  }
+}
+
+function termText(k) {
+  const c = comb(n, k);
+  const aPow = n - k;
+  const aPart = powerTex("a", aPow);
+  const bPart = powerTex("b", k);
+  const variablePart = `${aPart}${bPart}`;
+  if (c === 1) {
+    return variablePart || "1";
+  }
+  return `${c}${variablePart}`;
+}
+
+function showResult() {
+  const terms = [];
+  for (let k = 0; k <= n; k++) {
+    terms.push(termText(k));
+  }
+
+  document.getElementById("resultFormula").innerHTML =
+    mathDisplay(`(a+b)^${n} = ${terms.join(" + ")}`);
+
+  document.getElementById("theoremText").innerHTML =
+    `並べて数えた個数と、組合せで計算した結果が一致する。<br>` +
+    `一般に、${mathInline(`(a+b)^n`)} を展開すると、` +
+    `${mathInline(`a^{n-r}b^r`)} の係数は ${mathInline(combinationTex("n", "r"))} になる。これが二項定理である。`;
+  
+  document.getElementById("resultPanel").classList.add("show");
+  queueTypeset([
+    document.getElementById("resultFormula"),
+    document.getElementById("theoremText")
+  ]);
+}
+
+function autoPlay() {
+  stop();
+  timer = setInterval(nextStep, SPEED);
+}
+
+function stop() {
+  clearInterval(timer);
+  timer = null;
+}
+
+function start() {
+  stop();
+  n = parseInt(document.getElementById("nSelect").value, 10);
+  index = 0;
+
+  document.getElementById("subtitle").innerHTML = mathInline(`(a+b)^${n}`);
+  document.getElementById("explainText").innerHTML =
+    `${mathInline(`(a+b)^n`)} は、それぞれのカッコから ${mathInline("a")} または ${mathInline("b")} を選ぶことで展開される。`;
+
+  generate();
+  render();
+  queueTypeset([
+    document.getElementById("subtitle"),
+    document.getElementById("explainText")
+  ]);
+}
+
+window.addEventListener("load", start);
+</script>
+
+</body>
+</html>
