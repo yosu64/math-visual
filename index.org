@@ -49,6 +49,18 @@
 \\((a+b)^n\\) の展開で、各項がどのように生まれ、係数が決まるかを視覚的に理解する教材。
 \\(a\\) と \\(b\\) の選び方をたどりながら、組合せ \\(nCr\\) と係数の対応を確認できる。
 
+** 三項の展開の係数の決まり方
+:PROPERTIES:
+:PATH: ./math-ii/multinomial-coefficient-visualizer.html
+:TEXTBOOK: 深進数学II
+:PAGE: 10
+:APP: HTML / MathJax
+:PUBLISHED: 2026-04-20
+:UPDATED: 2026-04-20
+:END:
+\\((a+b+c)^n\\) の展開で、各項がどのように生まれ、係数が決まるかを視覚的に理解する教材。
+\\(a\\)、\\(b\\)、\\(c\\) の選び方をたどりながら、同じものを含む順列 \\(n!/(p!q!r!)\\) と係数の対応を確認できる。
+
 * 数B
 :PROPERTIES:
 :TEXTBOOK: 深進数学B
