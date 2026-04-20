@@ -237,6 +237,14 @@ h1 {
   line-height: 1.8;
 }
 
+.mode-note {
+  text-align: center;
+  font-size: 14px;
+  color: #444;
+  margin-top: 6px;
+  line-height: 1.8;
+}
+
 .math-inline {
   display: inline-flex;
   align-items: center;
@@ -285,6 +293,9 @@ h1 {
     <option>5</option>
     <option>6</option>
     <option>7</option>
+    <option>8</option>
+    <option>9</option>
+    <option>10</option>
   </select>
 
   <button onclick="autoPlay()">自動再生</button>
@@ -293,8 +304,8 @@ h1 {
 
 <div class="panel">
   <div class="source-header">
-    <div class="source-title">展開して出てくるすべての項</div>
-    <div class="source-note">
+    <div id="sourceTitle" class="source-title">展開して出てくるすべての項</div>
+    <div id="sourceNote" class="source-note">
       それぞれのカッコから a または b を 1つずつ選んで、<br>
       展開して出てくる項をすべて書き並べたもの。
     </div>
@@ -302,6 +313,7 @@ h1 {
 
   <div id="expandedExpr" class="expanded-expr"></div>
   <div id="source" class="source-grid"></div>
+  <div id="modeNote" class="mode-note"></div>
 </div>
 
 <div class="panel">
@@ -319,6 +331,8 @@ let n = 4;
 let patterns = [];
 let index = 0;
 let timer = null;
+let highModeTargets = [];
+let revealIndex = 0;
 const SPEED = 150;
 let typesetChain = Promise.resolve();
 
@@ -364,20 +378,33 @@ function queueTypeset(elements = []) {
   return typesetChain;
 }
 
-function comb(n, r) {
-  if (r === 0 || r === n) {
+function comb(nValue, rValue) {
+  if (rValue === 0 || rValue === nValue) {
     return 1;
   }
+  const r = Math.min(rValue, nValue - rValue);
   let num = 1;
   let den = 1;
   for (let i = 1; i <= r; i++) {
-    num *= n - r + i;
+    num *= nValue - r + i;
     den *= i;
   }
   return num / den;
 }
 
-function generate() {
+function isHighMode() {
+  return n >= 8;
+}
+
+function expandedExprTex() {
+  let expr = "";
+  for (let i = 0; i < n; i++) {
+    expr += "(a+b)";
+  }
+  return expr;
+}
+
+function generateAllPatterns() {
   patterns = [];
   function dfs(cur) {
     if (cur.length === n) {
@@ -390,25 +417,68 @@ function generate() {
   dfs("");
 }
 
-function render() {
+function shuffle(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function pickRandomTargets() {
+  const candidates = Array.from({ length: n + 1 }, (_, k) => k);
+  highModeTargets = shuffle(candidates).slice(0, 3).sort((a, b) => a - b);
+}
+
+function samplePatternsForK(k, limit = 10) {
+  const total = comb(n, k);
+  const maxNeeded = Math.min(limit, total);
+  const results = [];
+  const seen = new Set();
+
+  while (results.length < maxNeeded) {
+    const chars = Array(n).fill("a");
+    const positions = shuffle(Array.from({ length: n }, (_, i) => i)).slice(0, k);
+    positions.forEach((pos) => {
+      chars[pos] = "b";
+    });
+    const sample = chars.join("");
+    if (!seen.has(sample)) {
+      seen.add(sample);
+      results.push(sample);
+    }
+  }
+
+  results.sort();
+  return results;
+}
+
+function resetPanels() {
+  document.getElementById("source").innerHTML = "";
+  document.getElementById("groups").innerHTML = "";
+  document.getElementById("bridgeNote").innerHTML = "";
+  document.getElementById("expandedExpr").innerHTML = "";
+  document.getElementById("modeNote").textContent = "";
+  document.getElementById("resultPanel").classList.remove("show");
+  document.getElementById("resultFormula").innerHTML = "";
+  document.getElementById("theoremText").innerHTML = "";
+}
+
+function renderLowMode() {
   const source = document.getElementById("source");
   const groups = document.getElementById("groups");
   const bridge = document.getElementById("bridgeNote");
   const expandedExpr = document.getElementById("expandedExpr");
-  const theoremText = document.getElementById("theoremText");
-  const resultFormula = document.getElementById("resultFormula");
+  const sourceTitle = document.getElementById("sourceTitle");
+  const sourceNote = document.getElementById("sourceNote");
+  const modeNote = document.getElementById("modeNote");
 
-  source.innerHTML = "";
-  groups.innerHTML = "";
-  document.getElementById("resultPanel").classList.remove("show");
-  theoremText.innerHTML = "";
-  resultFormula.innerHTML = "";
-
-  let expr = "";
-  for (let i = 0; i < n; i++) {
-    expr += "(a+b)";
-  }
-  expandedExpr.innerHTML = mathInline(expr);
+  sourceTitle.textContent = "展開して出てくるすべての項";
+  sourceNote.innerHTML =
+    "それぞれのカッコから a または b を 1つずつ選んで、<br>展開して出てくる項をすべて書き並べたもの。";
+  modeNote.textContent = "";
+  expandedExpr.innerHTML = mathInline(expandedExprTex());
 
   bridge.innerHTML =
     `並べて数えた個数は、<strong>${n} 個の箱</strong>のうち、どの箱に b を入れるかの選び方の総数と同じなので、` +
@@ -454,6 +524,77 @@ function render() {
   queueTypeset([expandedExpr, bridge, source, groups]);
 }
 
+function renderHighMode() {
+  const source = document.getElementById("source");
+  const groups = document.getElementById("groups");
+  const bridge = document.getElementById("bridgeNote");
+  const expandedExpr = document.getElementById("expandedExpr");
+  const sourceTitle = document.getElementById("sourceTitle");
+  const sourceNote = document.getElementById("sourceNote");
+  const modeNote = document.getElementById("modeNote");
+
+  sourceTitle.textContent = "今回は代表的な項だけ調べる";
+  sourceNote.innerHTML =
+    `${n}乗では項が多くなりすぎるので、展開して出てくる項を全部は並べず、<br>ランダムに選んだ 3 個の代表的な項だけを見る。`;
+  modeNote.textContent = "n が 8 以上のときは簡略表示に切り替わり、代表の 3 個を順番に見る。";
+  expandedExpr.innerHTML = mathInline(expandedExprTex());
+
+  bridge.innerHTML =
+    `n が大きいと項が多くなるので、ここでは代表的な ${mathInline("b^k")} の項だけを見る。` +
+    `それぞれの並べ方の総数は、<strong>${n} 個の箱</strong>のうちどこに b を入れるかの選び方だから、` +
+    `数学Aで学習した組合せ <strong>${mathInline(combinationTex(n, "k"))}</strong> で計算できる。`;
+
+  highModeTargets.forEach((k, i) => {
+    const count = comb(n, k);
+    const aPow = n - k;
+    const samples = samplePatternsForK(k, 10);
+
+    const sourceCard = document.createElement("div");
+    sourceCard.className = "item";
+    sourceCard.style.padding = "8px";
+    sourceCard.style.textAlign = "left";
+    sourceCard.innerHTML =
+      `<strong>${mathInline(`b^{${k}}`)}</strong><br>` +
+      `例：${samples.slice(0, 3).join(", ")}${samples.length > 3 ? " ..." : ""}`;
+    source.appendChild(sourceCard);
+
+    const div = document.createElement("div");
+    div.className = "group";
+    div.id = "focus-" + i;
+
+    div.innerHTML = `
+      <h3>${mathInline(`b^{${k}}`)}</h3>
+
+      <div class="block-title">実際に並べて数える</div>
+      <div class="group-items">${samples.join("<br>")}</div>
+      <div class="arrow">→ 全部で ${count} 個（すべて ${mathInline(`${powerTex("a", aPow)}${powerTex("b", k)}`)}）</div>
+
+      <div class="bottom-block">
+        <div class="extra">
+          <div class="block-title">C を使って計算できる</div>
+          <div class="formula-line">${mathInline(`${combinationTex(n, k)} = ${count}`)}</div>
+        </div>
+
+        <div class="extra final-line">
+          ${mathInline(`${powerTex("a", aPow)}${powerTex("b", k)}`)} の係数は ${count}
+        </div>
+      </div>
+    `;
+    groups.appendChild(div);
+  });
+
+  queueTypeset([expandedExpr, bridge, source, groups, modeNote]);
+}
+
+function render() {
+  resetPanels();
+  if (isHighMode()) {
+    renderHighMode();
+  } else {
+    renderLowMode();
+  }
+}
+
 function updateCount(k) {
   const items = document.getElementById("items-" + k);
   const count = items.children.length;
@@ -468,7 +609,7 @@ function updateCount(k) {
   queueTypeset([label, countLine]);
 }
 
-function nextStep() {
+function nextStepLowMode() {
   if (index >= patterns.length) {
     showC();
     showResult();
@@ -497,48 +638,80 @@ function nextStep() {
   index++;
 }
 
+function nextStepHighMode() {
+  if (revealIndex >= highModeTargets.length) {
+    showResult();
+    stop();
+    return;
+  }
+
+  document.getElementById("focus-" + revealIndex).classList.add("showC");
+  revealIndex++;
+}
+
 function showC() {
+  if (isHighMode()) {
+    highModeTargets.forEach((_, i) => {
+      document.getElementById("focus-" + i).classList.add("showC");
+    });
+    return;
+  }
+
   for (let k = 0; k <= n; k++) {
     document.getElementById("group-" + k).classList.add("showC");
   }
 }
 
 function termText(k) {
-  const c = comb(n, k);
+  const coefficient = comb(n, k);
   const aPow = n - k;
-  const aPart = powerTex("a", aPow);
-  const bPart = powerTex("b", k);
-  const variablePart = `${aPart}${bPart}`;
-  if (c === 1) {
+  const variablePart = `${powerTex("a", aPow)}${powerTex("b", k)}`;
+  if (coefficient === 1) {
     return variablePart || "1";
   }
-  return `${c}${variablePart}`;
+  return `${coefficient}${variablePart}`;
 }
 
 function showResult() {
-  const terms = [];
-  for (let k = 0; k <= n; k++) {
-    terms.push(termText(k));
+  const resultFormula = document.getElementById("resultFormula");
+  const theoremText = document.getElementById("theoremText");
+
+  if (isHighMode()) {
+    const focusLines = highModeTargets.map((k) => {
+      const term = `${powerTex("a", n - k)}${powerTex("b", k)}`;
+      return `${term}\\text{ の係数 }= ${comb(n, k)}`;
+    });
+
+    resultFormula.innerHTML = mathDisplay(focusLines.join("\\qquad "));
+    theoremText.innerHTML =
+      `項を全部並べなくても、<strong>${n} 個の箱</strong>のうちどの箱に ${mathInline("b")} を入れるかを考えれば、` +
+      `${mathInline(`a^{n-r}b^r`)} の係数は ${mathInline(combinationTex("n", "r"))} とわかる。<br>` +
+      `二項定理では、この組合せ ${mathInline(combinationTex("n", "r"))} が、そのまま各項の係数になる。`;
+  } else {
+    const terms = [];
+    for (let k = 0; k <= n; k++) {
+      terms.push(termText(k));
+    }
+
+    resultFormula.innerHTML = mathDisplay(`(a+b)^${n} = ${terms.join(" + ")}`);
+    theoremText.innerHTML =
+      `並べて数えた個数と、組合せで計算した結果が一致する。<br>` +
+      `一般に、${mathInline(`(a+b)^n`)} を展開すると、` +
+      `${mathInline(`a^{n-r}b^r`)} の係数は ${mathInline(combinationTex("n", "r"))} になる。これが二項定理である。`;
   }
 
-  document.getElementById("resultFormula").innerHTML =
-    mathDisplay(`(a+b)^${n} = ${terms.join(" + ")}`);
-
-  document.getElementById("theoremText").innerHTML =
-    `並べて数えた個数と、組合せで計算した結果が一致する。<br>` +
-    `一般に、${mathInline(`(a+b)^n`)} を展開すると、` +
-    `${mathInline(`a^{n-r}b^r`)} の係数は ${mathInline(combinationTex("n", "r"))} になる。これが二項定理である。`;
-  
   document.getElementById("resultPanel").classList.add("show");
-  queueTypeset([
-    document.getElementById("resultFormula"),
-    document.getElementById("theoremText")
-  ]);
+  queueTypeset([resultFormula, theoremText]);
 }
 
 function autoPlay() {
   stop();
-  timer = setInterval(nextStep, SPEED);
+  if (isHighMode()) {
+    revealIndex = 0;
+    timer = setInterval(nextStepHighMode, 500);
+  } else {
+    timer = setInterval(nextStepLowMode, SPEED);
+  }
 }
 
 function stop() {
@@ -550,12 +723,21 @@ function start() {
   stop();
   n = parseInt(document.getElementById("nSelect").value, 10);
   index = 0;
+  revealIndex = 0;
 
   document.getElementById("subtitle").innerHTML = mathInline(`(a+b)^${n}`);
-  document.getElementById("explainText").innerHTML =
-    `${mathInline(`(a+b)^n`)} は、それぞれのカッコから ${mathInline("a")} または ${mathInline("b")} を選ぶことで展開される。`;
 
-  generate();
+  if (isHighMode()) {
+    document.getElementById("explainText").innerHTML =
+      `${mathInline(`(a+b)^n`)} は、それぞれのカッコから ${mathInline("a")} または ${mathInline("b")} を選んで展開される。<br>` +
+      `今回は項が多くなるので、代表的な ${mathInline("b^k")} の項だけを調べる。`;
+    pickRandomTargets();
+  } else {
+    document.getElementById("explainText").innerHTML =
+      `${mathInline(`(a+b)^n`)} は、それぞれのカッコから ${mathInline("a")} または ${mathInline("b")} を選ぶことで展開される。`;
+    generateAllPatterns();
+  }
+
   render();
   queueTypeset([
     document.getElementById("subtitle"),
