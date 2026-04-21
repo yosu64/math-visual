@@ -276,7 +276,8 @@ h1 {
 }
 
 .result-formula-prefix,
-.result-formula-term {
+.result-formula-term,
+.result-formula-separator {
   display: inline-flex;
   align-items: center;
   white-space: nowrap;
@@ -777,27 +778,26 @@ function showResult() {
   const resultFormula = document.getElementById("resultFormula");
   const theoremText = document.getElementById("theoremText");
 
-  function renderWrappedFormula(prefixTex, termTexList) {
+  function renderWrappedFormula(prefixTex, termTexList, separatorTex = "") {
     const parts = [];
     if (prefixTex) {
       parts.push(`<span class="result-formula-prefix">${mathInline(prefixTex)}</span>`);
     }
-    termTexList.forEach((tex) => {
+    termTexList.forEach((tex, index) => {
+      if (separatorTex && index > 0) {
+        parts.push(`<span class="result-formula-separator">${mathInline(separatorTex)}</span>`);
+      }
       parts.push(`<span class="result-formula-term">${mathInline(tex)}</span>`);
     });
     resultFormula.innerHTML = parts.join("");
   }
 
   if (isHighMode()) {
-    const terms = highModeTargets.flatMap(t => {
+    const terms = highModeTargets.map(t => {
       const c = coeff(t.aCount, t.bCount, t.cCount);
-      return [
-        termTex(t.aCount, t.bCount, t.cCount),
-        `\\text{の係数}`,
-        `= ${c}`
-      ];
+      return `${termTex(t.aCount, t.bCount, t.cCount)}\\text{ の係数 }= ${c}`;
     });
-    renderWrappedFormula("", terms);
+    renderWrappedFormula("", terms, "\\text{， }");
 
     theoremText.innerHTML =
       `数Aで学習した「同じものを含む順列」の総数は <strong>${mathInline(`\\frac{n!}{p!q!r!}`)}</strong> で表される。<br>` +

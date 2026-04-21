@@ -270,10 +270,23 @@ h1 {
 }
 
 .result-formula {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 8px;
   text-align: center;
   font-size: 24px;
   font-weight: bold;
   line-height: 1.8;
+}
+
+.result-formula-prefix,
+.result-formula-term,
+.result-formula-separator {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .theorem-box {
@@ -753,13 +766,27 @@ function showResult() {
   const resultFormula = document.getElementById("resultFormula");
   const theoremText = document.getElementById("theoremText");
 
+  function renderWrappedFormula(prefixTex, termTexList, separatorTex = "") {
+    const parts = [];
+    if (prefixTex) {
+      parts.push(`<span class="result-formula-prefix">${mathInline(prefixTex)}</span>`);
+    }
+    termTexList.forEach((tex, index) => {
+      if (separatorTex && index > 0) {
+        parts.push(`<span class="result-formula-separator">${mathInline(separatorTex)}</span>`);
+      }
+      parts.push(`<span class="result-formula-term">${mathInline(tex)}</span>`);
+    });
+    resultFormula.innerHTML = parts.join("");
+  }
+
   if (isHighMode()) {
     const focusLines = highModeTargets.map((k) => {
       const term = `${powerTex("a", n - k)}${powerTex("b", k)}`;
       return `${term}\\text{ の係数 }= ${comb(n, k)}`;
     });
 
-    resultFormula.innerHTML = mathDisplay(focusLines.join("\\qquad "));
+    renderWrappedFormula("", focusLines, "\\text{， }");
     theoremText.innerHTML =
       `項を全部並べなくても、<strong>${n} 個の箱</strong>のうちどの箱に ${mathInline("b")} を入れるかを考えれば、` +
       `${mathInline(`a^{n-r}b^r`)} の係数は ${mathInline(combinationTex("n", "r"))} とわかる。<br>` +
@@ -770,7 +797,10 @@ function showResult() {
       terms.push(termText(k));
     }
 
-    resultFormula.innerHTML = mathDisplay(`(a+b)^${n} = ${terms.join(" + ")}`);
+    renderWrappedFormula(
+      `(a+b)^${n} =`,
+      terms.map((term, index) => (index === 0 ? term : `+ ${term}`))
+    );
     theoremText.innerHTML =
       `並べて数えた個数と、組合せで計算した結果が一致する。<br>` +
       `一般に、${mathInline(`(a+b)^n`)} を展開すると、` +
