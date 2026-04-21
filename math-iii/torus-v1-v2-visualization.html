@@ -11,12 +11,16 @@ body {
   overflow: hidden;
   font-family: sans-serif;
   background: #fff;
+  line-height: 1.6;
 }
 #ui {
   position: fixed;
   left: 10px;
   top: 10px;
-  width: 360px;
+  width: min(360px, calc(100vw - 20px));
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+  overflow: auto;
   z-index: 10;
   background: rgba(255,255,255,0.96);
   padding: 12px;
@@ -37,6 +41,7 @@ body {
   padding: 8px 12px;
   cursor: pointer;
   font-size: 14px;
+  min-height: 42px;
 }
 #ui button:hover { background: #efefef; }
 #topLink {
@@ -64,6 +69,7 @@ body {
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   font-size: 12px;
+  max-width: calc(100vw - 20px);
 }
 .title {
   font-size: 18px;
@@ -80,6 +86,28 @@ body {
   background:#f8fafc;
   border:1px solid #ddd;
   border-radius:8px;
+}
+
+@media (max-width: 720px) {
+  #ui {
+    width: calc(100vw - 20px);
+    max-height: 62vh;
+  }
+
+  #hint {
+    left: 10px;
+    right: 10px;
+    max-width: none;
+    text-align: center;
+  }
+
+  .title {
+    font-size: 16px;
+  }
+
+  .row-buttons > button {
+    flex: 1 1 140px;
+  }
 }
 </style>
 <script type="importmap">

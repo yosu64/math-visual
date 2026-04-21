@@ -263,6 +263,60 @@
       .graph-wrap { height: 68vh; min-height: 520px; }
       .side { height: auto; }
     }
+
+    @media (max-width: 700px) {
+      .wrap {
+        gap: 10px;
+        padding: 10px;
+      }
+
+      .panel-head {
+        padding: 12px 14px;
+      }
+
+      .side-inner {
+        padding: 14px;
+        overflow-x: hidden;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      .graph-wrap {
+        height: 52vh;
+        min-height: 340px;
+      }
+
+      .legend {
+        right: 8px;
+        top: 8px;
+        font-size: 11px;
+      }
+
+      .control-row,
+      .mode-row {
+        grid-template-columns: 1fr;
+      }
+
+      .n-value {
+        min-width: 0;
+        text-align: left;
+      }
+
+      .button-row button {
+        flex: 1 1 140px;
+        min-height: 42px;
+      }
+
+      .stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 12px;
+      }
+    }
   </style>
 </head>
 <body>

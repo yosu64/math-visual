@@ -11,12 +11,16 @@ body{
   overflow:hidden;
   font-family:sans-serif;
   background:#fff;
+  line-height:1.6;
 }
 #ui{
   position:fixed;
   left:10px;
   top:10px;
-  width:380px;
+  width:min(380px, calc(100vw - 20px));
+  max-width:calc(100vw - 20px);
+  max-height:calc(100vh - 20px);
+  overflow:auto;
   z-index:10;
   background:rgba(255,255,255,0.96);
   padding:12px;
@@ -35,6 +39,7 @@ body{
   border-radius:10px;
   box-shadow:0 4px 20px rgba(0,0,0,0.08);
   font-size:12px;
+  max-width:calc(100vw - 20px);
 }
 #ui hr{
   border:none;
@@ -48,6 +53,7 @@ body{
   padding:8px 12px;
   cursor:pointer;
   font-size:14px;
+  min-height:42px;
 }
 #ui button:hover{ background:#efefef; }
 #topLink{
@@ -69,6 +75,28 @@ body{
 .blue{ color:#2563eb; font-weight:700; }
 .row-buttons{ display:flex; gap:8px; flex-wrap:wrap; }
 .small{ color:#555; font-size:12px; }
+
+@media (max-width: 720px){
+  #ui{
+    width:calc(100vw - 20px);
+    max-height:62vh;
+  }
+
+  #hint{
+    left:10px;
+    right:10px;
+    max-width:none;
+    text-align:center;
+  }
+
+  .title{
+    font-size:16px;
+  }
+
+  .row-buttons > button{
+    flex:1 1 140px;
+  }
+}
 </style>
 <script type="importmap">
 {
