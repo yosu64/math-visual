@@ -65,13 +65,36 @@ h1 {
 .controls {
   text-align: center;
   margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 10px;
 }
 
 .controls select,
 .controls button {
   font-size: 16px;
   padding: 6px 12px;
-  margin: 0 4px;
+  margin: 0;
+}
+
+.regen-controls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.regen-note {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.is-hidden {
+  display: none !important;
 }
 
 .range-guide {
@@ -342,8 +365,13 @@ h1 {
   }
 
   .mode-note,
-  .source-note {
+  .source-note,
+  .regen-note {
     font-size: 13px;
+  }
+
+  .regen-controls {
+    width: 100%;
   }
 
   .result-formula {
@@ -386,7 +414,10 @@ h1 {
 
   <button onclick="autoPlay()">自動再生</button>
   <button onclick="stop()">停止</button>
-  <button onclick="regenerateTargets()">再生成</button>
+  <span id="regenControls" class="regen-controls is-hidden">
+    <button id="regenerateButton" onclick="regenerateTargets()">再生成</button>
+    <span id="regenNote" class="regen-note">再生成で、表示する代表的な項を選び直せます。</span>
+  </span>
 </div>
 
 <div class="panel">
@@ -548,9 +579,49 @@ function pickRandomTargets() {
     const nonZero = [t.aCount, t.bCount, t.cCount].filter(x => x > 0).length;
     return nonZero >= 2;
   });
+  const ranked = triples
+    .map((triple) => ({ ...triple, count: coeff(triple.aCount, triple.bCount, triple.cCount) }))
+    .sort((left, right) => left.count - right.count);
 
-  const shuffled = shuffle(triples);
-  highModeTargets = shuffled.slice(0, 3);
+  const segments = [
+    ranked.slice(0, Math.max(1, Math.floor(ranked.length / 3))),
+    ranked.slice(Math.max(1, Math.floor(ranked.length / 3)), Math.max(2, Math.floor((2 * ranked.length) / 3))),
+    ranked.slice(Math.max(2, Math.floor((2 * ranked.length) / 3)))
+  ].filter((segment) => segment.length > 0);
+
+  const picked = [];
+  segments.forEach((segment) => {
+    const balanced = segment.filter((triple) => Math.max(triple.aCount, triple.bCount, triple.cCount) < n);
+    const pool = balanced.length > 0 ? balanced : segment;
+    const chosen = shuffle(pool)[0];
+    if (chosen) {
+      picked.push({ aCount: chosen.aCount, bCount: chosen.bCount, cCount: chosen.cCount });
+    }
+  });
+
+  const unique = [];
+  picked.forEach((triple) => {
+    if (!unique.some((item) =>
+      item.aCount === triple.aCount &&
+      item.bCount === triple.bCount &&
+      item.cCount === triple.cCount
+    )) {
+      unique.push(triple);
+    }
+  });
+
+  if (unique.length < 3) {
+    const rest = shuffle(triples).filter((triple) =>
+      !unique.some((item) =>
+        item.aCount === triple.aCount &&
+        item.bCount === triple.bCount &&
+        item.cCount === triple.cCount
+      )
+    );
+    unique.push(...rest.slice(0, 3 - unique.length));
+  }
+
+  highModeTargets = unique.slice(0, 3);
 }
 
 function sampleArrangements(aCount, bCount, cCount, sampleSize = 12) {
@@ -584,6 +655,10 @@ function resetPanels() {
   document.getElementById("resultPanel").classList.remove("show");
   document.getElementById("resultFormula").innerHTML = "";
   document.getElementById("theoremText").innerHTML = "";
+}
+
+function updateRegenerateControls() {
+  document.getElementById("regenControls").classList.toggle("is-hidden", !isHighMode());
 }
 
 function renderLowMode() {
@@ -778,14 +853,14 @@ function showResult() {
   const resultFormula = document.getElementById("resultFormula");
   const theoremText = document.getElementById("theoremText");
 
-  function renderWrappedFormula(prefixTex, termTexList, separatorTex = "") {
+  function renderWrappedFormula(prefixTex, termTexList, separatorText = "") {
     const parts = [];
     if (prefixTex) {
       parts.push(`<span class="result-formula-prefix">${mathInline(prefixTex)}</span>`);
     }
     termTexList.forEach((tex, index) => {
-      if (separatorTex && index > 0) {
-        parts.push(`<span class="result-formula-separator">${mathInline(separatorTex)}</span>`);
+      if (separatorText && index > 0) {
+        parts.push(`<span class="result-formula-separator">${separatorText}</span>`);
       }
       parts.push(`<span class="result-formula-term">${mathInline(tex)}</span>`);
     });
@@ -797,7 +872,7 @@ function showResult() {
       const c = coeff(t.aCount, t.bCount, t.cCount);
       return `${termTex(t.aCount, t.bCount, t.cCount)}\\text{ の係数 }= ${c}`;
     });
-    renderWrappedFormula("", terms, "\\text{， }");
+    renderWrappedFormula("", terms, "， ");
 
     theoremText.innerHTML =
       `数Aで学習した「同じものを含む順列」の総数は <strong>${mathInline(`\\frac{n!}{p!q!r!}`)}</strong> で表される。<br>` +
@@ -842,10 +917,12 @@ function stop() {
 }
 
 function regenerateTargets() {
-  if (!isHighMode()) return;
   stop();
-  pickRandomTargets();
+  index = 0;
   revealIndex = 0;
+  if (isHighMode()) {
+    pickRandomTargets();
+  }
   render();
 }
 
@@ -854,6 +931,7 @@ function start() {
   n = parseInt(document.getElementById("nSelect").value, 10);
   index = 0;
   revealIndex = 0;
+  updateRegenerateControls();
 
   document.getElementById("subtitle").innerHTML = mathInline(`(a+b+c)^${n}`);
   if (isHighMode()) {

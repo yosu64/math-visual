@@ -64,13 +64,36 @@ h1 {
 .controls {
   text-align: center;
   margin: 10px 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 8px 10px;
 }
 
 .controls select,
 .controls button {
   font-size: 16px;
   padding: 6px 12px;
-  margin: 0 4px;
+  margin: 0;
+}
+
+.regen-controls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.regen-note {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.7;
+}
+
+.is-hidden {
+  display: none !important;
 }
 
 .range-guide {
@@ -344,8 +367,13 @@ h1 {
   }
 
   .mode-note,
-  .source-note {
+  .source-note,
+  .regen-note {
     font-size: 13px;
+  }
+
+  .regen-controls {
+    width: 100%;
   }
 
   .result-formula {
@@ -386,6 +414,10 @@ h1 {
 
   <button onclick="autoPlay()">自動再生</button>
   <button onclick="stop()">停止</button>
+  <span id="regenControls" class="regen-controls is-hidden">
+    <button id="regenerateButton" onclick="regenerateTargets()">再生成</button>
+    <span id="regenNote" class="regen-note">再生成で、表示する代表的な項を選び直せます。</span>
+  </span>
 </div>
 
 <div class="panel">
@@ -513,8 +545,32 @@ function shuffle(arr) {
 }
 
 function pickRandomTargets() {
-  const candidates = Array.from({ length: n + 1 }, (_, k) => k);
-  highModeTargets = shuffle(candidates).slice(0, 3).sort((a, b) => a - b);
+  const buckets = [
+    Array.from({ length: n + 1 }, (_, k) => k).filter((k) => k <= Math.floor(n / 3)),
+    Array.from({ length: n + 1 }, (_, k) => k).filter((k) => k > Math.floor(n / 3) && k < Math.ceil((2 * n) / 3)),
+    Array.from({ length: n + 1 }, (_, k) => k).filter((k) => k >= Math.ceil((2 * n) / 3))
+  ];
+  const picked = [];
+
+  buckets.forEach((bucket, bucketIndex) => {
+    const preferred = bucket.filter((k) => {
+      if (bucketIndex === 0 || bucketIndex === 2) {
+        return k !== 0 && k !== n;
+      }
+      return true;
+    });
+    const pool = preferred.length > 0 ? preferred : bucket;
+    if (pool.length > 0) {
+      picked.push(shuffle(pool)[0]);
+    }
+  });
+
+  if (picked.length < 3) {
+    const rest = Array.from({ length: n + 1 }, (_, k) => k).filter((k) => !picked.includes(k));
+    picked.push(...shuffle(rest).slice(0, 3 - picked.length));
+  }
+
+  highModeTargets = picked.slice(0, 3).sort((a, b) => a - b);
 }
 
 function samplePatternsForK(k, limit = 10) {
@@ -550,6 +606,10 @@ function resetPanels() {
   document.getElementById("resultPanel").classList.remove("show");
   document.getElementById("resultFormula").innerHTML = "";
   document.getElementById("theoremText").innerHTML = "";
+}
+
+function updateRegenerateControls() {
+  document.getElementById("regenControls").classList.toggle("is-hidden", !isHighMode());
 }
 
 function renderLowMode() {
@@ -766,14 +826,14 @@ function showResult() {
   const resultFormula = document.getElementById("resultFormula");
   const theoremText = document.getElementById("theoremText");
 
-  function renderWrappedFormula(prefixTex, termTexList, separatorTex = "") {
+  function renderWrappedFormula(prefixTex, termTexList, separatorText = "") {
     const parts = [];
     if (prefixTex) {
       parts.push(`<span class="result-formula-prefix">${mathInline(prefixTex)}</span>`);
     }
     termTexList.forEach((tex, index) => {
-      if (separatorTex && index > 0) {
-        parts.push(`<span class="result-formula-separator">${mathInline(separatorTex)}</span>`);
+      if (separatorText && index > 0) {
+        parts.push(`<span class="result-formula-separator">${separatorText}</span>`);
       }
       parts.push(`<span class="result-formula-term">${mathInline(tex)}</span>`);
     });
@@ -786,7 +846,7 @@ function showResult() {
       return `${term}\\text{ の係数 }= ${comb(n, k)}`;
     });
 
-    renderWrappedFormula("", focusLines, "\\text{， }");
+    renderWrappedFormula("", focusLines, "， ");
     theoremText.innerHTML =
       `項を全部並べなくても、<strong>${n} 個の箱</strong>のうちどの箱に ${mathInline("b")} を入れるかを考えれば、` +
       `${mathInline(`a^{n-r}b^r`)} の係数は ${mathInline(combinationTex("n", "r"))} とわかる。<br>` +
@@ -826,11 +886,22 @@ function stop() {
   timer = null;
 }
 
+function regenerateTargets() {
+  stop();
+  index = 0;
+  revealIndex = 0;
+  if (isHighMode()) {
+    pickRandomTargets();
+  }
+  render();
+}
+
 function start() {
   stop();
   n = parseInt(document.getElementById("nSelect").value, 10);
   index = 0;
   revealIndex = 0;
+  updateRegenerateControls();
 
   document.getElementById("subtitle").innerHTML = mathInline(`(a+b)^${n}`);
 
