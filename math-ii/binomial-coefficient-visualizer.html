@@ -53,6 +53,28 @@ h1 {
   font-size: 28px;
   margin-bottom: 10px;
   min-height: 1.8em;
+  white-space: nowrap;
+}
+
+.subtitle-math {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.subtitle math {
+  display: inline-block;
+  white-space: nowrap;
+  font-size: 1.9em;
+  line-height: 1;
+}
+
+.subtitle mi,
+.subtitle mn {
+  font-style: italic;
+}
+
+.subtitle mn {
+  font-style: normal;
 }
 
 .explain {
@@ -474,6 +496,11 @@ function powerTex(base, exponent) {
     return base;
   }
   return `${base}^{${exponent}}`;
+}
+
+function renderSubtitle() {
+  document.getElementById("subtitle").innerHTML =
+    `<span class="subtitle-math"><math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msup><mrow><mo stretchy="false">(</mo><mi>a</mi><mo>+</mo><mi>b</mi><mo stretchy="false">)</mo></mrow><mn>${n}</mn></msup></math></span>`;
 }
 
 function queueTypeset(elements = []) {
@@ -903,7 +930,7 @@ function start() {
   revealIndex = 0;
   updateRegenerateControls();
 
-  document.getElementById("subtitle").innerHTML = mathInline(`(a+b)^${n}`);
+  renderSubtitle();
 
   if (isHighMode()) {
     document.getElementById("explainText").innerHTML =
@@ -918,7 +945,6 @@ function start() {
 
   render();
   queueTypeset([
-    document.getElementById("subtitle"),
     document.getElementById("explainText")
   ]);
 }
