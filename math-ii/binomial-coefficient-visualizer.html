@@ -83,25 +83,28 @@ h1 {
 .source-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .source-title {
   font-weight: bold;
+  flex: 1 1 180px;
 }
 
 .source-note {
   font-size: 13px;
   color: #444;
   line-height: 1.7;
+  flex: 2 1 320px;
 }
 
 .expanded-expr {
   margin: 8px 0;
   font-size: 16px;
-  word-break: break-all;
+  overflow-wrap: anywhere;
+  word-break: normal;
   line-height: 1.8;
 }
 
@@ -122,6 +125,32 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.source-grid.high-mode {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.source-card {
+  min-height: 88px;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  padding: 10px 12px;
+  line-height: 1.65;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.source-card strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.source-card-text {
+  color: #333;
 }
 
 .item.active {
@@ -170,6 +199,11 @@ h1 {
   min-height: 72px;
   line-height: 1.8;
   margin-top: 4px;
+}
+
+.sample-ellipsis {
+  color: #555;
+  letter-spacing: 0.08em;
 }
 
 .arrow {
@@ -265,6 +299,21 @@ h1 {
 @media (max-width: 700px) {
   .subtitle {
     font-size: 22px;
+  }
+
+  .source-grid.high-mode {
+    grid-template-columns: 1fr;
+  }
+
+  .source-card {
+    min-height: auto;
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .mode-note,
+  .source-note {
+    font-size: 13px;
   }
 
   .result-formula {
@@ -456,6 +505,7 @@ function samplePatternsForK(k, limit = 10) {
 
 function resetPanels() {
   document.getElementById("source").innerHTML = "";
+  document.getElementById("source").className = "source-grid";
   document.getElementById("groups").innerHTML = "";
   document.getElementById("bridgeNote").innerHTML = "";
   document.getElementById("expandedExpr").innerHTML = "";
@@ -538,6 +588,7 @@ function renderHighMode() {
     `${n}乗では項が多くなりすぎるので、展開して出てくる項を全部は並べず、<br>ランダムに選んだ 3 個の代表的な項だけを見る。`;
   modeNote.textContent = "n が 8 以上のときは簡略表示に切り替わり、代表の 3 個を順番に見る。";
   expandedExpr.innerHTML = mathInline(expandedExprTex());
+  source.classList.add("high-mode");
 
   bridge.innerHTML =
     `n が大きいと項が多くなるので、ここでは代表的な ${mathInline("b^k")} の項だけを見る。` +
@@ -548,14 +599,16 @@ function renderHighMode() {
     const count = comb(n, k);
     const aPow = n - k;
     const samples = samplePatternsForK(k, 10);
+    const shouldShowEllipsis = samples.length < count;
+    const sampleLines = shouldShowEllipsis
+      ? [...samples, '<span class="sample-ellipsis">...</span>']
+      : samples;
 
     const sourceCard = document.createElement("div");
-    sourceCard.className = "item";
-    sourceCard.style.padding = "8px";
-    sourceCard.style.textAlign = "left";
+    sourceCard.className = "item source-card";
     sourceCard.innerHTML =
       `<strong>${mathInline(`b^{${k}}`)}</strong><br>` +
-      `例：${samples.slice(0, 3).join(", ")}${samples.length > 3 ? " ..." : ""}`;
+      `<span class="source-card-text">例：${samples.slice(0, 3).join(", ")}${shouldShowEllipsis ? ", ..." : ""}</span>`;
     source.appendChild(sourceCard);
 
     const div = document.createElement("div");
@@ -566,7 +619,7 @@ function renderHighMode() {
       <h3>${mathInline(`b^{${k}}`)}</h3>
 
       <div class="block-title">実際に並べて数える</div>
-      <div class="group-items">${samples.join("<br>")}</div>
+      <div class="group-items">${sampleLines.join("<br>")}</div>
       <div class="arrow">→ 全部で ${count} 個（すべて ${mathInline(`${powerTex("a", aPow)}${powerTex("b", k)}`)}）</div>
 
       <div class="bottom-block">
