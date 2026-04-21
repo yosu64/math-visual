@@ -115,11 +115,13 @@ h1 {
 }
 
 .expanded-expr {
-  margin: 8px 0;
+  margin: 12px auto 0;
   font-size: 16px;
   overflow-wrap: anywhere;
   word-break: normal;
   line-height: 1.8;
+  text-align: center;
+  max-width: 900px;
 }
 
 .source-grid {
@@ -349,6 +351,8 @@ h1 {
   n が 6 以上のときは、項が多くなるので、代表的な項だけを見ます。
 </div>
 
+<div id="expandedExpr" class="expanded-expr"></div>
+
 <div class="controls">
   n:
   <select id="nSelect" onchange="start()">
@@ -376,7 +380,6 @@ h1 {
     </div>
   </div>
 
-  <div id="expandedExpr" class="expanded-expr"></div>
   <div id="source" class="source-grid"></div>
   <div id="modeNote" class="mode-note"></div>
 </div>
@@ -819,8 +822,15 @@ function start() {
   revealIndex = 0;
 
   document.getElementById("subtitle").innerHTML = mathInline(`(a+b+c)^${n}`);
-  document.getElementById("explainText").innerHTML =
-    `${mathInline(`(a+b+c)^n`)} は、それぞれのカッコから ${mathInline("a, b, c")} のどれか1つを選ぶことで展開される。`;
+  if (isHighMode()) {
+    document.getElementById("explainText").innerHTML =
+      `${mathInline(`(a+b+c)^n`)} は、それぞれのカッコから ${mathInline("a, b, c")} のどれか1つを選ぶことで展開される。<br>` +
+      `今回は項が多くなるので、代表的な項だけを調べる。`;
+  } else {
+    document.getElementById("explainText").innerHTML =
+      `${mathInline(`(a+b+c)^n`)} は、それぞれのカッコから ${mathInline("a, b, c")} のどれか1つを選ぶことで展開される。<br>` +
+      `今回は展開して出てくる項をすべて調べる。`;
+  }
 
   if (isHighMode()) {
     pickRandomTargets();
