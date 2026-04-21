@@ -264,11 +264,22 @@ h1 {
 }
 
 .result-formula {
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 8px;
   font-size: 24px;
   font-weight: bold;
   line-height: 1.8;
-  word-break: break-word;
+  text-align: center;
+}
+
+.result-formula-prefix,
+.result-formula-term {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .theorem-box {
@@ -303,6 +314,10 @@ h1 {
 
 .result-formula .mjx-container[display="true"] {
   margin: 0.35em 0;
+}
+
+.result-formula .mjx-container {
+  margin: 0;
 }
 
 @media (max-width: 700px) {
@@ -762,12 +777,27 @@ function showResult() {
   const resultFormula = document.getElementById("resultFormula");
   const theoremText = document.getElementById("theoremText");
 
-  if (isHighMode()) {
-    const terms = highModeTargets.map(t => {
-      const c = coeff(t.aCount, t.bCount, t.cCount);
-      return `${termTex(t.aCount, t.bCount, t.cCount)}\\text{ の係数 }=${c}`;
+  function renderWrappedFormula(prefixTex, termTexList) {
+    const parts = [];
+    if (prefixTex) {
+      parts.push(`<span class="result-formula-prefix">${mathInline(prefixTex)}</span>`);
+    }
+    termTexList.forEach((tex) => {
+      parts.push(`<span class="result-formula-term">${mathInline(tex)}</span>`);
     });
-    resultFormula.innerHTML = mathDisplay(terms.join("\\qquad "));
+    resultFormula.innerHTML = parts.join("");
+  }
+
+  if (isHighMode()) {
+    const terms = highModeTargets.flatMap(t => {
+      const c = coeff(t.aCount, t.bCount, t.cCount);
+      return [
+        termTex(t.aCount, t.bCount, t.cCount),
+        `\\text{の係数}`,
+        `= ${c}`
+      ];
+    });
+    renderWrappedFormula("", terms);
 
     theoremText.innerHTML =
       `数Aで学習した「同じものを含む順列」の総数は <strong>${mathInline(`\\frac{n!}{p!q!r!}`)}</strong> で表される。<br>` +
@@ -782,7 +812,10 @@ function showResult() {
       }
     }
 
-    resultFormula.innerHTML = mathDisplay(`(a+b+c)^${n} = ${terms.join(" + ")}`);
+    renderWrappedFormula(
+      `(a+b+c)^${n} =`,
+      terms.map((term, index) => (index === 0 ? term : `+ ${term}`))
+    );
 
     theoremText.innerHTML =
       `数Aで学習した「同じものを含む順列」の総数は <strong>${mathInline(`\\frac{n!}{p!q!r!}`)}</strong> で表される。<br>` +
