@@ -72,6 +72,19 @@ h1 {
   margin: 0 4px;
 }
 
+.range-guide {
+  max-width: 760px;
+  margin: 12px auto 0;
+  padding: 10px 14px;
+  border: 1px solid #d7dee8;
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #334155;
+}
+
 .panel {
   background: white;
   border: 2px solid #ddd;
@@ -301,6 +314,11 @@ h1 {
     font-size: 22px;
   }
 
+  .range-guide {
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+
   .source-grid.high-mode {
     grid-template-columns: 1fr;
   }
@@ -331,6 +349,11 @@ h1 {
 
 <div id="explainText" class="explain">
   \( (a+b)^n \) は、それぞれのカッコから \( a \) または \( b \) を選ぶことで展開される。
+</div>
+
+<div class="range-guide">
+  n が 7 以下のときは、展開して出てくる項をすべて見ます。<br>
+  n が 8 以上のときは、項が多くなるので、代表的な項だけを見ます。
 </div>
 
 <div class="controls">
