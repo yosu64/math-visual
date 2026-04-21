@@ -631,7 +631,7 @@ function renderHighMode() {
     sourceCard.className = "item source-card";
     sourceCard.innerHTML =
       `<strong>${mathInline(`b^{${k}}`)}</strong><br>` +
-      `<span class="source-card-text">例：${samples.slice(0, 3).join(", ")}${shouldShowEllipsis ? ", ..." : ""}</span>`;
+      `<span class="source-card-text">例（展開した項の一部）：${samples.slice(0, 3).join(", ")}${shouldShowEllipsis ? ", ..." : ""}</span>`;
     source.appendChild(sourceCard);
 
     const div = document.createElement("div");

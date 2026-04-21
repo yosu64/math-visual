@@ -651,7 +651,7 @@ function renderHighMode() {
     srcCard.className = "item source-card";
     srcCard.innerHTML =
       `<strong>${mathInline(termTex(t.aCount, t.bCount, t.cCount))}</strong><br>` +
-      `<span class="source-card-text">例：${samples.slice(0, 3).join(", ")}${samples.length > 3 ? ", ..." : ""}</span>`;
+      `<span class="source-card-text">例（展開した項の一部）：${samples.slice(0, 3).join(", ")}${samples.length > 3 ? ", ..." : ""}</span>`;
     source.appendChild(srcCard);
 
     const div = document.createElement("div");
