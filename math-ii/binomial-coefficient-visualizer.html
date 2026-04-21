@@ -59,7 +59,7 @@ h1 {
 .subtitle-math {
   display: inline-block;
   white-space: nowrap;
-  font-size: 1.9em;
+  font-size: 1.08em;
   line-height: 1;
 }
 
@@ -195,10 +195,12 @@ h1 {
 
 .source-card strong {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 
 .source-card-text {
+  display: block;
+  margin-top: 6px;
   color: #333;
 }
 
@@ -722,7 +724,7 @@ function renderHighMode() {
     const sourceCard = document.createElement("div");
     sourceCard.className = "item source-card";
     sourceCard.innerHTML =
-      `<strong>${mathInline(`b^{${k}}`)}</strong><br>` +
+      `<strong>${mathInline(`b^{${k}}`)}</strong>` +
       `<span class="source-card-text">例（展開した項の一部）：${samples.slice(0, 3).join(", ")}${shouldShowEllipsis ? ", ..." : ""}</span>`;
     source.appendChild(sourceCard);
 
