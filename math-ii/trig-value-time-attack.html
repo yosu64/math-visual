@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>三角関数タイムアタック</title>
+  <style>
+    /* Base page styles */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 12px;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #f0f4ff, #e0f7fa);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      color: #333;
+    }
+
+    h1 {
+      width: min(100%, 720px);
+      font-size: clamp(1.65rem, 6.5vw, 2.5rem);
+      line-height: 1.2;
+      margin: 0 0 20px;
+      text-align: center;
+      color: #4f46e5;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow-wrap: anywhere;
+    }
+
+    #game {
+      width: min(100%, 500px);
+      max-width: 500px;
+      background: #ffffffcc;
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    #startBtn {
+      background: linear-gradient(135deg, #ff8c00, #ffa500);
+      color: #fff;
+    }
+
+    .answer-btn {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      color: #fff;
+    }
+
+    #feedback {
+      font-size: 1.5rem;
+      margin: 15px 0;
+      min-height: 1.5rem;
+    }
+
+    #progress {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #666;
+    }
+
+    #scoreboard {
+      display: none;
+      margin-top: 20px;
+    }
+
+    #scoreboard.rank-s {
+      animation: championGlow 1.8s ease-in-out infinite alternate;
+    }
+
+    #scoreboard h2 {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #ef476f;
+    }
+
+    #scoreboard.rank-s h2 {
+      color: #d97706;
+      font-size: 2.35rem;
+      text-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
+    }
+
+    .perfect-message {
+      display: none;
+      margin: 6px 0 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #b45309;
+    }
+
+    #scoreboard.rank-s .perfect-message {
+      display: block;
+    }
+
+    .score-item {
+      font-size: 1.2rem;
+      margin: 5px 0;
+    }
+
+    #scoreboard.rank-s #rank {
+      color: #d97706;
+      font-size: 1.55rem;
+      font-weight: 800;
+    }
+
+    #restartBtn {
+      background: linear-gradient(135deg, #42e695, #3bb2b8);
+      color: #fff;
+    }
+
+    /* Digital clock */
+    /* Setup and hint overlay */
+    #setup label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      margin: 10px 0;
+      color: #555;
+    }
+    #setup input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    .angle-options {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px 14px;
+      margin-top: 10px;
+      font-size: 0.95rem;
+    }
+
+    .angle-options > span {
+      flex-basis: 100%;
+    }
+
+    #setup .angle-options label {
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    #statusBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px 12px;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+      color: #555;
+    }
+
+    #statusBar span {
+      min-width: 0;
+    }
+
+    #hintOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.15;
+      z-index: 0;
+      pointer-events: none;
+      display: none;
+    }
+    #hintOverlay img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: grayscale(100%);
+    }
+
+    /* Ensure interactive containers appear above hint overlay */
+    #setup,
+    #questionContainer,
+    #scoreboard {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Confetti effect */
+    .confetti {
+      position: fixed;
+      top: -10px;
+      width: 10px;
+      height: 10px;
+      opacity: 0.8;
+      border-radius: 50%;
+      z-index: 2;
+      pointer-events: none;
+      animation: fall 3s linear both;
+    }
+
+    .confetti.premium {
+      border-radius: 2px;
+      box-shadow: 0 0 10px currentColor;
+      animation-name: premiumFall;
+      animation-duration: 3.6s;
+    }
+
+    .rank-burst {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 18px;
+      height: 18px;
+      margin: -9px 0 0 -9px;
+      border: 2px solid rgba(245, 158, 11, 0.8);
+      border-radius: 50%;
+      z-index: 0;
+      pointer-events: none;
+      animation: burst 1.4s ease-out both;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(-100vh) rotate(0deg);
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+
+    @keyframes premiumFall {
+      0% {
+        transform: translateY(-20vh) rotate(0deg);
+      }
+      100% {
+        transform: translateY(105vh) rotate(540deg);
+      }
+    }
+
+    @keyframes burst {
+      0% {
+        opacity: 0.95;
+        transform: scale(0.3);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(18);
+      }
+    }
+
+    @keyframes championGlow {
+      0% {
+        filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0));
+      }
+      100% {
+        filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.65));
+      }
+    }
+
+    @media (max-width: 420px) {
+      body {
+        padding-inline: 0;
+      }
+
+      h1 {
+        padding-inline: 8px;
+      }
+
+      #game {
+        border-radius: 6px;
+        padding: 16px;
+      }
+
+      #statusBar {
+        font-size: 1rem;
+      }
+    }
+  </style>
+
+  <!-- MathJax configuration and library for TeX rendering of fractions and radicals -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+  <h1>三角関数タイムアタック</h1>
+  <!-- ゲーム中の経過時間や得点は質問エリア内に表示します -->
+  <div id="game">
+    <!-- 設定画面：ヒント表示のON/OFF -->
+    <div id="setup">
+      <label><input type="checkbox" id="hintToggle">ヒント画像を表示する</label>
+      <!-- 角度表示モードの選択：度数法・弧度法・ランダム -->
+      <div class="angle-options">
+        <span>角度の表示形式:</span>
+        <label><input type="radio" name="angleMode" value="deg" checked>度数法</label>
+        <label><input type="radio" name="angleMode" value="rad">弧度法</label>
+        <label><input type="radio" name="angleMode" value="rand">ランダム</label>
+      </div>
+      <button id="startBtn" class="btn">スタート</button>
+    </div>
+    <!-- 質問表示エリア -->
+    <div id="questionContainer" class="hidden">
+      <!-- 経過時間と現在の得点表示エリア -->
+      <div id="statusBar">
+        <span id="gameTimer">経過時間: 0 秒</span>
+        <span id="currentScore">得点: 0</span>
+      </div>
+      <div id="potentialScore" style="font-size: 1.2rem; margin: 10px 0;"></div>
+      <div id="question" style="font-size: 1.8rem; margin: 15px 0;"></div>
+      <div id="answers"></div>
+      <div id="feedback"></div>
+      <div id="progress"></div>
+    </div>
+    <!-- 結果表示エリア -->
+    <div id="scoreboard">
+      <h2 id="scoreboardTitle">結果</h2>
+      <div class="perfect-message" id="perfectMessage">最高ランク達成！</div>
+      <div class="score-item" id="correctCount"></div>
+      <div class="score-item" id="elapsedTime"></div>
+      <div class="score-item" id="score"></div>
+      <div class="score-item" id="rank"></div>
+      <button id="restartBtn" class="btn">もう一度</button>
+    </div>
+    <!-- ヒント画像オーバーレイ (SVG で描画) -->
+    <div id="hintOverlay">
+      <!-- 単位円と角度の放射線を描いたヒント図。外部ファイルに依存せず、このHTMLだけで完結します。 -->
+      <svg width="100%" height="100%" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <!-- 外側の円 -->
+        <circle cx="100" cy="100" r="95" stroke="gray" stroke-width="2" fill="none"/>
+        <!-- 角度を示す放射線 -->
+        <line x1="100" y1="100" x2="195.00" y2="100.00" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="182.27" y2="52.50" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="167.18" y2="32.82" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="147.50" y2="17.73" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="100.00" y2="5.00" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="52.50" y2="17.73" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="32.82" y2="32.82" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="17.73" y2="52.50" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="5.00" y2="100.00" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="17.73" y2="147.50" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="32.82" y2="167.18" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="52.50" y2="182.27" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="100.00" y2="195.00" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="147.50" y2="182.27" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="167.18" y2="167.18" stroke="gray" stroke-width="1"/>
+        <line x1="100" y1="100" x2="182.27" y2="147.50" stroke="gray" stroke-width="1"/>
+      </svg>
+    </div>
+  </div>
+  <script>
+    // 配列：出題角度（度数法）
+    const angles = [0, 30, 45, 60, 90, 120, 135, 150, 180, 210, 225, 240, 270, 300, 315, 330, 360];
+    // 選択肢として使用する値の一覧
+    const answersList = [
+      "0",
+      "1",
+      "-1",
+      "1/2",
+      "-1/2",
+      "1/√2",
+      "-1/√2",
+      "√3/2",
+      "-√3/2",
+      "√3",
+      "-√3",
+      "1/√3",
+      "-1/√3",
+      "定義されない",
+    ];
+
+    let currentQuestionIndex = 0;
+    let questions = [];
+    let correctAnswers = 0;
+    let startTime;
+    // スコアリング関連
+    let score = 0;
+    const perCorrect = 100;
+    const perWrong = -100;
+    let showHint = false;
+    // ゲーム経過時間を更新するインターバルID
+    let timerInterval;
+    // 動的得点設定: 最初の正解得点、1秒ごとの減少量、および下限値
+    const maxCorrect = 120;
+    const decayPerSecond = 6;
+    const minCorrect = 60;
+    // 問題ごとの開始時間と現在の潜在得点
+    let questionStartTime = null;
+    let currentPotential = maxCorrect;
+
+    // 角度表示モード。'deg' = 度数法、'rad' = 弧度法、'rand' = ランダム
+    let angleMode = 'deg';
+
+    // ラジアン表記用のマッピング。角度（整数）→ 弧度法の表記。
+    // 「6/π」ではなく「π/6」のように分子が π の形式で表記する。
+    const radianLabels = {
+      // MathJax形式で弧度法を表記する。\(\frac{\pi}{6}\) などの形式
+      0: '\\(0\\)',
+      30: '\\(\\frac{\\pi}{6}\\)',
+      45: '\\(\\frac{\\pi}{4}\\)',
+      60: '\\(\\frac{\\pi}{3}\\)',
+      90: '\\(\\frac{\\pi}{2}\\)',
+      120: '\\(\\frac{2\\pi}{3}\\)',
+      135: '\\(\\frac{3\\pi}{4}\\)',
+      150: '\\(\\frac{5\\pi}{6}\\)',
+      180: '\\(\\pi\\)',
+      210: '\\(\\frac{7\\pi}{6}\\)',
+      225: '\\(\\frac{5\\pi}{4}\\)',
+      240: '\\(\\frac{4\\pi}{3}\\)',
+      270: '\\(\\frac{3\\pi}{2}\\)',
+      300: '\\(\\frac{5\\pi}{3}\\)',
+      315: '\\(\\frac{7\\pi}{4}\\)',
+      330: '\\(\\frac{11\\pi}{6}\\)',
+      360: '\\(2\\pi\\)'
+    };
+
+    /**
+     * 与えられた値をMathJax用のTeX表記に変換する。
+     * 数値や分数（1/2）、平方根（√2）などを適切に\fracと\sqrtで表す。
+     * 「定義されない」はそのまま返す。
+     * @param {string} value 表示する選択肢・答え
+     * @returns {string} MathJax形式の文字列
+     */
+    function toTeX(value) {
+      // 定義されないはそのまま
+      if (value === '定義されない') return value;
+      // すでにMathJaxの括弧で囲われている場合（弧度法など）もそのまま返す
+      if (value.startsWith('\\(') && value.endsWith('\\)')) return value;
+      // 整数の場合
+      if (!isNaN(value)) {
+        // 例えば "0" "1" "-1" など
+        return `\\(${value}\\)`;
+      }
+      // 分数の場合
+      if (value.includes('/')) {
+        // 先頭が '-' の場合とそうでない場合に分ける
+        let sign = '';
+        let fraction = value;
+        if (value.startsWith('-')) {
+          sign = '-';
+          fraction = value.substring(1);
+        }
+        const parts = fraction.split('/');
+        const numerator = parts[0];
+        const denominator = parts[1];
+        const convertRoot = (str) => {
+          // √が含まれている場合、\sqrt{} に変換
+          if (str.includes('√')) {
+            return str.replace('√', '\\sqrt{') + '}';
+          } else {
+            return str;
+          }
+        };
+        const numExpr = convertRoot(numerator);
+        const denExpr = convertRoot(denominator);
+        return `\\(${sign}\\frac{${numExpr}}{${denExpr}}\\)`;
+      }
+      // 平方根のみの場合（例: √3, -√3）
+      if (value.includes('√')) {
+        let sign = '';
+        let rad = value;
+        if (value.startsWith('-')) {
+          sign = '-';
+          rad = value.substring(1);
+        }
+        const expr = rad.replace('√', '\\sqrt{') + '}';
+        return `\\(${sign}${expr}\\)`;
+      }
+      // デフォルトはそのままMathJaxで囲う
+      return `\\(${value}\\)`;
+    }
+
+    /**
+     * 与えられた角度を現在のangleModeに従って文字列化する
+     * @param {number} angle 度数法での角度
+     * @returns {string} 表示用文字列
+     */
+    function getFormattedAngle(angle) {
+      if (angleMode === 'deg') {
+        return `${angle}°`;
+      } else if (angleMode === 'rad') {
+        return radianLabels[angle];
+      } else {
+        // ランダムの場合、度数法か弧度法をランダムに選択
+        return Math.random() < 0.5 ? `${angle}°` : radianLabels[angle];
+      }
+    }
+
+    /**
+     * ランダムに1問生成する
+     * @returns {object} { question: string, correct: string, choices: string[] }
+     */
+    function getRandomQuestion(forcedFn = null) {
+      // 角度をランダム選択
+      const angle = angles[Math.floor(Math.random() * angles.length)];
+      // 三角関数をランダム選択
+      const funcs = ["sin", "cos", "tan"];
+      // fn を外部から指定された場合はそれを使用し、なければランダムに選択する
+      const fn = forcedFn || funcs[Math.floor(Math.random() * funcs.length)];
+      // 正解を計算
+      let correct;
+      const rad = (angle * Math.PI) / 180;
+      const cosVal = Math.cos(rad);
+      const sinVal = Math.sin(rad);
+      const tanVal = sinVal / cosVal;
+      const equals = (a, b) => Math.abs(a - b) < 1e-6;
+      // sin
+      if (fn === "sin") {
+        if (equals(sinVal, 0)) correct = "0";
+        else if (equals(sinVal, 1)) correct = "1";
+        else if (equals(sinVal, -1)) correct = "-1";
+        else if (equals(Math.abs(sinVal), 0.5)) correct = sinVal > 0 ? "1/2" : "-1/2";
+        else if (equals(Math.abs(sinVal), Math.SQRT1_2)) correct = sinVal > 0 ? "1/√2" : "-1/√2";
+        else if (equals(Math.abs(sinVal), Math.sqrt(3) / 2)) correct = sinVal > 0 ? "√3/2" : "-√3/2";
+        else correct = sinVal.toFixed(3);
+      }
+      // cos
+      if (fn === "cos") {
+        if (equals(cosVal, 0)) correct = "0";
+        else if (equals(cosVal, 1)) correct = "1";
+        else if (equals(cosVal, -1)) correct = "-1";
+        else if (equals(Math.abs(cosVal), 0.5)) correct = cosVal > 0 ? "1/2" : "-1/2";
+        else if (equals(Math.abs(cosVal), Math.SQRT1_2)) correct = cosVal > 0 ? "1/√2" : "-1/√2";
+        else if (equals(Math.abs(cosVal), Math.sqrt(3) / 2)) correct = cosVal > 0 ? "√3/2" : "-√3/2";
+        else correct = cosVal.toFixed(3);
+      }
+      // tan
+      if (fn === "tan") {
+        if ((angle % 180) === 90) {
+          correct = "定義されない";
+        } else if (equals(tanVal, 0)) {
+          correct = "0";
+        } else if (equals(tanVal, 1)) {
+          correct = "1";
+        } else if (equals(tanVal, -1)) {
+          correct = "-1";
+        } else if (equals(Math.abs(tanVal), Math.sqrt(3) / 3)) {
+          // 1/√3 を使用して有理化しない
+          correct = tanVal > 0 ? "1/√3" : "-1/√3";
+        } else if (equals(Math.abs(tanVal), Math.sqrt(3))) {
+          correct = tanVal > 0 ? "√3" : "-√3";
+        } else {
+          correct = tanVal.toFixed(3);
+        }
+      }
+      // 選択肢の組み立て
+      const choices = [correct];
+      const available = answersList.filter((val) => val !== correct);
+      while (choices.length < 4) {
+        const val = available[Math.floor(Math.random() * available.length)];
+        if (!choices.includes(val)) choices.push(val);
+      }
+      // シャッフル
+      choices.sort(() => Math.random() - 0.5);
+      // 問題文：三角関数名と角度を現在のモードに応じて組み立てる
+      const angleLabel = getFormattedAngle(angle);
+      // 選択肢と正解をTeX形式に変換
+      const choicesTeX = choices.map((val) => toTeX(val));
+      const correctTeX = toTeX(correct);
+      return { question: `${fn} ${angleLabel}`, correct: correctTeX, choices: choicesTeX };
+    }
+
+    // ゲーム開始時の初期化
+    function startGame() {
+      // 初期化
+      currentQuestionIndex = 0;
+      correctAnswers = 0;
+      questions = [];
+      score = 0;
+      // ヒント表示フラグ取得
+      showHint = document.getElementById("hintToggle").checked;
+
+      // 角度表示モードを取得
+      const modeElem = document.querySelector('input[name="angleMode"]:checked');
+      angleMode = modeElem ? modeElem.value : 'deg';
+
+      // 10問生成
+      // 各3問ごとに sin, cos, tan が必ず1回ずつ出題されるように、関数の順序を決定する
+      const total = 10;
+      const fnOrder = [];
+      const funcsForSet = ["sin", "cos", "tan"];
+      for (let i = 0; i < Math.floor(total / 3); i++) {
+        // 新しいセットをシャッフルして追加
+        const shuffled = funcsForSet.slice().sort(() => Math.random() - 0.5);
+        fnOrder.push(...shuffled);
+      }
+      // 余りの1〜2問についてはランダムに追加
+      const remainder = total % 3;
+      for (let i = 0; i < remainder; i++) {
+        fnOrder.push(funcsForSet[Math.floor(Math.random() * funcsForSet.length)]);
+      }
+      // 10問を順番に生成
+      for (let i = 0; i < total; i++) {
+        questions.push(getRandomQuestion(fnOrder[i]));
+      }
+      // セットアップ画面を非表示
+      document.getElementById("setup").style.display = "none";
+      // スコアボードを非表示
+      document.getElementById("scoreboard").style.display = "none";
+      // ヒント画像の表示設定
+      document.getElementById("hintOverlay").style.display = showHint ? "block" : "none";
+      // 質問コンテナを表示
+      document.getElementById("questionContainer").classList.remove("hidden");
+      // ゲーム開始時間を記録
+      startTime = Date.now();
+      // タイマー表示と得点表示を初期化
+      document.getElementById("gameTimer").textContent = `経過時間: 0 秒`;
+      document.getElementById("currentScore").textContent = `得点: 0`;
+      // 問題開始時刻をリセット
+      questionStartTime = null;
+      currentPotential = maxCorrect;
+      // タイマー更新を開始
+      startTimer();
+      showQuestion();
+    }
+
+    // 問題表示
+    function showQuestion() {
+      const q = questions[currentQuestionIndex];
+      // 現在の得点を表示（継続的に更新）
+      document.getElementById("currentScore").textContent = `得点: ${score}`;
+      // この問題の開始時間を記録し、潜在得点をリセット
+      questionStartTime = Date.now();
+      currentPotential = maxCorrect;
+      document.getElementById("potentialScore").textContent = `正解なら +${currentPotential}`;
+      // Question text may contain MathJax syntax; use innerHTML instead of textContent
+      document.getElementById("question").innerHTML = q.question;
+      const answersDiv = document.getElementById("answers");
+      answersDiv.innerHTML = "";
+      q.choices.forEach((choice) => {
+        const btn = document.createElement("button");
+        btn.className = "btn answer-btn";
+        // Use innerHTML to insert MathJax code properly
+        btn.innerHTML = choice;
+        btn.onclick = () => handleAnswer(choice);
+        answersDiv.appendChild(btn);
+      });
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("progress").textContent = `問題 ${currentQuestionIndex + 1} / 10`;
+      // MathJaxで数式をレンダリング
+      if (window.MathJax && MathJax.typesetPromise) {
+        MathJax.typesetPromise();
+      }
+    }
+
+    // 回答処理
+    function handleAnswer(selected) {
+      const q = questions[currentQuestionIndex];
+      const feedbackEl = document.getElementById("feedback");
+      // 回答の正誤を判定し、得点処理
+      let delta;
+      if (selected === q.correct) {
+        // 正解：経過時間に応じて得点が減少する
+        correctAnswers++;
+        // 経過秒数から現在の潜在得点を算出し、下限値を下回らないようにする
+        const elapsedSinceQuestion = Math.floor((Date.now() - questionStartTime) / 1000);
+        let potentialDelta = maxCorrect - decayPerSecond * elapsedSinceQuestion;
+        if (potentialDelta < minCorrect) potentialDelta = minCorrect;
+        currentPotential = potentialDelta;
+        delta = potentialDelta;
+        feedbackEl.textContent = `正解！ +${delta}`;
+        feedbackEl.style.color = "#008000";
+      } else {
+        // 不正解：固定の減点
+        delta = perWrong;
+        feedbackEl.textContent = `不正解 ${perWrong}`;
+        feedbackEl.style.color = "#d00000";
+      }
+      // スコアを更新
+      score += delta;
+      // この問題は終了したので潜在得点計算を停止
+      questionStartTime = null;
+      // スコアを表示に反映
+      document.getElementById("currentScore").textContent = `得点: ${score}`;
+      // ボタンを無効化
+      Array.from(document.querySelectorAll(".answer-btn")).forEach((btn) => {
+        btn.disabled = true;
+      });
+      // 短い待ち時間後に次へ
+      setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          showQuestion();
+        } else {
+          endGame();
+        }
+      }, 700);
+    }
+
+    // ゲーム終了処理
+    function endGame() {
+      clearInterval(timerInterval);
+      questionStartTime = null;
+      document.getElementById("questionContainer").classList.add("hidden");
+      const endTime = Date.now();
+      const elapsedSec = Math.round((endTime - startTime) / 1000);
+      // スコアは累計得点をそのまま使用
+      const finalScore = score;
+      // ランク判定：得点に応じて評価
+      let rank;
+      if (finalScore >= 900) rank = "S";
+      else if (finalScore >= 700) rank = "A";
+      else if (finalScore >= 500) rank = "B";
+      else if (finalScore >= 300) rank = "C";
+      else rank = "D";
+      const isTopRank = rank === "S";
+      const scoreboardEl = document.getElementById("scoreboard");
+      scoreboardEl.classList.toggle("rank-s", isTopRank);
+      document.getElementById("scoreboardTitle").textContent = isTopRank ? "完全制覇" : "結果";
+      document.getElementById("correctCount").textContent = `正答数: ${correctAnswers} / 10`;
+      document.getElementById("elapsedTime").textContent = `時間: ${elapsedSec} 秒`;
+      document.getElementById("score").textContent = `スコア: ${finalScore}`;
+      document.getElementById("rank").textContent = `ランク: ${rank}`;
+      scoreboardEl.style.display = "block";
+      document.getElementById("restartBtn").focus();
+      launchConfetti(isTopRank);
+    }
+
+    // 紙吹雪アニメーション
+    function launchConfetti(isPremium = false) {
+      const colors = isPremium ? [
+        "#facc15",
+        "#f59e0b",
+        "#fde68a",
+        "#ffffff",
+        "#fb7185",
+        "#38bdf8",
+      ] : [
+        "#ffc107",
+        "#ff5722",
+        "#8bc34a",
+        "#00bcd4",
+        "#e91e63",
+        "#9c27b0",
+        "#3f51b5",
+        "#009688",
+      ];
+      const count = isPremium ? 220 : 100;
+      const duration = isPremium ? 4200 : 3000;
+      for (let i = 0; i < count; i++) {
+        const conf = document.createElement("div");
+        conf.className = isPremium ? "confetti premium" : "confetti";
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.color = conf.style.backgroundColor;
+        conf.style.left = Math.random() * 100 + "%";
+        conf.style.animationDelay = Math.random() * (isPremium ? 0.8 : 3) + "s";
+        conf.style.width = (isPremium ? 8 + Math.random() * 10 : 10) + "px";
+        conf.style.height = (isPremium ? 8 + Math.random() * 10 : 10) + "px";
+        conf.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(conf);
+        // アニメーション終了後に削除
+        setTimeout(() => {
+          conf.remove();
+        }, duration + 2000);
+      }
+
+      if (isPremium) {
+        for (let i = 0; i < 4; i++) {
+          const burst = document.createElement("div");
+          burst.className = "rank-burst";
+          burst.style.animationDelay = `${i * 0.18}s`;
+          document.body.appendChild(burst);
+          setTimeout(() => {
+            burst.remove();
+          }, 2200);
+        }
+      }
+    }
+
+    /**
+     * 経過時間と得点の表示を更新するためのタイマーを開始します。
+     * startGame() から呼び出され、ゲーム終了時に clearInterval されます。
+     */
+    function startTimer() {
+      // 既存のインターバルをクリアしてから開始
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+      timerInterval = setInterval(() => {
+        const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+        document.getElementById("gameTimer").textContent = `経過時間: ${elapsedSec} 秒`;
+        // スコアはグローバル変数 score に保持しており、都度更新する
+        document.getElementById("currentScore").textContent = `得点: ${score}`;
+        // 現在の問題での潜在得点を更新（経過時間に応じて減少）
+        if (questionStartTime) {
+          const qElapsed = Math.floor((Date.now() - questionStartTime) / 1000);
+          let potential = maxCorrect - decayPerSecond * qElapsed;
+          if (potential < minCorrect) potential = minCorrect;
+          currentPotential = potential;
+          document.getElementById("potentialScore").textContent = `正解なら +${potential}`;
+        }
+      }, 500);
+    }
+
+    // イベントリスナー登録
+    document.getElementById("startBtn").addEventListener("click", startGame);
+    document.getElementById("restartBtn").addEventListener("click", () => {
+      // 紙吹雪を片付ける
+      document.querySelectorAll(".confetti, .rank-burst").forEach((c) => c.remove());
+      // 結果画面を閉じる
+      const scoreboardEl = document.getElementById("scoreboard");
+      scoreboardEl.classList.remove("rank-s");
+      scoreboardEl.style.display = "none";
+      // 質問コンテナを隠す
+      document.getElementById("questionContainer").classList.add("hidden");
+      // ヒントオーバーレイを隠す
+      document.getElementById("hintOverlay").style.display = "none";
+      // セットアップ画面を表示
+      document.getElementById("setup").style.display = "block";
+      // タイマーを停止し表示をリセット
+      clearInterval(timerInterval);
+      document.getElementById("gameTimer").textContent = `経過時間: 0 秒`;
+      document.getElementById("currentScore").textContent = `得点: 0`;
+    });
+
+    // 不要になったリアルタイム時計の機能を削除しました。ゲーム開始からの経過時間は startTimer() で更新します。
+  </script>
+</body>
+</html>
