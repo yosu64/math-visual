@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="author" content="shibasaki">
-<title>三項の展開の係数の決まり方</title>
+<title>三項の展開と係数の決まり方</title>
 
 <script>
 window.MathJax = {
@@ -23,16 +23,39 @@ window.MathJax = {
 <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
 
 <style>
+:root {
+  --bg: #f7f9fc;
+  --panel: #ffffff;
+  --line: #d7dee8;
+  --muted: #475569;
+  --text: #222222;
+  --accent: #0f766e;
+  --accent-soft: #ccfbf1;
+  --yellow: #fef08a;
+  --yellow-line: #eab308;
+  --green: #dcfce7;
+  --green-line: #4ade80;
+  --blue: #dbeafe;
+  --blue-line: #60a5fa;
+  --red: #fee2e2;
+  --red-line: #f87171;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   font-family: sans-serif;
-  background: #f7f9fc;
+  background: var(--bg);
   margin: 0;
   padding: 20px;
-  color: #222;
+  color: var(--text);
 }
 
 h1 {
   text-align: center;
+  margin-bottom: 8px;
 }
 
 .top-link {
@@ -41,7 +64,7 @@ h1 {
 }
 
 .top-link a {
-  color: #0f766e;
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -64,24 +87,147 @@ h1 {
   line-height: 1;
 }
 
-.subtitle .mjx-container {
-  margin: 0;
-}
-
 .explain {
   text-align: center;
   font-size: 14px;
   line-height: 1.8;
 }
 
+.range-guide {
+  max-width: 900px;
+  margin: 12px auto 0;
+  padding: 12px 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #ffffff;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #334155;
+}
+
+.range-guide ul {
+  margin: 0;
+  padding-left: 1.4em;
+}
+
+.range-guide li + li {
+  margin-top: 4px;
+}
+
+.factor-preview {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.factor-preview-title {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.factor-card-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 6px;
+}
+
+.factor-card {
+  min-width: 108px;
+  padding: 7px 9px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.factor-card-index {
+  display: block;
+  margin-bottom: 2px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.factor-card-ellipsis {
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-weight: bold;
+}
+
+.factor-preview-note {
+  margin-top: 8px;
+  color: #475569;
+  font-size: 13px;
+}
+
+.mode-rule-guide {
+  max-width: 900px;
+  margin: 10px auto 0;
+  padding: 10px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 14px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.mode-rule-guide strong {
+  white-space: nowrap;
+}
+
+.mode-status {
+  max-width: 720px;
+  margin: 4px auto 0;
+  padding: 10px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #f8fbff;
+  color: #1e3a8a;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.mode-status.is-representative {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #14532d;
+}
+
+.mode-status-badge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #dbeafe;
+  font-weight: bold;
+}
+
+.mode-status.is-representative .mode-status-badge {
+  background: #dcfce7;
+}
+
 .controls {
   text-align: center;
-  margin: 10px 0;
+  margin: 12px 0;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: 8px 10px;
+}
+
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .controls select,
@@ -91,43 +237,91 @@ h1 {
   margin: 0;
 }
 
-.regen-controls {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
+.controls button {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
 }
 
-.regen-note {
-  font-size: 14px;
-  color: #475569;
-  line-height: 1.7;
+.controls button:hover {
+  background: #f8fafc;
+}
+
+.controls button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.controls button.primary:hover {
+  background: #0d5f5a;
 }
 
 .is-hidden {
   display: none !important;
 }
 
-.range-guide {
-  max-width: 760px;
-  margin: 12px auto 0;
-  padding: 10px 14px;
-  border: 1px solid #d7dee8;
-  border-radius: 10px;
-  background: #ffffff;
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.word-label {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  letter-spacing: 0.04em;
+}
+
+.tex-inline {
+  display: inline-block;
+  min-height: 1em;
+  vertical-align: baseline;
+}
+
+.target-preview {
   text-align: center;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.8;
-  color: #334155;
+  margin: 8px 0 0;
 }
 
 .panel {
-  background: white;
+  background: var(--panel);
   border: 2px solid #ddd;
   border-radius: 10px;
   padding: 16px;
   margin-top: 16px;
+}
+
+.panel.focus-panel {
+  border-color: #99f6e4;
+  background: linear-gradient(180deg, #ffffff 0%, #f0fdfa 100%);
+}
+
+.operation-area {
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.focus-controls {
+  border-color: #b5e7df;
+}
+
+.operation-label {
+  margin-bottom: 4px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #334155;
+}
+
+.operation-note {
+  margin: 0 0 8px;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 .source-header {
@@ -140,49 +334,95 @@ h1 {
 
 .source-title {
   font-weight: bold;
-  flex: 1 1 180px;
+  flex: 1 1 220px;
 }
 
 .source-note {
   font-size: 13px;
   color: #444;
   line-height: 1.7;
-  flex: 2 1 320px;
+  flex: 2 1 360px;
 }
 
 .expanded-expr {
-  margin: 12px auto 0;
+  margin: 12px auto 8px;
   font-size: 16px;
   overflow-wrap: anywhere;
   word-break: normal;
   line-height: 1.8;
   text-align: center;
-  max-width: 900px;
+  max-width: 960px;
 }
 
-.source-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
-  gap: 4px;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.item {
-  background: #eee;
+.mode-note,
+.status-note {
   text-align: center;
-  padding: 6px 4px;
-  border-radius: 4px;
+  font-size: 14px;
+  color: #444;
+  margin-top: 8px;
   line-height: 1.8;
 }
 
+.source-grid,
+.choice-grid,
+.arrangement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+  gap: 5px;
+  max-height: 310px;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
 .source-grid.high-mode {
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
 }
 
+.item,
+.choice-card {
+  background: #eee;
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 6px;
+  line-height: 1.7;
+  border: 1px solid transparent;
+}
+
+.choice-card {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+.item.active {
+  background: var(--yellow);
+  border-color: var(--yellow-line);
+  font-weight: bold;
+}
+
+.item.done {
+  opacity: 0.35;
+}
+
+.item.target {
+  background: var(--yellow);
+  border-color: var(--yellow-line);
+  font-weight: bold;
+  opacity: 1;
+}
+
+.item.not-target {
+  opacity: 0.25;
+}
+
+.item.sample {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  opacity: 1;
+}
+
 .source-card {
-  min-height: 88px;
+  min-height: 102px;
   text-align: left;
   padding: 10px 12px;
   line-height: 1.65;
@@ -193,19 +433,12 @@ h1 {
 
 .source-card strong {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
-.source-card-text {
-  color: #333;
-}
-
-.item.active {
-  background: yellow;
-}
-
-.item.done {
-  opacity: 0.3;
+.source-card.selected {
+  border-color: var(--yellow-line);
+  background: #fffbeb;
 }
 
 .bridge-note {
@@ -223,16 +456,41 @@ h1 {
 
 .group {
   border: 2px solid #ccc;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   background: #fafafa;
   display: flex;
   flex-direction: column;
+  line-height: 1.7;
 }
 
 .group h3 {
-  margin: 0 0 4px;
+  margin: 0 0 6px;
   line-height: 1.6;
+}
+
+.group.selected {
+  border-color: var(--yellow-line);
+  background: #fffde7;
+}
+
+.group.active {
+  border-color: var(--yellow-line);
+  background: #fffde7;
+}
+
+.group.done {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.group .extra {
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.group.showFormula .extra {
+  opacity: 1;
 }
 
 .block-title {
@@ -243,8 +501,8 @@ h1 {
 
 .group-items {
   flex: 1;
-  min-height: 72px;
-  line-height: 1.5;
+  min-height: 62px;
+  line-height: 1.6;
   margin-top: 4px;
   white-space: pre-wrap;
 }
@@ -252,22 +510,7 @@ h1 {
 .arrow {
   font-size: 13px;
   margin-top: 4px;
-  line-height: 1.6;
-}
-
-.extra {
-  opacity: 0;
-  transition: 0.3s;
-}
-
-.group.showFormula .extra {
-  opacity: 1;
-}
-
-.bottom-block {
-  margin-top: auto;
-  padding-top: 10px;
-  text-align: left;
+  line-height: 1.7;
 }
 
 .formula-line {
@@ -275,14 +518,119 @@ h1 {
   font-weight: bold;
   margin-top: 4px;
   text-align: left;
-  line-height: 1.7;
+  line-height: 1.8;
 }
 
-.final-line {
-  margin-top: 10px;
+.step-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.step-card {
+  border: 2px solid #d6dce5;
+  border-radius: 10px;
+  padding: 10px;
+  background: #f8fafc;
+  line-height: 1.6;
+  min-height: 86px;
+}
+
+.step-card strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.step-card.active {
+  border-color: var(--yellow-line);
+  background: #fef9c3;
+}
+
+.step-card.done {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.stage-message {
+  text-align: center;
+  margin: 12px 0 4px;
+  line-height: 1.8;
   font-weight: bold;
-  line-height: 1.7;
-  text-align: left;
+}
+
+.box-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.slot {
+  width: 44px;
+  height: 44px;
+  border: 2px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: relative;
+}
+
+.slot::after {
+  content: attr(data-index);
+  position: absolute;
+  right: 3px;
+  bottom: 1px;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: normal;
+}
+
+.slot.a,
+.mini-slot.a {
+  background: var(--blue);
+  border-color: var(--blue-line);
+}
+
+.slot.b,
+.mini-slot.b {
+  background: var(--red);
+  border-color: var(--red-line);
+}
+
+.slot.c,
+.mini-slot.c {
+  background: var(--green);
+  border-color: var(--green-line);
+}
+
+.slot.blank {
+  color: #94a3b8;
+}
+
+.choice-card .mini-row {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+}
+
+.mini-slot {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .result-panel {
@@ -304,10 +652,10 @@ h1 {
   justify-content: center;
   align-items: center;
   gap: 6px 8px;
+  text-align: center;
   font-size: 24px;
   font-weight: bold;
   line-height: 1.8;
-  text-align: center;
 }
 
 .result-formula-prefix,
@@ -318,7 +666,8 @@ h1 {
   white-space: nowrap;
 }
 
-.theorem-box {
+.theorem-box,
+.connection-box {
   margin-top: 14px;
   padding: 14px;
   border-radius: 10px;
@@ -327,21 +676,36 @@ h1 {
   line-height: 1.8;
 }
 
-.mode-note {
-  text-align: center;
-  font-size: 14px;
-  color: #444;
-  margin-top: 6px;
-  line-height: 1.8;
+.connection-box {
+  background: #f0fdfa;
+  border-color: #99f6e4;
 }
 
-.math-inline {
+.full-formula {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  line-height: 1.9;
+  font-size: 16px;
+  overflow-wrap: anywhere;
+}
+
+.formula-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 8px;
+  margin-top: 6px;
+}
+
+.formula-wrap .formula-term,
+.formula-wrap .formula-prefix {
   display: inline-flex;
   align-items: center;
-}
-
-.group-count {
-  font-size: 0.95em;
+  white-space: nowrap;
 }
 
 .mjx-container {
@@ -352,11 +716,11 @@ h1 {
   margin: 0.35em 0;
 }
 
-.result-formula .mjx-container {
-  margin: 0;
-}
-
 @media (max-width: 700px) {
+  body {
+    padding: 14px;
+  }
+
   .subtitle {
     font-size: 22px;
   }
@@ -366,149 +730,505 @@ h1 {
     padding: 9px 12px;
   }
 
+  .controls {
+    align-items: stretch;
+  }
+
+  .controls label,
+  .controls button,
+  .regen-controls {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .controls select {
+    max-width: 100%;
+  }
+
   .source-grid.high-mode {
     grid-template-columns: 1fr;
   }
 
-  .source-card {
-    min-height: auto;
-    font-size: 13px;
-    padding: 9px 10px;
+  .slot {
+    width: 38px;
+    height: 38px;
+  }
+
+  .choice-grid,
+  .source-grid,
+  .arrangement-grid {
+    grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
   }
 
   .mode-note,
-  .source-note,
-  .regen-note {
+  .source-note {
     font-size: 13px;
-  }
-
-  .regen-controls {
-    width: 100%;
   }
 
   .result-formula {
     font-size: 20px;
   }
 }
+/* 余白多め・授業スライド風レイアウト */
+.design-a {
+  --bg: #f3f6fb;
+  --panel: #ffffff;
+  --line: #d8e0eb;
+  --accent: #0f766e;
+  padding: 28px 20px 56px;
+}
+
+.design-a h1,
+.design-a .subtitle,
+.design-a .explain,
+.design-a .range-guide,
+.design-a .mode-rule-guide,
+.design-a .controls,
+.design-a .mode-status,
+.design-a .target-preview,
+.design-a .panel,
+.design-a .result-panel {
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.design-a h1 {
+  margin-top: 16px;
+  margin-bottom: 14px;
+  font-size: clamp(30px, 4vw, 44px);
+  letter-spacing: 0;
+}
+
+.design-a .subtitle {
+  margin-bottom: 18px;
+  font-size: clamp(28px, 3.5vw, 42px);
+}
+
+.design-a .explain {
+  margin-bottom: 20px;
+  color: #475569;
+}
+
+.design-a .range-guide,
+.design-a .mode-rule-guide,
+.design-a .mode-status {
+  border-radius: 14px;
+}
+
+.design-a .range-guide {
+  padding: 22px 26px;
+  line-height: 2;
+}
+
+.design-a .factor-preview {
+  margin-bottom: 18px;
+  padding-bottom: 18px;
+}
+
+.design-a .factor-card {
+  min-width: 126px;
+  padding: 10px 12px;
+}
+
+.design-a .mode-rule-guide {
+  padding: 14px 18px;
+  margin-top: 14px;
+}
+
+.design-a > .controls {
+  margin-top: 18px;
+  margin-bottom: 14px;
+}
+
+.design-a .mode-status {
+  margin-top: 10px;
+  padding: 14px 18px;
+}
+
+.design-a .target-preview {
+  margin-top: 16px;
+  font-size: 19px;
+}
+
+.design-a .panel,
+.design-a .result-panel {
+  margin-top: 28px;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+}
+
+.design-a .source-header {
+  margin-bottom: 16px;
+  gap: 18px;
+}
+
+.design-a .source-title {
+  flex: 1 1 360px;
+  font-size: 24px;
+}
+
+.design-a .source-note {
+  font-size: 14px;
+  line-height: 1.9;
+}
+
+.design-a .operation-area {
+  margin: 18px 0 24px;
+  padding: 16px 18px;
+  border-radius: 14px;
+}
+
+.design-a .expanded-expr {
+  margin-top: 18px;
+  margin-bottom: 18px;
+}
+
+.design-a .source-grid,
+.design-a .choice-grid,
+.design-a .arrangement-grid {
+  gap: 8px;
+  max-height: 360px;
+}
+
+.design-a .groups-grid {
+  gap: 18px;
+}
+
+.design-a .group {
+  padding: 18px;
+  border-radius: 14px;
+}
+
+.design-a .step-strip {
+  gap: 12px;
+}
+
+@media (max-width: 700px) {
+  .design-a {
+    padding: 18px 14px 42px;
+  }
+
+  .design-a .panel,
+  .design-a .result-panel {
+    padding: 18px;
+    border-radius: 14px;
+  }
+}
 </style>
 </head>
 
-<body>
+<body class="design-a">
 
 <p class="top-link"><a href="../index.html">トップへ戻る</a></p>
-<h1>三項の展開の係数の決まり方</h1>
-<div id="subtitle" class="subtitle">\( (a+b+c)^3 \)</div>
+<h1>三項の展開と係数の決まり方</h1>
+<div id="subtitle" class="subtitle">\( (a+b+c)^4 \)</div>
 
 <div id="explainText" class="explain">
-  \( (a+b+c)^n \) は、それぞれのカッコから \( a, b, c \) のどれか1つを選ぶことで展開される。
+  展開して出てくる並びを同類項ごとにまとめ、係数を「場所の選び方」として数える。
 </div>
 
 <div class="range-guide">
-  n が 5 以下のときは、展開して出てくる項をすべて見ます。<br>
-  n が 6 以上のときは、項が多くなるので、代表的な項だけを見ます。
+  <div id="factorPreview" class="factor-preview"></div>
+  <ul>
+    <li>それぞれのカッコから a, b, c のどれか 1 つを選ぶと、展開項が 1 つ生まれる。</li>
+    <li>同じ文字が複数ある項は、「a の場所を選ぶ → 残りから b の場所を選ぶ → 残りは c」と考える。</li>
+    <li>つまり、場所を順に選んでいけば、組合せ C だけで係数を数えられる。</li>
+  </ul>
 </div>
 
-<div id="expandedExpr" class="expanded-expr"></div>
+<div class="mode-rule-guide">
+  <strong>全展開モード</strong>：n が 5 以下。展開項をすべて表示します。　
+  <strong>代表項モード</strong>：n が 6 以上。代表的な項だけを表示します。
+</div>
 
 <div class="controls">
-  n:
-  <select id="nSelect" onchange="start()">
-    <option>2</option>
-    <option selected>3</option>
-    <option>4</option>
-    <option>5</option>
-    <option>6</option>
-    <option>7</option>
-    <option>8</option>
-    <option>9</option>
-    <option>10</option>
-  </select>
+  <label>
+    n:
+    <select id="nSelect" onchange="changeN()">
+      <optgroup label="全展開モード">
+        <option>2</option>
+        <option>3</option>
+        <option selected>4</option>
+        <option>5</option>
+      </optgroup>
+      <optgroup label="代表項モード">
+        <option>6</option>
+        <option>7</option>
+        <option>8</option>
+        <option>9</option>
+        <option>10</option>
+      </optgroup>
+    </select>
+  </label>
 
-  <button onclick="autoPlay()">自動再生</button>
-  <button onclick="stop()">停止</button>
-  <span id="regenControls" class="regen-controls is-hidden">
-    <button id="regenerateButton" onclick="regenerateTargets()">再生成</button>
-    <span id="regenNote" class="regen-note">再生成で、表示する代表的な項を選び直せます。</span>
-  </span>
+  <label>
+    注目する項:
+    <select id="targetSelect" onchange="changeTarget()"></select>
+  </label>
+
+  <button onclick="resetAll()">リセット</button>
 </div>
+
+<div id="currentMode" class="mode-status"></div>
+
+<div id="targetPreview" class="target-preview"></div>
 
 <div class="panel">
   <div class="source-header">
-    <div class="source-title" id="sourceTitle">展開して出てくるすべての項</div>
-    <div class="source-note" id="sourceNote">
-      それぞれのカッコから a, b, c を 1つずつ選んで、展開して出てくる項を書き並べたもの。
+    <div id="expansionTitle" class="source-title">1. 展開して出てくる項</div>
+    <div id="expansionNote" class="source-note">
+      各カッコから 1 文字ずつ選んだ並びを表示します。
     </div>
   </div>
-
+  <div id="expansionLowControls" class="operation-area">
+    <div class="operation-label">この部分の操作</div>
+    <p class="operation-note">展開項を順に表示すると、各カッコから選んだ文字列が 1 つずつ現れます。</p>
+    <div class="controls">
+      <button class="primary" onclick="playWhole()">展開項を順に表示</button>
+      <button onclick="showExpansionAll()">展開項をすべて表示</button>
+      <button onclick="stop()">停止</button>
+      <button onclick="resetExpansion()">展開表示をリセット</button>
+    </div>
+  </div>
+  <div id="expansionHighControls" class="operation-area is-hidden">
+    <div class="operation-label">この部分の操作</div>
+    <p class="operation-note">展開項が多いので、代表的な項だけを表示して係数の決まり方を確認します。</p>
+    <div class="controls">
+      <button class="primary" onclick="showRepresentativeItems()">代表項を表示</button>
+      <button onclick="regenerateRepresentatives()">代表項を再生成</button>
+    </div>
+  </div>
+  <div id="expandedExpr" class="expanded-expr"></div>
   <div id="source" class="source-grid"></div>
   <div id="modeNote" class="mode-note"></div>
 </div>
 
 <div class="panel">
+  <div class="source-header">
+    <div id="groupTitle" class="source-title">2. 同類項ごとにまとめる</div>
+    <div id="groupNote" class="source-note">
+      並び方が違っても、掛け算すると同じ項になるものを 1 つのグループにまとめます。
+    </div>
+  </div>
   <div id="bridgeNote" class="bridge-note"></div>
   <div id="groups" class="groups-grid"></div>
 </div>
 
+<div id="focusPanel" class="panel focus-panel">
+  <div class="source-header">
+    <div class="source-title">3. 注目項を C で数える</div>
+    <div class="source-note">
+      場所を順番に選ぶ方法で係数を数えます。
+    </div>
+  </div>
+  <div id="stageMessage" class="stage-message"></div>
+  <div id="mainBoxes" class="box-row"></div>
+  <div id="stepStrip" class="step-strip"></div>
+  <div class="operation-area focus-controls">
+    <div class="operation-label">注目項の数え方</div>
+    <p class="operation-note">「数え方を1ステップ進める」と、a の場所 → b の場所 → 残りは c → 係数、の順に確認できます。</p>
+    <div class="controls">
+      <button class="primary focus-next-button" onclick="nextFocusStage()">数え方を1ステップ進める</button>
+      <button onclick="showFocusAll()">数え方をすべて表示</button>
+      <button onclick="resetFocus()">数え方をリセット</button>
+    </div>
+  </div>
+  <div id="focusGroups" class="groups-grid"></div>
+</div>
+
 <div id="resultPanel" class="result-panel">
   <div id="resultFormula" class="result-formula"></div>
+  <div id="connectionBox" class="connection-box"></div>
+  <div id="fullFormula" class="full-formula"></div>
   <div id="theoremText" class="theorem-box"></div>
 </div>
 
 <script>
-let n = 3;
+let n = 4;
+let target = null;
 let patterns = [];
-let index = 0;
+let wholeIndex = 0;
+let wholeComplete = false;
+let focusStage = 0;
 let timer = null;
+let playMode = null;
 let highModeTargets = [];
-let revealIndex = 0;
-let typesetChain = Promise.resolve();
+let typesetting = false;
+let needsTypesetAgain = false;
+let latestTypesetTargets = [];
+let typesetDelayTimer = null;
 
-const SPEED = 130;
+const LOW_MODE_MAX_N = 5;
+const FOCUS_STAGE_MAX = 4;
+const WHOLE_SPEED = 120;
+const NONE_VALUE = "none";
 
-function mathInline(tex) {
-  return `\\(${tex}\\)`;
+const DYNAMIC_MATH_IDS = [
+  "subtitle",
+  "explainText",
+  "factorPreview",
+  "currentMode",
+  "targetPreview",
+  "expandedExpr",
+  "source",
+  "modeNote",
+  "bridgeNote",
+  "groups",
+  "stageMessage",
+  "mainBoxes",
+  "stepStrip",
+  "focusGroups",
+  "resultFormula",
+  "connectionBox",
+  "fullFormula",
+  "theoremText"
+];
+
+function dynamicMathElements() {
+  return DYNAMIC_MATH_IDS
+    .map(id => document.getElementById(id))
+    .filter(Boolean);
 }
 
-function mathDisplay(tex) {
-  return `\\[${tex}\\]`;
+function clearTypesetDynamicContent() {
+  if (!window.MathJax || !MathJax.typesetClear) return;
+  try {
+    MathJax.typesetClear(dynamicMathElements());
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function texSpansInTargets(targets) {
+  const spans = [];
+  targets.forEach(targetElement => {
+    if (!targetElement) return;
+    if (targetElement.classList?.contains("tex-inline")) {
+      spans.push(targetElement);
+    }
+    targetElement.querySelectorAll?.(".tex-inline").forEach(span => {
+      spans.push(span);
+    });
+  });
+  return spans;
+}
+
+function renderMathSpan(span) {
+  const tex = span.dataset.tex || span.textContent.replace(/^\\\(|\\\)$/g, "");
+  if (span.dataset.renderedTex === tex && span.querySelector("mjx-container")) {
+    return;
+  }
+
+  span.textContent = "";
+  span.appendChild(MathJax.tex2chtml(tex, { display: false }));
+  span.dataset.renderedTex = tex;
+}
+
+function runQueuedTypeset() {
+  if (typesetting) {
+    needsTypesetAgain = true;
+    return Promise.resolve();
+  }
+
+  typesetting = true;
+  const targetsForThisRun = latestTypesetTargets.slice();
+
+  return MathJax.startup.promise
+    .then(() => {
+      texSpansInTargets(targetsForThisRun).forEach(renderMathSpan);
+      MathJax.startup.document.clear();
+      MathJax.startup.document.updateDocument();
+      if (MathJax.typesetClear) {
+        MathJax.typesetClear([]);
+      }
+      return MathJax.typesetPromise([]);
+    })
+    .catch(error => {
+      console.error(error);
+    })
+    .finally(() => {
+      typesetting = false;
+      if (needsTypesetAgain) {
+        needsTypesetAgain = false;
+        runQueuedTypeset();
+      }
+    });
 }
 
 function queueTypeset(elements = []) {
   if (!window.MathJax || !MathJax.typesetPromise || !MathJax.startup) {
     return Promise.resolve();
   }
-  const targets = elements.filter(Boolean);
-  typesetChain = typesetChain
-    .then(async () => {
-      await MathJax.startup.promise;
-      if (targets.length > 0) {
-        await MathJax.typesetPromise(targets);
-      } else {
-        await MathJax.typesetPromise();
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-  return typesetChain;
+
+  latestTypesetTargets = elements.filter(Boolean);
+  if (typesetting) {
+    needsTypesetAgain = true;
+    return Promise.resolve();
+  }
+
+  clearTimeout(typesetDelayTimer);
+  typesetDelayTimer = setTimeout(runQueuedTypeset, 40);
+  return Promise.resolve();
 }
 
-function factorial(m) {
-  let v = 1;
-  for (let i = 2; i <= m; i++) v *= i;
-  return v;
+function mathInline(tex) {
+  return `<span class="tex-inline" data-tex="${escapeHtml(tex)}">\\(${tex}\\)</span>`;
 }
 
-function coeff(aCount, bCount, cCount) {
-  return factorial(n) / (factorial(aCount) * factorial(bCount) * factorial(cCount));
+function isHighMode() {
+  return n > LOW_MODE_MAX_N;
 }
 
-function termLabel(aCount, bCount, cCount) {
-  const parts = [];
-  if (aCount > 0) parts.push(aCount === 1 ? "a" : `a^${aCount}`);
-  if (bCount > 0) parts.push(bCount === 1 ? "b" : `b^${bCount}`);
-  if (cCount > 0) parts.push(cCount === 1 ? "c" : `c^${cCount}`);
-  return parts.length ? parts.join("") : "1";
+function hasTarget() {
+  return target !== null;
+}
+
+function currentTarget() {
+  return target || { a: 0, b: 0, c: n };
+}
+
+function comb(total, choose) {
+  if (choose < 0 || choose > total) return 0;
+  if (choose === 0 || choose === total) return 1;
+  const r = Math.min(choose, total - choose);
+  let numerator = 1;
+  let denominator = 1;
+  for (let i = 1; i <= r; i++) {
+    numerator *= total - r + i;
+    denominator *= i;
+  }
+  return numerator / denominator;
+}
+
+function factorial(value) {
+  let result = 1;
+  for (let i = 2; i <= value; i++) result *= i;
+  return result;
+}
+
+function coefficient(a, b, c) {
+  return factorial(n) / (factorial(a) * factorial(b) * factorial(c));
+}
+
+function targetCoefficient() {
+  if (!hasTarget()) return 0;
+  const { a, b } = currentTarget();
+  return comb(n, a) * comb(n - a, b);
+}
+
+function combinationTex(total, choose) {
+  return `{}_{${total}}\\mathrm{C}_{${choose}}`;
 }
 
 function powerTex(base, exponent) {
@@ -517,13 +1237,390 @@ function powerTex(base, exponent) {
   return `${base}^{${exponent}}`;
 }
 
-function termTex(aCount, bCount, cCount) {
-  const parts = [
-    powerTex("a", aCount),
-    powerTex("b", bCount),
-    powerTex("c", cCount)
-  ].filter(Boolean);
+function termTex(a, b, c) {
+  const parts = [powerTex("a", a), powerTex("b", b), powerTex("c", c)].filter(Boolean);
   return parts.length ? parts.join("") : "1";
+}
+
+function termWord(a, b, c) {
+  return `${"a".repeat(a)}${"b".repeat(b)}${"c".repeat(c)}` || "1";
+}
+
+function finalTermTex(a, b, c) {
+  const coeff = coefficient(a, b, c);
+  const term = termTex(a, b, c);
+  return coeff === 1 ? term : `${coeff}${term}`;
+}
+
+function keyOf(a, b, c) {
+  return `${a}-${b}-${c}`;
+}
+
+function countLetters(word) {
+  const a = (word.match(/a/g) || []).length;
+  const b = (word.match(/b/g) || []).length;
+  const c = (word.match(/c/g) || []).length;
+  return { a, b, c };
+}
+
+function wordKey(word) {
+  const counts = countLetters(word);
+  return keyOf(counts.a, counts.b, counts.c);
+}
+
+function wordMatchesTarget(word) {
+  if (!hasTarget()) return false;
+  const counts = countLetters(word);
+  const { a, b, c } = currentTarget();
+  return counts.a === a && counts.b === b && counts.c === c;
+}
+
+function exprText() {
+  return Array.from({ length: n }, () => "(a+b+c)").join("");
+}
+
+function generateAllExpansionWords() {
+  const words = [];
+  function dfs(current) {
+    if (current.length === n) {
+      words.push(current);
+      return;
+    }
+    dfs(current + "a");
+    dfs(current + "b");
+    dfs(current + "c");
+  }
+  dfs("");
+  return words;
+}
+
+function allTriplesForN(value = n) {
+  const triples = [];
+  for (let a = value; a >= 0; a--) {
+    for (let b = value - a; b >= 0; b--) {
+      const c = value - a - b;
+      triples.push({ a, b, c });
+    }
+  }
+  return triples;
+}
+
+function balancedDefault(value) {
+  const a = Math.ceil(value / 3);
+  const b = Math.floor((value + 1) / 3);
+  const c = value - a - b;
+  return { a, b, c };
+}
+
+function populateTargets() {
+  const select = document.getElementById("targetSelect");
+  const previous = hasTarget() ? `${target.a},${target.b},${target.c}` : NONE_VALUE;
+  const defaults = balancedDefault(n);
+  const defaultValue = `${defaults.a},${defaults.b},${defaults.c}`;
+
+  select.innerHTML = "";
+
+  if (!isHighMode()) {
+    const noneOption = document.createElement("option");
+    noneOption.value = NONE_VALUE;
+    noneOption.textContent = "なし";
+    select.appendChild(noneOption);
+  }
+
+  allTriplesForN(n).forEach(({ a, b, c }) => {
+    const option = document.createElement("option");
+    option.value = `${a},${b},${c}`;
+    option.textContent = `${termWord(a, b, c)}  （a:${a}, b:${b}, c:${c}）`;
+    option.className = "word-label";
+    select.appendChild(option);
+  });
+
+  const values = Array.from(select.options).map(option => option.value);
+  if (!isHighMode()) {
+    select.value = values.includes(previous) ? previous : NONE_VALUE;
+  } else {
+    select.value = previous !== NONE_VALUE && values.includes(previous) ? previous : defaultValue;
+  }
+
+  if (select.value === NONE_VALUE) {
+    target = null;
+  } else {
+    const [a, b, c] = select.value.split(",").map(Number);
+    target = { a, b, c };
+  }
+}
+
+function changeN() {
+  stop();
+  n = parseInt(document.getElementById("nSelect").value, 10);
+  populateTargets();
+  resetStateForNewSetting();
+  render();
+}
+
+function changeTarget() {
+  stop();
+  const value = document.getElementById("targetSelect").value;
+  if (value === NONE_VALUE) {
+    target = null;
+  } else {
+    const [a, b, c] = value.split(",").map(Number);
+    target = { a, b, c };
+  }
+  resetStateForNewSetting({ keepRepresentatives: false });
+  render();
+}
+
+function resetStateForNewSetting(options = {}) {
+  patterns = isHighMode() ? [] : generateAllExpansionWords();
+  wholeIndex = 0;
+  wholeComplete = false;
+  focusStage = 0;
+  if (!options.keepRepresentatives) {
+    pickRepresentativeTargets();
+  }
+}
+
+function stop() {
+  clearInterval(timer);
+  timer = null;
+  playMode = null;
+}
+
+function playWhole() {
+  stop();
+  if (isHighMode()) {
+    wholeComplete = true;
+    render();
+    return;
+  }
+  if (wholeIndex >= patterns.length) {
+    wholeIndex = 0;
+    wholeComplete = false;
+  }
+  playMode = "whole";
+  timer = setInterval(() => {
+    if (wholeIndex < patterns.length) {
+      wholeIndex++;
+      if (wholeIndex >= patterns.length) {
+        wholeComplete = true;
+        render();
+        stop();
+      } else {
+        render();
+      }
+    } else {
+      wholeComplete = true;
+      render();
+      stop();
+    }
+  }, WHOLE_SPEED);
+}
+
+function nextFocusStage() {
+  if (!hasTarget()) return;
+  stop();
+  if (focusStage < FOCUS_STAGE_MAX) {
+    focusStage++;
+  }
+  render();
+}
+
+function showExpansionAll() {
+  stop();
+  if (!isHighMode()) {
+    wholeIndex = patterns.length;
+  }
+  wholeComplete = true;
+  render();
+}
+
+function resetExpansion() {
+  stop();
+  wholeIndex = 0;
+  wholeComplete = false;
+  render();
+}
+
+function showRepresentativeItems() {
+  stop();
+  wholeComplete = true;
+  render();
+}
+
+function showFocusAll() {
+  stop();
+  if (hasTarget()) {
+    focusStage = FOCUS_STAGE_MAX;
+  }
+  render();
+}
+
+function resetFocus() {
+  stop();
+  focusStage = 0;
+  render();
+}
+
+function resetAll() {
+  stop();
+  wholeIndex = 0;
+  wholeComplete = false;
+  focusStage = 0;
+  render();
+}
+
+function regenerateRepresentatives() {
+  stop();
+  pickRepresentativeTargets();
+  wholeComplete = true;
+  render();
+}
+
+function arraysEqual(left, right) {
+  return left && right && left.a === right.a && left.b === right.b && left.c === right.c;
+}
+
+function shuffle(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function pickRepresentativeTargets() {
+  const triples = allTriplesForN(n).filter(t => {
+    const nonZero = [t.a, t.b, t.c].filter(value => value > 0).length;
+    return nonZero >= 2;
+  });
+  const ranked = triples
+    .map(t => ({ ...t, coeff: coefficient(t.a, t.b, t.c) }))
+    .sort((left, right) => left.coeff - right.coeff);
+
+  const picked = [];
+  if (hasTarget()) {
+    picked.push({ ...target });
+  }
+
+  const cuts = [
+    ranked.slice(0, Math.max(1, Math.floor(ranked.length / 3))),
+    ranked.slice(Math.max(1, Math.floor(ranked.length / 3)), Math.max(2, Math.floor((2 * ranked.length) / 3))),
+    ranked.slice(Math.max(2, Math.floor((2 * ranked.length) / 3)))
+  ].filter(segment => segment.length > 0);
+
+  cuts.forEach(segment => {
+    const pool = shuffle(segment).filter(candidate => !picked.some(item => arraysEqual(item, candidate)));
+    if (pool.length > 0 && picked.length < 4) {
+      const chosen = pool[0];
+      picked.push({ a: chosen.a, b: chosen.b, c: chosen.c });
+    }
+  });
+
+  if (picked.length < 4) {
+    shuffle(triples).forEach(candidate => {
+      if (picked.length < 4 && !picked.some(item => arraysEqual(item, candidate))) {
+        picked.push({ a: candidate.a, b: candidate.b, c: candidate.c });
+      }
+    });
+  }
+
+  highModeTargets = picked.slice(0, 4);
+}
+
+function combinationsOfArray(values, choose) {
+  const results = [];
+  function dfs(start, current) {
+    if (current.length === choose) {
+      results.push(current.slice());
+      return;
+    }
+    const need = choose - current.length;
+    for (let i = start; i <= values.length - need; i++) {
+      current.push(values[i]);
+      dfs(i + 1, current);
+      current.pop();
+    }
+  }
+  dfs(0, []);
+  return results;
+}
+
+function positionCombinations(total, choose) {
+  return combinationsOfArray(Array.from({ length: total }, (_, i) => i), choose);
+}
+
+function charsFromPositions(aPositions = [], bPositions = []) {
+  const chars = Array(n).fill("");
+  aPositions.forEach(index => { chars[index] = "a"; });
+  bPositions.forEach(index => { chars[index] = "b"; });
+  for (let i = 0; i < n; i++) {
+    if (!chars[i]) chars[i] = "c";
+  }
+  return chars;
+}
+
+function representativePositions() {
+  const { a, b } = currentTarget();
+  const aPositions = Array.from({ length: a }, (_, i) => i);
+  const remaining = Array.from({ length: n }, (_, i) => i).filter(i => !aPositions.includes(i));
+  const bPositions = remaining.slice(0, b);
+  return { aPositions, bPositions };
+}
+
+function displayCharsForStage() {
+  if (!hasTarget() || focusStage === 0) return Array(n).fill("");
+  const { aPositions, bPositions } = representativePositions();
+  const chars = Array(n).fill("");
+  if (focusStage >= 1) {
+    aPositions.forEach(index => { chars[index] = "a"; });
+  }
+  if (focusStage >= 2) {
+    bPositions.forEach(index => { chars[index] = "b"; });
+  }
+  if (focusStage >= 3) {
+    for (let i = 0; i < n; i++) {
+      if (!chars[i]) chars[i] = "c";
+    }
+  }
+  return chars;
+}
+
+function renderBoxRow(chars, mini = false) {
+  const slotClass = mini ? "mini-slot" : "slot";
+  return chars.map((ch, index) => {
+    const letterClass = ch || "blank";
+    const content = ch || "?";
+    const indexAttr = mini ? "" : ` data-index="${index + 1}"`;
+    return `<span class="${slotClass} ${letterClass}"${indexAttr}>${content}</span>`;
+  }).join("");
+}
+
+function renderMiniCard(chars) {
+  return `<div class="mini-row">${renderBoxRow(chars, true)}</div>`;
+}
+
+function generateTargetWords(a = currentTarget().a, b = currentTarget().b, c = currentTarget().c) {
+  void c;
+  const words = [];
+  const allPositions = Array.from({ length: n }, (_, i) => i);
+  const aChoices = positionCombinations(n, a);
+
+  aChoices.forEach(aPositions => {
+    const restAfterA = allPositions.filter(index => !aPositions.includes(index));
+    const bChoices = combinationsOfArray(restAfterA, b);
+    bChoices.forEach(bPositions => {
+      words.push(charsFromPositions(aPositions, bPositions).join(""));
+    });
+  });
+
+  words.sort();
+  return words;
+}
+
+function sampleArrangementsForTriple(a, b, c, limit = 10) {
+  return generateTargetWords(a, b, c).slice(0, limit);
 }
 
 function renderSubtitle() {
@@ -532,456 +1629,469 @@ function renderSubtitle() {
   return subtitle;
 }
 
-function factorialProductTex(...values) {
-  return values.map((value) => `${value}!`).join("");
+function factorCard(index) {
+  return `
+    <div class="factor-card">
+      <span class="factor-card-index">${index}つ目</span>
+      ${mathInline("(a+b+c)")}
+    </div>
+  `;
 }
 
-function factorialFormulaTex(aCount, bCount, cCount) {
-  return `\\frac{${n}!}{${factorialProductTex(aCount, bCount, cCount)}}`;
+function renderFactorPreview() {
+  const preview = document.getElementById("factorPreview");
+  const indices = n <= LOW_MODE_MAX_N
+    ? Array.from({ length: n }, (_, index) => index + 1)
+    : [1, 2, 3, "ellipsis", n];
+
+  preview.innerHTML =
+    `<div class="factor-preview-title">いま考えている式：</div>` +
+    `<div class="factor-card-row">` +
+    indices.map(index => {
+      if (index === "ellipsis") {
+        return `<div class="factor-card factor-card-ellipsis">...</div>`;
+      }
+      return factorCard(index);
+    }).join("") +
+    `</div>` +
+    `<div class="factor-preview-note">全部で ${n} 個のカッコがあります。</div>`;
+  return preview;
 }
 
-function finalTermTex(aCount, bCount, cCount, coefficient) {
-  const term = termTex(aCount, bCount, cCount);
-  if (coefficient === 1) {
-    return term;
+function renderModeStatus() {
+  const mode = document.getElementById("currentMode");
+  const high = isHighMode();
+  mode.classList.toggle("is-representative", high);
+  if (high) {
+    mode.innerHTML =
+      `<span class="mode-status-badge">現在：代表項モード</span>` +
+      `n = ${n}。展開項が多いため、代表項だけを表示します。`;
+  } else {
+    mode.innerHTML =
+      `<span class="mode-status-badge">現在：全展開モード</span>` +
+      `n = ${n}。展開項をすべて表示できます。`;
   }
-  return `${coefficient}${term}`;
+  return mode;
 }
 
-function exprText() {
-  let s = "";
-  for (let i = 0; i < n; i++) s += "(a+b+c)";
-  return s;
-}
-
-function isHighMode() {
-  return n >= 6;
-}
-
-function generateAllPatterns() {
-  patterns = [];
-  function dfs(cur) {
-    if (cur.length === n) {
-      patterns.push(cur);
-      return;
-    }
-    dfs(cur + "a");
-    dfs(cur + "b");
-    dfs(cur + "c");
-  }
-  dfs("");
-}
-
-function allTriplesForN() {
-  const triples = [];
-  for (let aCount = 0; aCount <= n; aCount++) {
-    for (let bCount = 0; bCount <= n - aCount; bCount++) {
-      const cCount = n - aCount - bCount;
-      triples.push({ aCount, bCount, cCount });
-    }
-  }
-  return triples;
-}
-
-function shuffle(arr) {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-function pickRandomTargets() {
-  const triples = allTriplesForN().filter(t => {
-    const nonZero = [t.aCount, t.bCount, t.cCount].filter(x => x > 0).length;
-    return nonZero >= 2;
-  });
-  const ranked = triples
-    .map((triple) => ({ ...triple, count: coeff(triple.aCount, triple.bCount, triple.cCount) }))
-    .sort((left, right) => left.count - right.count);
-
-  const segments = [
-    ranked.slice(0, Math.max(1, Math.floor(ranked.length / 3))),
-    ranked.slice(Math.max(1, Math.floor(ranked.length / 3)), Math.max(2, Math.floor((2 * ranked.length) / 3))),
-    ranked.slice(Math.max(2, Math.floor((2 * ranked.length) / 3)))
-  ].filter((segment) => segment.length > 0);
-
-  const picked = [];
-  segments.forEach((segment) => {
-    const balanced = segment.filter((triple) => Math.max(triple.aCount, triple.bCount, triple.cCount) < n);
-    const pool = balanced.length > 0 ? balanced : segment;
-    const chosen = shuffle(pool)[0];
-    if (chosen) {
-      picked.push({ aCount: chosen.aCount, bCount: chosen.bCount, cCount: chosen.cCount });
-    }
-  });
-
-  const unique = [];
-  picked.forEach((triple) => {
-    if (!unique.some((item) =>
-      item.aCount === triple.aCount &&
-      item.bCount === triple.bCount &&
-      item.cCount === triple.cCount
-    )) {
-      unique.push(triple);
-    }
-  });
-
-  if (unique.length < 3) {
-    const rest = shuffle(triples).filter((triple) =>
-      !unique.some((item) =>
-        item.aCount === triple.aCount &&
-        item.bCount === triple.bCount &&
-        item.cCount === triple.cCount
-      )
-    );
-    unique.push(...rest.slice(0, 3 - unique.length));
+function renderPreview() {
+  const preview = document.getElementById("targetPreview");
+  if (!hasTarget()) {
+    preview.innerHTML = `注目する項：<strong>なし</strong>　まずは展開全体と、同類項にまとまる様子を確認します。`;
+    return preview;
   }
 
-  highModeTargets = unique.slice(0, 3);
+  const { a, b, c } = currentTarget();
+  preview.innerHTML =
+    `注目する項：<strong class="word-label">${termWord(a, b, c)}</strong>` +
+    `　（a が ${a} 個，b が ${b} 個，c が ${c} 個）` +
+    `　→ 掛け算後は ${mathInline(termTex(a, b, c))}`;
+  return preview;
 }
 
-function sampleArrangements(aCount, bCount, cCount, sampleSize = 12) {
-  const base = [];
-  for (let i = 0; i < aCount; i++) base.push("a");
-  for (let i = 0; i < bCount; i++) base.push("b");
-  for (let i = 0; i < cCount; i++) base.push("c");
-
-  const seen = new Set();
-  const results = [];
-  const maxNeeded = Math.min(sampleSize, coeff(aCount, bCount, cCount));
-
-  let tries = 0;
-  while (results.length < maxNeeded && tries < 6000) {
-    tries++;
-    const arr = shuffle(base).join("");
-    if (!seen.has(arr)) {
-      seen.add(arr);
-      results.push(arr);
-    }
-  }
-
-  results.sort();
-  return results;
-}
-
-function resetPanels() {
-  document.getElementById("source").innerHTML = "";
-  document.getElementById("source").className = "source-grid";
-  document.getElementById("groups").innerHTML = "";
-  document.getElementById("resultPanel").classList.remove("show");
-  document.getElementById("resultFormula").innerHTML = "";
-  document.getElementById("theoremText").innerHTML = "";
-}
-
-function updateRegenerateControls() {
-  document.getElementById("regenControls").classList.toggle("is-hidden", !isHighMode());
-}
-
-function renderLowMode() {
+function renderExpansionPanel() {
+  const title = document.getElementById("expansionTitle");
+  const note = document.getElementById("expansionNote");
+  const expandedExpr = document.getElementById("expandedExpr");
   const source = document.getElementById("source");
-  const groups = document.getElementById("groups");
-  const bridge = document.getElementById("bridgeNote");
-  const sourceTitle = document.getElementById("sourceTitle");
-  const sourceNote = document.getElementById("sourceNote");
   const modeNote = document.getElementById("modeNote");
 
-  sourceTitle.textContent = "展開して出てくるすべての項";
-  sourceNote.innerHTML =
-    "それぞれのカッコから a, b, c を 1つずつ選んで、展開して出てくる項をすべて書き並べたもの。";
-  modeNote.textContent = "";
+  expandedExpr.innerHTML = mathInline(exprText());
+  source.className = "source-grid";
 
-  bridge.innerHTML =
-    `並べて数えた個数は、数学Aで学習した「同じものを含む順列」の考え方から、` +
-    `<strong>${mathInline(`\\frac{${n}!}{p!q!r!}`)}</strong> の形で計算できる。`;
-
-  patterns.forEach((p, i) => {
-    const div = document.createElement("div");
-    div.className = "item";
-    div.id = "item-" + i;
-    div.textContent = p;
-    source.appendChild(div);
-  });
-
-  for (let aCount = n; aCount >= 0; aCount--) {
-    for (let bCount = n - aCount; bCount >= 0; bCount--) {
-      const cCount = n - aCount - bCount;
-      const count = coeff(aCount, bCount, cCount);
-
-      const div = document.createElement("div");
-      div.className = "group";
-      div.id = `group-${aCount}-${bCount}-${cCount}`;
-
-      div.innerHTML = `
-        <h3 id="label-${aCount}-${bCount}-${cCount}">${mathInline(termTex(aCount, bCount, cCount))} <span class="group-count">(0)</span></h3>
-
-        <div class="block-title">実際に並べて数える</div>
-        <div id="items-${aCount}-${bCount}-${cCount}" class="group-items"></div>
-        <div id="count-${aCount}-${bCount}-${cCount}" class="arrow"></div>
-
-        <div class="bottom-block">
-          <div class="extra">
-            <div class="block-title">階乗を使って計算できる</div>
-            <div class="formula-line">${mathInline(`${factorialFormulaTex(aCount, bCount, cCount)} = ${count}`)}</div>
-          </div>
-
-          <div class="extra final-line">
-            ${mathInline(termTex(aCount, bCount, cCount))} の係数は ${count}
-          </div>
+  if (isHighMode()) {
+    title.textContent = "1. 展開して出てくる項（代表だけ）";
+    note.innerHTML =
+      `${n} 乗では展開項が ${Math.pow(3, n).toLocaleString()} 個になるので、全部は並べず、代表項と注目項を見ます。`;
+    source.classList.add("high-mode");
+    source.innerHTML = highModeTargets.map(t => {
+      const selected = hasTarget() && arraysEqual(t, currentTarget());
+      const samples = sampleArrangementsForTriple(t.a, t.b, t.c, 6);
+      return `
+        <div class="item source-card ${selected ? "selected" : ""}">
+          <strong>${selected ? "注目項：" : "代表項："}<span class="word-label">${termWord(t.a, t.b, t.c)}</span></strong>
+          <span>掛け算後：${mathInline(termTex(t.a, t.b, t.c))}</span><br>
+          <span>例：${samples.slice(0, 4).join(", ")}${coefficient(t.a, t.b, t.c) > samples.length ? ", ..." : ""}</span><br>
+          <span>この項になる並びは ${coefficient(t.a, t.b, t.c)} 個</span>
         </div>
       `;
-      groups.appendChild(div);
-    }
+    }).join("");
+    modeNote.innerHTML =
+      `全部を並べなくても、各項の係数は「場所の選び方」で求められる。上の「代表項を再生成」で見る項を変えられます。`;
+    return [title, note, expandedExpr, source, modeNote];
   }
 
-  queueTypeset([bridge, groups]);
+  title.textContent = "1. 展開して出てくるすべての項";
+  note.innerHTML =
+    `各カッコから ${mathInline("a,b,c")} のどれかを選ぶと、展開の中に 1 つの項が生まれる。`;
+
+  const shouldHighlightTarget = hasTarget() && (wholeComplete || focusStage >= FOCUS_STAGE_MAX);
+  source.innerHTML = patterns.map((word, index) => {
+    let classes = "item word-label";
+    const activeIndex = Math.max(0, wholeIndex - 1);
+    if (playMode === "whole" && index === activeIndex && !wholeComplete && wholeIndex > 0) {
+      classes += " active";
+    } else if (index < wholeIndex && !wholeComplete) {
+      classes += " done";
+    }
+    if (shouldHighlightTarget) {
+      classes += wordMatchesTarget(word) ? " target" : " not-target";
+    }
+    return `<div class="${classes}">${word}</div>`;
+  }).join("");
+
+  if (shouldHighlightTarget) {
+    const { a, b, c } = currentTarget();
+    modeNote.innerHTML =
+      `黄色の ${targetCoefficient()} 個は、順番は違っても掛け算するとすべて ${mathInline(termTex(a, b, c))} になる。`;
+  } else if (wholeIndex > 0) {
+    modeNote.textContent = `${wholeIndex} / ${patterns.length} 個を確認中。`;
+  } else if (!hasTarget()) {
+    modeNote.innerHTML = `注目する項が「なし」なので、特定の項だけを黄色にはせず、全 ${patterns.length} 個の並びを見ます。`;
+  } else {
+    modeNote.innerHTML = `n が ${LOW_MODE_MAX_N} 以下なので、全 ${patterns.length} 個の並びを表示しています。`;
+  }
+
+  return [title, note, expandedExpr, source, modeNote];
 }
 
-function renderHighMode() {
-  const source = document.getElementById("source");
-  const groups = document.getElementById("groups");
+function processedWords() {
+  if (wholeComplete) return patterns;
+  return patterns.slice(0, wholeIndex);
+}
+
+function renderGroupsPanel() {
+  const groupTitle = document.getElementById("groupTitle");
+  const groupNote = document.getElementById("groupNote");
   const bridge = document.getElementById("bridgeNote");
-  const sourceTitle = document.getElementById("sourceTitle");
-  const sourceNote = document.getElementById("sourceNote");
-  const modeNote = document.getElementById("modeNote");
+  const groups = document.getElementById("groups");
 
-  sourceTitle.textContent = "今回はこの 3 個の項だけ調べる";
-  sourceNote.innerHTML =
-    `${n}乗では項が多くなりすぎるので、ランダムに選んだ 3 個の項だけを調べる。`;
-  modeNote.textContent = "n が 6 以上のときは、3 個の項だけを表示する。再生成を押すと項が変わる。";
-  source.classList.add("high-mode");
-
-  bridge.innerHTML =
-    `この場合も、係数は数学Aで学習した「同じものを含む順列」の考え方から、` +
-    `<strong>${mathInline(`\\frac{${n}!}{p!q!r!}`)}</strong> の形で計算できる。`;
-
-  highModeTargets.forEach((t, i) => {
-    const count = coeff(t.aCount, t.bCount, t.cCount);
-    const samples = sampleArrangements(t.aCount, t.bCount, t.cCount, 12);
-
-    const srcCard = document.createElement("div");
-    srcCard.className = "item source-card";
-    srcCard.innerHTML =
-      `<strong>${mathInline(termTex(t.aCount, t.bCount, t.cCount))}</strong><br>` +
-      `<span class="source-card-text">例（展開した項の一部）：${samples.slice(0, 3).join(", ")}${samples.length > 3 ? ", ..." : ""}</span>`;
-    source.appendChild(srcCard);
-
-    const div = document.createElement("div");
-    div.className = "group";
-    div.id = `focus-${i}`;
-
-    div.innerHTML = `
-      <h3>${mathInline(termTex(t.aCount, t.bCount, t.cCount))}</h3>
-
-      <div class="block-title">例として並べると</div>
-      <div class="group-items">${samples.join("\n")}</div>
-      <div class="arrow">→ このような並びが全部で ${count} 個</div>
-
-      <div class="bottom-block">
-        <div class="extra">
-          <div class="block-title">階乗を使って計算できる</div>
-          <div class="formula-line">${mathInline(`${factorialFormulaTex(t.aCount, t.bCount, t.cCount)} = ${count}`)}</div>
+  if (isHighMode()) {
+    groupTitle.textContent = "2. 代表項を同類項としてまとめる";
+    groupNote.innerHTML =
+      `展開項を全部並べる代わりに、それぞれの項になる並びの個数を数えます。`;
+    bridge.innerHTML =
+      `係数は「その項になる並びの個数」。ここでは、代表項ごとに ${mathInline("C")} を使った数え方と階乗の形を並べて確認する。`;
+    groups.innerHTML = highModeTargets.map(t => {
+      const selected = hasTarget() && arraysEqual(t, currentTarget());
+      const first = comb(n, t.a);
+      const second = comb(n - t.a, t.b);
+      const coeff = coefficient(t.a, t.b, t.c);
+      return `
+        <div class="group showFormula ${selected ? "selected" : ""}">
+          <h3>${selected ? "注目項：" : "代表項："}<span class="word-label">${termWord(t.a, t.b, t.c)}</span>　${mathInline(termTex(t.a, t.b, t.c))}</h3>
+          <div class="block-title">C で段階的に数える</div>
+          <div class="formula-line">${mathInline(`${combinationTex(n, t.a)}\\times${combinationTex(n - t.a, t.b)} = ${first}\\times${second} = ${coeff}`)}</div>
+          <div class="block-title">階乗の形</div>
+          <div class="formula-line">${mathInline(`\\frac{${n}!}{${t.a}!${t.b}!${t.c}!} = ${coeff}`)}</div>
+          <div class="arrow">この ${coeff} 個が、展開後の ${mathInline(termTex(t.a, t.b, t.c))} の係数になる。</div>
         </div>
+      `;
+    }).join("");
+    return [groupTitle, groupNote, bridge, groups];
+  }
 
-        <div class="extra final-line">
-          ${mathInline(termTex(t.aCount, t.bCount, t.cCount))} の係数は ${count}
+  groupTitle.textContent = "2. 同類項ごとにまとめる";
+  groupNote.innerHTML =
+    `並び方が違っても、${mathInline("a,b,c")} の個数が同じなら、掛け算後は同じ同類項になる。`;
+  bridge.innerHTML =
+    `左の展開項を順に見ながら、同じ ${mathInline("a^p b^q c^r")} になるものを同じ箱に入れる。`;
+
+  const counts = new Map();
+  const samples = new Map();
+  processedWords().forEach(word => {
+    const key = wordKey(word);
+    counts.set(key, (counts.get(key) || 0) + 1);
+    if (!samples.has(key)) samples.set(key, []);
+    if (samples.get(key).length < 12) samples.get(key).push(word);
+  });
+
+  groups.innerHTML = allTriplesForN(n).map(({ a, b, c }) => {
+    const key = keyOf(a, b, c);
+    const count = counts.get(key) || 0;
+    const finalCount = coefficient(a, b, c);
+    const selected = hasTarget() && a === currentTarget().a && b === currentTarget().b && c === currentTarget().c;
+    const showFormula = wholeComplete || (selected && focusStage >= FOCUS_STAGE_MAX);
+    let sampleText = (samples.get(key) || []).join("\n");
+    if (showFormula && selected && !sampleText) {
+      sampleText = generateTargetWords().slice(0, 12).join("\n");
+    }
+    return `
+      <div class="group ${selected ? "selected" : ""} ${showFormula ? "showFormula" : ""}">
+        <h3><span class="word-label">${termWord(a, b, c)}</span>　${mathInline(termTex(a, b, c))} <span class="group-count">(${showFormula ? finalCount : count})</span></h3>
+        <div class="block-title">実際に並べて数える</div>
+        <div class="group-items word-label">${sampleText}</div>
+        <div class="arrow">${showFormula ? `→ 全部で ${finalCount} 個` : `→ 現在 ${count} 個`}</div>
+        <div class="extra">
+          <div class="block-title">C で数える</div>
+          <div class="formula-line">${mathInline(`${combinationTex(n, a)}\\times${combinationTex(n - a, b)} = ${comb(n, a)}\\times${comb(n - a, b)} = ${finalCount}`)}</div>
+          <div class="block-title">階乗の形</div>
+          <div class="formula-line">${mathInline(`\\frac{${n}!}{${a}!${b}!${c}!} = ${finalCount}`)}</div>
         </div>
       </div>
     `;
-    groups.appendChild(div);
-  });
+  }).join("");
 
-  queueTypeset([source, bridge, groups]);
+  return [groupTitle, groupNote, bridge, groups];
+}
+
+function stageTitle() {
+  if (!hasTarget()) return "";
+  const { a, b, c } = currentTarget();
+  const word = `<span class="word-label">${termWord(a, b, c)}</span>`;
+  const term = mathInline(termTex(a, b, c));
+  if (focusStage === 0) {
+    return `${word}、つまり ${term} になるには、${n} 個の場所に ${mathInline("a,b,c")} をどう置けばよいか考える。`;
+  }
+  if (focusStage === 1) {
+    return `まず ${n} 個の場所から、${mathInline("a")} を置く ${a} 個の場所を選ぶ。`;
+  }
+  if (focusStage === 2) {
+    return `次に、残り ${n - a} 個の場所から、${mathInline("b")} を置く ${b} 個の場所を選ぶ。`;
+  }
+  if (focusStage === 3) {
+    return `最後に、残った ${c} 個の場所はすべて ${mathInline("c")} になる。`;
+  }
+  return `このような並びが、展開したときにすべて同じ ${term} にまとまる。`;
+}
+
+function renderStepStrip() {
+  const strip = document.getElementById("stepStrip");
+  if (!hasTarget()) {
+    strip.innerHTML = "";
+    return strip;
+  }
+  const { a, b, c } = currentTarget();
+  const steps = [
+    {
+      title: "0. 展開の見方",
+      body: `各カッコから 1 文字ずつ選ぶ。${n} 個の場所がある。`
+    },
+    {
+      title: "1. a の場所",
+      body: `${mathInline(combinationTex(n, a))} 通り`
+    },
+    {
+      title: "2. b の場所",
+      body: `${mathInline(combinationTex(n - a, b))} 通り`
+    },
+    {
+      title: "3. c は残り",
+      body: `${c} 個は自動的に c。1 通り`
+    },
+    {
+      title: "4. 係数になる",
+      body: `同じ ${mathInline(termTex(a, b, c))} が ${targetCoefficient()} 個出る。`
+    }
+  ];
+
+  strip.innerHTML = steps.map((item, index) => {
+    const state = index === focusStage ? "active" : index < focusStage ? "done" : "";
+    return `<div class="step-card ${state}"><strong>${item.title}</strong><div>${item.body}</div></div>`;
+  }).join("");
+  return strip;
+}
+
+function renderFocusCountingPanel() {
+  const focusPanel = document.getElementById("focusPanel");
+  const stageMessage = document.getElementById("stageMessage");
+  const mainBoxes = document.getElementById("mainBoxes");
+  const focusGroups = document.getElementById("focusGroups");
+  const focusControls = focusPanel.querySelector(".focus-controls");
+
+  if (!hasTarget()) {
+    focusPanel.classList.add("is-hidden");
+    focusControls.classList.add("is-hidden");
+    stageMessage.innerHTML = "";
+    mainBoxes.innerHTML = "";
+    document.getElementById("stepStrip").innerHTML = "";
+    focusGroups.innerHTML = "";
+    return [];
+  }
+
+  focusPanel.classList.remove("is-hidden");
+  focusControls.classList.remove("is-hidden");
+  const { a, b, c } = currentTarget();
+  const aChoiceCount = comb(n, a);
+  const bChoiceCount = comb(n - a, b);
+  const result = targetCoefficient();
+  const allPositions = Array.from({ length: n }, (_, i) => i);
+  const { aPositions, bPositions } = representativePositions();
+  const restAfterA = allPositions.filter(index => !aPositions.includes(index));
+  const aChoices = positionCombinations(n, a);
+  const bChoices = combinationsOfArray(restAfterA, b);
+  const limit = 96;
+
+  const aChoiceHtml = aChoices.slice(0, limit).map(choice => {
+    const chars = Array(n).fill("");
+    choice.forEach(index => { chars[index] = "a"; });
+    return `<div class="choice-card">${renderMiniCard(chars)}</div>`;
+  }).join("") + (aChoices.length > limit ? `<div class="choice-card">...</div>` : "");
+
+  const bChoiceHtml = bChoices.slice(0, limit).map(choice => {
+    const chars = Array(n).fill("");
+    aPositions.forEach(index => { chars[index] = "a"; });
+    choice.forEach(index => { chars[index] = "b"; });
+    return `<div class="choice-card">${renderMiniCard(chars)}</div>`;
+  }).join("") + (bChoices.length > limit ? `<div class="choice-card">...</div>` : "");
+
+  const targetWords = generateTargetWords().slice(0, limit).map(word => `<div class="item target word-label">${word}</div>`).join("") +
+    (targetCoefficient() > limit ? `<div class="item sample">...</div>` : "");
+
+  stageMessage.innerHTML = stageTitle();
+  mainBoxes.innerHTML = renderBoxRow(displayCharsForStage());
+
+  focusGroups.innerHTML = `
+    <div class="group ${focusStage === 1 ? "active" : focusStage > 1 ? "done" : ""}">
+      <h3>1. ${mathInline("a")} の場所を選ぶ</h3>
+      <div class="block-title">${n} 個の場所から ${a} 個を選ぶ</div>
+      <div class="formula-line">${mathInline(`${combinationTex(n, a)} = ${aChoiceCount}`)}</div>
+      <div class="arrow">この 1 つ 1 つが、「a を置く場所」の候補。</div>
+      <div class="choice-grid">${focusStage >= 1 ? aChoiceHtml : ""}</div>
+    </div>
+
+    <div class="group ${focusStage === 2 ? "active" : focusStage > 2 ? "done" : ""}">
+      <h3>2. 残りから ${mathInline("b")} の場所を選ぶ</h3>
+      <div class="block-title">残り ${n - a} 個の場所から ${b} 個を選ぶ</div>
+      <div class="formula-line">${mathInline(`${combinationTex(n - a, b)} = ${bChoiceCount}`)}</div>
+      <div class="arrow">a の場所を決めたあとに、b の場所を決める。</div>
+      <div class="choice-grid">${focusStage >= 2 ? bChoiceHtml : ""}</div>
+    </div>
+
+    <div class="group ${focusStage === 3 ? "active" : focusStage > 3 ? "done" : ""}">
+      <h3>3. 残りはすべて ${mathInline("c")}</h3>
+      <div class="block-title">最後に残った ${c} 個の場所</div>
+      <div class="box-row">${focusStage >= 3 ? renderBoxRow(charsFromPositions(aPositions, bPositions)) : ""}</div>
+      <div class="arrow">残りをすべて c にするので、ここでは選び方は増えない。</div>
+      <div class="formula-line">${focusStage >= 3 ? mathInline("1\\text{ 通り}") : ""}</div>
+    </div>
+
+    <div class="group ${focusStage >= 4 ? "active" : ""}">
+      <h3>4. 展開の係数になる</h3>
+      <div class="formula-line">
+        ${focusStage >= 4 ? mathInline(`${combinationTex(n, a)}\\times${combinationTex(n - a, b)} = ${aChoiceCount}\\times${bChoiceCount} = ${result}`) : ""}
+      </div>
+      <div class="arrow">a の場所の選び方ごとに、b の場所の選び方があるので、かけ算になる。</div>
+      <div class="choice-grid">${focusStage >= 4 ? targetWords : ""}</div>
+    </div>
+  `;
+
+  return [stageMessage, mainBoxes, renderStepStrip(), focusGroups];
+}
+
+function renderResultPanel() {
+  const panel = document.getElementById("resultPanel");
+  const resultFormula = document.getElementById("resultFormula");
+  const connection = document.getElementById("connectionBox");
+  const fullFormula = document.getElementById("fullFormula");
+  const theorem = document.getElementById("theoremText");
+
+  const shouldShow = wholeComplete || (hasTarget() && focusStage >= FOCUS_STAGE_MAX) || isHighMode();
+  if (!shouldShow) {
+    panel.classList.remove("show");
+    resultFormula.innerHTML = "";
+    connection.innerHTML = "";
+    fullFormula.innerHTML = "";
+    theorem.innerHTML = "";
+    return [];
+  }
+
+  if (hasTarget()) {
+    const { a, b, c } = currentTarget();
+    const targetTerm = termTex(a, b, c);
+    const result = targetCoefficient();
+    resultFormula.innerHTML = [
+      `<span class="result-formula-term"><span class="word-label">${termWord(a, b, c)}</span>，つまり ${mathInline(`${targetTerm}\\text{ の係数}`)}</span>`,
+      `<span class="result-formula-separator">=</span>`,
+      `<span class="result-formula-term">${mathInline(`${combinationTex(n, a)}\\times${combinationTex(n - a, b)}`)}</span>`,
+      `<span class="result-formula-separator">=</span>`,
+      `<span class="result-formula-term">${mathInline(`${result}`)}</span>`
+    ].join("");
+
+    connection.innerHTML =
+      `段階的に場所を選ぶ式は、階乗で書くと同じ形になる。<br>` +
+      `${mathInline(`${combinationTex(n, a)}\\times${combinationTex(n - a, b)} = \\frac{${n}!}{${a}!${n - a}!}\\times\\frac{${n - a}!}{${b}!${c}!} = \\frac{${n}!}{${a}!${b}!${c}!}`)}<br>` +
+      `つまり、「C で場所を選ぶ」考え方が、多項定理の係数 ${mathInline(`\\frac{n!}{p!q!r!}`)} につながる。`;
+  } else {
+    resultFormula.innerHTML = `<span class="result-formula-term">展開結果と係数の考え方</span>`;
+    connection.innerHTML =
+      `注目する項を選ばない場合は、展開全体を見て、同じ文字数のものが同類項としてまとまることを確認します。<br>` +
+      `必要になった項をあとから選べば、その係数は「a の場所を選ぶ → 残りから b の場所を選ぶ」という方法で数えられます。`;
+  }
+
+  if (!isHighMode()) {
+    const terms = allTriplesForN(n).map((t, index) => {
+      const term = finalTermTex(t.a, t.b, t.c);
+      return index === 0 ? term : `+ ${term}`;
+    });
+    fullFormula.innerHTML =
+      `<strong>展開結果：</strong>` +
+      `<div class="formula-wrap">` +
+      `<span class="formula-prefix">${mathInline(`(a+b+c)^${n} =`)}</span>` +
+      terms.map(term => `<span class="formula-term">${mathInline(term)}</span>`).join("") +
+      `</div>`;
+  } else {
+    const focusLines = highModeTargets.map(t => {
+      return `${termTex(t.a, t.b, t.c)}\\text{ の係数 }= ${coefficient(t.a, t.b, t.c)}`;
+    });
+    fullFormula.innerHTML =
+      `<strong>代表項の係数：</strong>` +
+      `<div class="formula-wrap">` +
+      focusLines.map(line => `<span class="formula-term">${mathInline(line)}</span>`).join("") +
+      `</div>`;
+  }
+
+  theorem.innerHTML =
+    `一般に、${mathInline(`(a+b+c)^n`)} の展開で、${mathInline(`a^p b^q c^r`)}（${mathInline(`p+q+r=n`)}）の係数は、` +
+    `${mathInline(`${combinationTex("n", "p")}\\times${combinationTex("n-p", "q")} = \\frac{n!}{p!q!r!}`)} で求められる。<br>` +
+    `展開では、各カッコから選んだ文字の並びが 1 つの項を作る。並び方が違っても同じ ${mathInline(`a^p b^q c^r`)} になるものがあり、その個数が係数である。`;
+
+  panel.classList.add("show");
+  return [panel, resultFormula, connection, fullFormula, theorem];
+}
+
+function updateControls() {
+  document.getElementById("expansionLowControls").classList.toggle("is-hidden", isHighMode());
+  document.getElementById("expansionHighControls").classList.toggle("is-hidden", !isHighMode());
+  const disableFocus = !hasTarget();
+  document.querySelectorAll(".focus-next-button").forEach(button => {
+    button.disabled = disableFocus;
+  });
 }
 
 function render() {
-  resetPanels();
-  document.getElementById("expandedExpr").innerHTML = mathInline(exprText());
-
-  if (isHighMode()) {
-    renderHighMode();
-  } else {
-    renderLowMode();
-  }
-
-  queueTypeset([document.getElementById("expandedExpr"), document.getElementById("modeNote")]);
-}
-
-function updateCountLowMode(aCount, bCount, cCount) {
-  const items = document.getElementById(`items-${aCount}-${bCount}-${cCount}`);
-  const count = items.children.length;
-  const label = document.getElementById(`label-${aCount}-${bCount}-${cCount}`);
-  const countLine = document.getElementById(`count-${aCount}-${bCount}-${cCount}`);
-  label.innerHTML = `${mathInline(termTex(aCount, bCount, cCount))} <span class="group-count">(${count})</span>`;
-  countLine.innerHTML = `→ ${count} 個（すべて ${mathInline(termTex(aCount, bCount, cCount))}）`;
-  queueTypeset([label, countLine]);
-}
-
-function nextStepLowMode() {
-  if (index >= patterns.length) {
-    showExtrasLowMode();
-    showResult();
-    stop();
-    return;
-  }
-
-  const str = patterns[index];
-  const item = document.getElementById("item-" + index);
-  item.classList.add("active");
-
-  const aCount = (str.match(/a/g) || []).length;
-  const bCount = (str.match(/b/g) || []).length;
-  const cCount = (str.match(/c/g) || []).length;
-
-  const target = document.getElementById(`items-${aCount}-${bCount}-${cCount}`);
-  const div = document.createElement("div");
-  div.textContent = str;
-  target.appendChild(div);
-
-  updateCountLowMode(aCount, bCount, cCount);
-
-  setTimeout(() => {
-    item.classList.remove("active");
-    item.classList.add("done");
-  }, 120);
-
-  index++;
-}
-
-function showExtrasLowMode() {
-  allTriplesForN().forEach(t => {
-    document.getElementById(`group-${t.aCount}-${t.bCount}-${t.cCount}`).classList.add("showFormula");
-  });
-}
-
-function nextStepHighMode() {
-  const cards = highModeTargets.map((_, i) => document.getElementById(`focus-${i}`));
-  if (revealIndex >= cards.length) {
-    showResult();
-    stop();
-    return;
-  }
-  cards[revealIndex].classList.add("showFormula");
-  revealIndex++;
-}
-
-function showResult() {
-  const resultPanel = document.getElementById("resultPanel");
-  const resultFormula = document.getElementById("resultFormula");
-  const theoremText = document.getElementById("theoremText");
-
-  function renderWrappedFormula(prefixTex, termTexList, separatorText = "") {
-    const parts = [];
-    if (prefixTex) {
-      parts.push(`<span class="result-formula-prefix">${mathInline(prefixTex)}</span>`);
-    }
-    termTexList.forEach((tex, index) => {
-      if (separatorText && index > 0) {
-        parts.push(`<span class="result-formula-separator">${separatorText}</span>`);
-      }
-      parts.push(`<span class="result-formula-term">${mathInline(tex)}</span>`);
-    });
-    resultFormula.innerHTML = parts.join("");
-  }
-
-  if (isHighMode()) {
-    const terms = highModeTargets.map(t => {
-      const c = coeff(t.aCount, t.bCount, t.cCount);
-      return `${termTex(t.aCount, t.bCount, t.cCount)}\\text{ の係数 }= ${c}`;
-    });
-    renderWrappedFormula("", terms, "， ");
-
-    theoremText.innerHTML =
-      `数Aで学習した「同じものを含む順列」の総数は <strong>${mathInline(`\\frac{n!}{p!q!r!}`)}</strong> で表される。<br>` +
-      `三項の展開では、a が p 個、b が q 個、c が r 個（p+q+r=n）並ぶ場合の数が、そのまま係数になる。`;
-  } else {
-    const terms = [];
-    for (let aCount = n; aCount >= 0; aCount--) {
-      for (let bCount = n - aCount; bCount >= 0; bCount--) {
-        const cCount = n - aCount - bCount;
-        const c = coeff(aCount, bCount, cCount);
-        terms.push(finalTermTex(aCount, bCount, cCount, c));
-      }
-    }
-
-    renderWrappedFormula(
-      `(a+b+c)^${n} =`,
-      terms.map((term, index) => (index === 0 ? term : `+ ${term}`))
-    );
-
-    theoremText.innerHTML =
-      `数Aで学習した「同じものを含む順列」の総数は <strong>${mathInline(`\\frac{n!}{p!q!r!}`)}</strong> で表される。<br>` +
-      `三項の展開では、a が p 個、b が q 個、c が r 個（p+q+r=n）並ぶ場合の数が、そのまま係数になる。`;
-  }
-
-  resultPanel.classList.add("show");
-  queueTypeset([resultFormula, theoremText]);
-}
-
-function autoPlay() {
-  stop();
-  if (isHighMode()) {
-    revealIndex = 0;
-    timer = setInterval(nextStepHighMode, 350);
-  } else {
-    timer = setInterval(nextStepLowMode, SPEED);
-  }
-}
-
-function stop() {
-  clearInterval(timer);
-  timer = null;
-}
-
-function regenerateTargets() {
-  stop();
-  index = 0;
-  revealIndex = 0;
-  if (isHighMode()) {
-    pickRandomTargets();
-  }
-  render();
-}
-
-function start() {
-  stop();
-  n = parseInt(document.getElementById("nSelect").value, 10);
-  index = 0;
-  revealIndex = 0;
-  updateRegenerateControls();
+  updateControls();
 
   const subtitle = renderSubtitle();
-  if (isHighMode()) {
-    document.getElementById("explainText").innerHTML =
-      `${mathInline(`(a+b+c)^n`)} は、それぞれのカッコから ${mathInline("a, b, c")} のどれか1つを選ぶことで展開される。<br>` +
-      `今回は項が多くなるので、代表的な項だけを調べる。`;
-  } else {
-    document.getElementById("explainText").innerHTML =
-      `${mathInline(`(a+b+c)^n`)} は、それぞれのカッコから ${mathInline("a, b, c")} のどれか1つを選ぶことで展開される。<br>` +
-      `今回は展開して出てくる項をすべて調べる。`;
-  }
+  const factorPreview = renderFactorPreview();
+  const modeStatus = renderModeStatus();
+  const preview = renderPreview();
+  const expansionParts = renderExpansionPanel();
+  const groupParts = renderGroupsPanel();
+  const focusParts = renderFocusCountingPanel();
+  const resultParts = renderResultPanel();
 
-  if (isHighMode()) {
-    pickRandomTargets();
-  } else {
-    generateAllPatterns();
-  }
-
-  render();
   queueTypeset([
     subtitle,
-    document.getElementById("explainText")
+    factorPreview,
+    modeStatus,
+    preview,
+    ...expansionParts,
+    ...groupParts,
+    ...focusParts,
+    ...resultParts
   ]);
 }
 
+function start() {
+  populateTargets();
+  resetStateForNewSetting();
+  render();
+}
+
 window.addEventListener("load", start);
+
 </script>
 
-<footer style="text-align:center; margin-top:40px; font-size:0.9em; color:#666;">
-  <a href="https://github.com/yosu64/math-visual" target="_blank" rel="noopener noreferrer" style="color:inherit; text-decoration:none;">
-    © 2026 shibasaki / Math Visual
-  </a>
-</footer>
 </body>
 </html>
