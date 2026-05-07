@@ -76,6 +76,54 @@ a:hover {
   color: var(--muted);
   font-size: 1.02rem;
 }
+.featured-section {
+  margin-top: 20px;
+  padding: 0 28px;
+}
+.featured-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 38%) 1fr;
+  gap: 20px;
+  align-items: center;
+  padding: 18px;
+  color: var(--text);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel-alt) 100%);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+.featured-card:hover {
+  text-decoration: none;
+  border-color: rgba(14, 116, 144, 0.36);
+}
+.featured-image {
+  display: block;
+  min-width: 0;
+  width: 100%;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid rgba(217, 209, 194, 0.85);
+}
+.featured-copy {
+  min-width: 0;
+}
+.featured-label {
+  margin: 0 0 8px;
+  color: var(--accent-strong);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.featured-title {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.8vw, 1.8rem);
+  line-height: 1.35;
+}
+.featured-description {
+  margin: 10px 0 0;
+  color: var(--muted);
+}
 .subject-section {
   margin-top: 28px;
   padding: 28px;
@@ -156,6 +204,18 @@ a:hover {
   .hero {
     padding: 18px 12px 2px;
   }
+  .featured-section {
+    padding: 0 0;
+  }
+  .featured-card {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 20px;
+  }
+  .featured-image {
+    border-radius: 14px;
+  }
   .subject-section {
     padding: 18px;
     border-radius: 22px;
@@ -182,6 +242,16 @@ a:hover {
       <h1>数学ビジュアル教材</h1>
       <p class="lead">分野ごとに教材ページへ移動できます。</p>
     </header>
+    <section class="featured-section" aria-label="注目教材">
+      <a class="featured-card" href="./math-ii/multinomial-coefficient-visualizer.html">
+        <img class="featured-image" src="./images/ogp/multinomial-ogp.png" alt="三項の展開と係数の決まり方">
+        <div class="featured-copy">
+          <p class="featured-label">Pick Up</p>
+          <h2 class="featured-title">三項の展開と係数の決まり方</h2>
+          <p class="featured-description">多項定理の係数を、展開項の列挙と「場所の選び方」から視覚的に確認できる教材。</p>
+        </div>
+      </a>
+    </section>
     <section class="subject-section">
       <div class="section-header">
         <h2>数I</h2>
