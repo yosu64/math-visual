@@ -949,8 +949,8 @@ button:disabled {
 </div>
 
 <div class="mode-rule-guide">
-  <strong>全展開モード</strong>：n が 5 以下。展開項をすべて表示します。　
-  <strong>代表項モード</strong>：n が 6 以上。代表的な項だけを表示します。
+  <strong>全展開モード</strong>：n が 3 以下。展開項をすべて表示します。　
+  <strong>代表項モード</strong>：n が 4 以上。代表的な項だけを表示します。
 </div>
 
 <div class="controls">
@@ -958,12 +958,11 @@ button:disabled {
     n:
     <select id="nSelect" onchange="changeN()">
       <optgroup label="全展開モード">
-        <option>2</option>
         <option>3</option>
-        <option selected>4</option>
-        <option>5</option>
       </optgroup>
       <optgroup label="代表項モード">
+        <option selected>4</option>
+        <option>5</option>
         <option>6</option>
         <option>7</option>
         <option>8</option>
@@ -1070,7 +1069,7 @@ let needsTypesetAgain = false;
 let latestTypesetTargets = [];
 let typesetDelayTimer = null;
 
-const LOW_MODE_MAX_N = 5;
+const LOW_MODE_MAX_N = 3;
 const FOCUS_STAGE_MAX = 4;
 const WHOLE_SPEED = 120;
 const NONE_VALUE = "none";
