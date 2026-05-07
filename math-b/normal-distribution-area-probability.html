@@ -106,17 +106,42 @@
       return node;
     }
     function currentMode() { return document.querySelector("input[name='mode']:checked").value; }
+    function syncSliderBounds(mode) {
+      aSlider.min = "-3";
+      aSlider.max = "3";
+      bSlider.min = mode === "zero" ? "0" : "-3";
+      bSlider.max = "3";
+
+      if (mode === "between") {
+        const a = Number(aSlider.value);
+        const b = Number(bSlider.value);
+        if (a > b) {
+          if (document.activeElement === aSlider) {
+            bSlider.value = a.toFixed(1);
+          } else {
+            aSlider.value = b.toFixed(1);
+          }
+        }
+        aSlider.max = bSlider.value;
+        bSlider.min = aSlider.value;
+      }
+
+      if (mode === "zero" && Number(bSlider.value) < 0) {
+        bSlider.value = Math.abs(Number(bSlider.value)).toFixed(1);
+      }
+    }
     function interval() {
       const mode = currentMode();
+      syncSliderBounds(mode);
       const a = Number(aSlider.value);
       const b = Number(bSlider.value);
       if (mode === "left") return [-3.8, b, `P(Z\\le ${b.toFixed(1)})`, normalCdf(b), "右端 \\(b\\)"];
       if (mode === "zero") {
-        const u = Math.max(0, Math.abs(b));
+        const u = Math.max(0, b);
         bSlider.value = u.toFixed(1);
         return [0, u, `P(0\\le Z\\le ${u.toFixed(1)})`, normalCdf(u) - 0.5, "上端 \\(u\\)"];
       }
-      return [Math.min(a, b), Math.max(a, b), `P(${Math.min(a, b).toFixed(1)}\\le Z\\le ${Math.max(a, b).toFixed(1)})`, normalCdf(Math.max(a, b)) - normalCdf(Math.min(a, b)), "右端 \\(b\\)"];
+      return [a, b, `P(${a.toFixed(1)}\\le Z\\le ${b.toFixed(1)})`, normalCdf(b) - normalCdf(a), "右端 \\(b\\)"];
     }
     function draw() {
       const mode = currentMode();
