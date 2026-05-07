@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="shibasaki" />
+  <title>標準偏差 σ と正規分布の形</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"]] },
+      chtml: { scale: 1 },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    :root { color-scheme: light; --bg:#f5f7fb; --card:#fff; --ink:#1f2937; --muted:#64748b; --line:#d9e0ec; --accent:#0f766e; --curve:#0e7490; --shade:rgba(14,116,144,.18); }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans JP","Segoe UI",sans-serif; line-height:1.7; }
+    .container { max-width:1180px; margin:0 auto; padding:24px; }
+    a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+    .top-link { margin:0 0 10px; font-size:.95rem; }
+    h1 { margin:0 0 10px; font-size:clamp(1.8rem,4.8vw,2.7rem); line-height:1.25; }
+    h2 { margin:0 0 12px; font-size:1.18rem; }
+    p { margin:8px 0; }
+    .lead { color:var(--muted); max-width:780px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px; margin:18px 0; box-shadow:0 1px 0 rgba(20,32,60,.02); }
+    .layout { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr); gap:18px; align-items:start; }
+    svg { display:block; width:100%; height:auto; min-height:360px; border:1px solid var(--line); border-radius:14px; background:#fff; }
+    .controls { display:grid; grid-template-columns:repeat(2,minmax(220px,1fr)); gap:14px 18px; margin-top:14px; }
+    .control { display:grid; gap:7px; font-weight:700; }
+    .control span { display:flex; justify-content:space-between; gap:12px; }
+    input[type="range"] { width:100%; accent-color:var(--accent); }
+    .formula { overflow-x:auto; text-align:center; font-size:1.05rem; }
+    .stat { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:12px; }
+    .stat div { border:1px solid var(--line); border-radius:12px; padding:10px; background:#f8fafc; }
+    .stat b { display:block; font-size:1.15rem; }
+    .point-list { margin:0; padding-left:1.2em; } .point-list li { margin:6px 0; }
+    footer { text-align:center; margin:40px 0 24px; font-size:.9em; color:#666; }
+    @media (max-width:880px) { .container{padding:18px 14px;} .layout{grid-template-columns:1fr;} .controls{grid-template-columns:1fr;} .stat{grid-template-columns:1fr;} svg{min-height:300px;} }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <p class="top-link"><a href="../index.html">← 教材一覧へ</a></p>
+    <header class="card">
+      <h1>標準偏差 σ と正規分布の形</h1>
+      <p class="lead">正規分布 \(N(m,\sigma^2)\) では、平均 \(m\) が中心、標準偏差 \(\sigma\) が広がりを決める。</p>
+      <div class="formula">\[ f(x)=\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{(x-m)^2}{2\sigma^2}} \]</div>
+    </header>
+
+    <section class="layout">
+      <div class="card">
+        <h2>平均と標準偏差を動かす</h2>
+        <svg id="chart" viewBox="0 0 900 520" role="img" aria-label="平均と標準偏差を変えた正規分布"></svg>
+        <div class="controls">
+          <label class="control"><span>平均 \(m\) <b id="mLabel">0.0</b></span><input id="mSlider" type="range" min="-2" max="2" step="0.1" value="0" /></label>
+          <label class="control"><span>標準偏差 \(\sigma\) <b id="sigmaLabel">1.0</b></span><input id="sigmaSlider" type="range" min="0.4" max="2.4" step="0.1" value="1" /></label>
+        </div>
+        <div class="stat">
+          <div>中心 <b id="centerText">x=m=0.0</b></div>
+          <div>±1σ <b id="rangeText">[-1.0, 1.0]</b></div>
+          <div>曲線下の面積 <b>1</b></div>
+        </div>
+      </div>
+      <aside class="card">
+        <h2>授業で見るポイント</h2>
+        <ul class="point-list">
+          <li>平均 \(m\) は山の中心を左右に動かす。</li>
+          <li>\(\sigma\) が大きいほど横に広がり、山は低くなる。</li>
+          <li>\(\sigma\) が小さいほど平均の近くに集まり、山は高くなる。</li>
+          <li>形が変わっても、曲線下の面積は常に \(1\)。</li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+  <footer>
+    © 2026 shibasaki / Math Visual
+    <br />
+    <a href="https://github.com/yosu64/math-visual">https://github.com/yosu64/math-visual</a>
+  </footer>
+
+  <script>
+    const svg = document.getElementById("chart");
+    const mSlider = document.getElementById("mSlider");
+    const sigmaSlider = document.getElementById("sigmaSlider");
+    function normalPdf(x, m, s) { return Math.exp(-((x - m) ** 2) / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s); }
+    function el(name, attrs = {}) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
+      return node;
+    }
+    function draw() {
+      const m = Number(mSlider.value);
+      const s = Number(sigmaSlider.value);
+      const xMin = -5, xMax = 5, yMax = 1.08;
+      const pad = { l: 58, r: 26, t: 28, b: 58 }, W = 900, H = 520;
+      const sx = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * (W - pad.l - pad.r);
+      const sy = (y) => H - pad.b - (y / yMax) * (H - pad.t - pad.b);
+      svg.innerHTML = "";
+      for (let x = xMin; x <= xMax; x++) {
+        svg.appendChild(el("line", { x1: sx(x), y1: pad.t, x2: sx(x), y2: H - pad.b, stroke: "#eef2f7" }));
+        svg.appendChild(el("text", { x: sx(x), y: H - 24, "text-anchor": "middle", "font-size": 18, fill: "#64748b" })).textContent = x;
+      }
+      svg.appendChild(el("line", { x1: pad.l, y1: H - pad.b, x2: W - pad.r, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.5 }));
+
+      const shade = [`${sx(m - s)},${sy(0)}`];
+      for (let i = 0; i <= 120; i++) {
+        const x = m - s + (2 * s * i / 120);
+        shade.push(`${sx(x)},${sy(normalPdf(x, m, s))}`);
+      }
+      shade.push(`${sx(m + s)},${sy(0)}`);
+      svg.appendChild(el("polygon", { points: shade.join(" "), fill: "var(--shade)" }));
+
+      [[m, "m", "#dc2626"], [m - s, "m-σ", "#0f766e"], [m + s, "m+σ", "#0f766e"]].forEach(([x, label, color]) => {
+        svg.appendChild(el("line", { x1: sx(x), y1: pad.t, x2: sx(x), y2: H - pad.b, stroke: color, "stroke-width": 2, "stroke-dasharray": "6 5" }));
+        svg.appendChild(el("text", { x: sx(x), y: 48, "text-anchor": "middle", "font-size": 18, fill: color, "font-weight": 700 })).textContent = label;
+      });
+
+      const points = [];
+      for (let i = 0; i <= 280; i++) {
+        const x = xMin + (xMax - xMin) * i / 280;
+        points.push(`${sx(x)},${sy(normalPdf(x, m, s))}`);
+      }
+      svg.appendChild(el("polyline", { points: points.join(" "), fill: "none", stroke: "var(--curve)", "stroke-width": 4, "stroke-linejoin": "round" }));
+      svg.appendChild(el("text", { x: W - 30, y: H - 24, "text-anchor": "end", "font-size": 18, fill: "#334155" })).textContent = "x";
+      svg.appendChild(el("text", { x: 18, y: 32, "font-size": 18, fill: "#334155" })).textContent = "密度";
+
+      document.getElementById("mLabel").textContent = m.toFixed(1);
+      document.getElementById("sigmaLabel").textContent = s.toFixed(1);
+      document.getElementById("centerText").textContent = `x=m=${m.toFixed(1)}`;
+      document.getElementById("rangeText").textContent = `[${(m - s).toFixed(1)}, ${(m + s).toFixed(1)}]`;
+      if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+    }
+    mSlider.addEventListener("input", draw);
+    sigmaSlider.addEventListener("input", draw);
+    window.addEventListener("load", draw);
+  </script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="shibasaki" />
+  <title>ヒストグラムから正規分布へ</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"]] },
+      chtml: { scale: 1 },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --ink: #1f2937;
+      --muted: #64748b;
+      --line: #d9e0ec;
+      --accent: #0f766e;
+      --accent-2: #0e7490;
+      --fill: rgba(14, 116, 144, 0.16);
+      --bar: rgba(15, 118, 110, 0.48);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Segoe UI", sans-serif;
+      line-height: 1.7;
+    }
+    .container { max-width: 1180px; margin: 0 auto; padding: 24px; }
+    .top-link { margin: 0 0 10px; font-size: 0.95rem; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 { margin: 0 0 10px; font-size: clamp(1.8rem, 4.8vw, 2.7rem); line-height: 1.25; }
+    h2 { margin: 0 0 12px; font-size: 1.18rem; }
+    p { margin: 8px 0; }
+    .lead { color: var(--muted); max-width: 780px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      margin: 18px 0;
+      box-shadow: 0 1px 0 rgba(20, 32, 60, 0.02);
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.75fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .figure { min-width: 0; }
+    svg { display: block; width: 100%; height: auto; min-height: 360px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 14px 18px;
+      margin-top: 14px;
+    }
+    .control { display: grid; gap: 7px; font-weight: 700; }
+    .control span { display: flex; justify-content: space-between; gap: 12px; }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #f8fafc;
+    }
+    .stat b { display: block; font-size: 1.2rem; }
+    .point-list { margin: 0; padding-left: 1.2em; }
+    .point-list li { margin: 6px 0; }
+    .formula { overflow-x: auto; text-align: center; }
+    footer { text-align:center; margin:40px 0 24px; font-size:0.9em; color:#666; }
+    @media (max-width: 880px) {
+      .container { padding: 18px 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: 1fr; }
+      svg { min-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <p class="top-link"><a href="../index.html">← 教材一覧へ</a></p>
+    <header class="card">
+      <h1>ヒストグラムから正規分布へ</h1>
+      <p class="lead">たくさんの測定値をヒストグラムで見ると、全体の形をなめらかな曲線で近似できることがある。</p>
+      <div class="formula">\( \text{棒の面積の和}=1 \quad \longrightarrow \quad \text{曲線下の面積}=1 \)</div>
+    </header>
+
+    <section class="layout">
+      <div class="card figure">
+        <h2>データ数と階級数を変えて見る</h2>
+        <svg id="chart" viewBox="0 0 900 520" role="img" aria-label="正規分布のヒストグラムと密度曲線"></svg>
+        <div class="controls">
+          <label class="control">
+            <span>データ数 <b id="sampleLabel">300</b></span>
+            <input id="sampleSlider" type="range" min="0" max="4" step="1" value="2" />
+          </label>
+          <label class="control">
+            <span>階級数 <b id="binLabel">18</b></span>
+            <input id="binSlider" type="range" min="8" max="42" step="1" value="18" />
+          </label>
+        </div>
+        <div class="stat-grid">
+          <div class="stat">平均の目安 <b id="meanText">0.00</b></div>
+          <div class="stat">標準偏差の目安 <b id="sdText">1.00</b></div>
+          <div class="stat">棒の面積の和 <b id="areaText">1.0000</b></div>
+        </div>
+      </div>
+
+      <aside class="card">
+        <h2>授業で見るポイント</h2>
+        <ul class="point-list">
+          <li>少ないデータでは、棒の高さは大きくゆれる。</li>
+          <li>データ数を増やすと、山型の形が安定しやすい。</li>
+          <li>階級幅を細かくすると、棒の並びを曲線で見る発想につながる。</li>
+          <li>棒の面積を足す考えが、曲線下の面積を確率と見る準備になる。</li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 shibasaki / Math Visual
+    <br />
+    <a href="https://github.com/yosu64/math-visual">https://github.com/yosu64/math-visual</a>
+  </footer>
+
+  <script>
+    const svg = document.getElementById("chart");
+    const sampleSlider = document.getElementById("sampleSlider");
+    const binSlider = document.getElementById("binSlider");
+    const sampleSizes = [50, 100, 300, 1000, 3000];
+    let cachedData = [];
+
+    function normalPdf(x, m = 0, s = 1) {
+      return Math.exp(-((x - m) ** 2) / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s);
+    }
+    function gaussianRandom() {
+      let u = 0, v = 0;
+      while (u === 0) u = Math.random();
+      while (v === 0) v = Math.random();
+      return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+    }
+    function ensureData(n) {
+      while (cachedData.length < n) cachedData.push(gaussianRandom());
+      return cachedData.slice(0, n);
+    }
+    function el(name, attrs = {}) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+      return node;
+    }
+    function draw() {
+      const n = sampleSizes[Number(sampleSlider.value)];
+      const bins = Number(binSlider.value);
+      const data = ensureData(n);
+      const mean = data.reduce((a, b) => a + b, 0) / n;
+      const sd = Math.sqrt(data.reduce((a, b) => a + (b - mean) ** 2, 0) / n);
+      const xMin = -4, xMax = 4;
+      const width = (xMax - xMin) / bins;
+      const counts = Array(bins).fill(0);
+      data.forEach((x) => {
+        if (x >= xMin && x < xMax) counts[Math.floor((x - xMin) / width)]++;
+      });
+      const heights = counts.map((c) => c / (n * width));
+      const area = heights.reduce((sum, h) => sum + h * width, 0);
+      const maxY = Math.max(0.48, ...heights) * 1.18;
+      const pad = { l: 58, r: 26, t: 28, b: 58 };
+      const W = 900, H = 520;
+      const sx = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * (W - pad.l - pad.r);
+      const sy = (y) => H - pad.b - (y / maxY) * (H - pad.t - pad.b);
+
+      svg.innerHTML = "";
+      for (let x = Math.ceil(xMin); x <= xMax; x++) {
+        svg.appendChild(el("line", { x1: sx(x), y1: pad.t, x2: sx(x), y2: H - pad.b, stroke: "#eef2f7" }));
+        svg.appendChild(el("text", { x: sx(x), y: H - 24, "text-anchor": "middle", "font-size": 18, fill: "#64748b" })).textContent = x;
+      }
+      svg.appendChild(el("line", { x1: pad.l, y1: H - pad.b, x2: W - pad.r, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.5 }));
+      svg.appendChild(el("line", { x1: sx(0), y1: pad.t, x2: sx(0), y2: H - pad.b, stroke: "#94a3b8", "stroke-dasharray": "5 6" }));
+
+      heights.forEach((h, i) => {
+        const x0 = xMin + i * width;
+        svg.appendChild(el("rect", {
+          x: sx(x0) + 1, y: sy(h), width: Math.max(1, sx(x0 + width) - sx(x0) - 2),
+          height: H - pad.b - sy(h), fill: "var(--bar)", stroke: "#0f766e", "stroke-width": 1
+        }));
+      });
+
+      const points = [];
+      for (let i = 0; i <= 240; i++) {
+        const x = xMin + (xMax - xMin) * i / 240;
+        points.push(`${sx(x)},${sy(normalPdf(x, 0, 1))}`);
+      }
+      svg.appendChild(el("polyline", { points: points.join(" "), fill: "none", stroke: "#dc2626", "stroke-width": 4, "stroke-linejoin": "round" }));
+      svg.appendChild(el("text", { x: sx(2.05), y: sy(normalPdf(2.05)) - 14, "font-size": 18, fill: "#dc2626", "font-weight": 700 })).textContent = "正規分布曲線";
+      svg.appendChild(el("text", { x: W - 30, y: H - 24, "text-anchor": "end", "font-size": 18, fill: "#334155" })).textContent = "x";
+      svg.appendChild(el("text", { x: 18, y: 32, "font-size": 18, fill: "#334155" })).textContent = "密度";
+
+      document.getElementById("sampleLabel").textContent = n;
+      document.getElementById("binLabel").textContent = bins;
+      document.getElementById("meanText").textContent = mean.toFixed(2);
+      document.getElementById("sdText").textContent = sd.toFixed(2);
+      document.getElementById("areaText").textContent = area.toFixed(4);
+      if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+    }
+    sampleSlider.addEventListener("input", draw);
+    binSlider.addEventListener("input", draw);
+    window.addEventListener("load", draw);
+  </script>
+</body>
+</html>

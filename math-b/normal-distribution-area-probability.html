@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="shibasaki" />
+  <title>曲線下の面積＝確率</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"]] },
+      chtml: { scale: 1 },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    :root { color-scheme: light; --bg:#f5f7fb; --card:#fff; --ink:#1f2937; --muted:#64748b; --line:#d9e0ec; --accent:#0f766e; --curve:#0e7490; --shade:rgba(14,116,144,.22); }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic","Noto Sans JP","Segoe UI",sans-serif; line-height:1.7; }
+    .container { max-width:1180px; margin:0 auto; padding:24px; }
+    a { color:var(--accent); text-decoration:none; } a:hover { text-decoration:underline; }
+    .top-link { margin:0 0 10px; font-size:.95rem; }
+    h1 { margin:0 0 10px; font-size:clamp(1.8rem,4.8vw,2.7rem); line-height:1.25; }
+    h2 { margin:0 0 12px; font-size:1.18rem; }
+    p { margin:8px 0; }
+    .lead { color:var(--muted); max-width:780px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:20px; margin:18px 0; box-shadow:0 1px 0 rgba(20,32,60,.02); }
+    .layout { display:grid; grid-template-columns:minmax(0,1.45fr) minmax(300px,.75fr); gap:18px; align-items:start; }
+    svg { display:block; width:100%; height:auto; min-height:360px; border:1px solid var(--line); border-radius:14px; background:#fff; }
+    .mode-row { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0; }
+    .mode-row label { border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:#f8fafc; cursor:pointer; font-weight:700; }
+    .mode-row input { accent-color:var(--accent); }
+    .controls { display:grid; grid-template-columns:repeat(2,minmax(220px,1fr)); gap:14px 18px; margin-top:14px; }
+    .control { display:grid; gap:7px; font-weight:700; }
+    .control span { display:flex; justify-content:space-between; gap:12px; }
+    input[type="range"] { width:100%; accent-color:var(--accent); }
+    .probability { border:1px solid var(--line); border-radius:14px; padding:14px; background:#f8fafc; margin-top:12px; }
+    .probability .value { display:block; font-size:1.8rem; font-weight:800; color:var(--accent); }
+    .formula { overflow-x:auto; text-align:center; }
+    .point-list { margin:0; padding-left:1.2em; } .point-list li { margin:6px 0; }
+    footer { text-align:center; margin:40px 0 24px; font-size:.9em; color:#666; }
+    @media (max-width:880px) { .container{padding:18px 14px;} .layout{grid-template-columns:1fr;} .controls{grid-template-columns:1fr;} svg{min-height:300px;} }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <p class="top-link"><a href="../index.html">← 教材一覧へ</a></p>
+    <header class="card">
+      <h1>曲線下の面積＝確率</h1>
+      <p class="lead">標準正規分布 \(N(0,1)\) では、ある範囲に入る確率を曲線下の面積として考える。</p>
+      <div class="formula">\(P(a\le Z\le b)\)　\(P(0\le Z\le u)\)</div>
+    </header>
+
+    <section class="layout">
+      <div class="card">
+        <h2>塗られた面積を見る</h2>
+        <svg id="chart" viewBox="0 0 900 520" role="img" aria-label="標準正規分布の面積と確率"></svg>
+        <div class="mode-row" aria-label="確率表示モード">
+          <label><input type="radio" name="mode" value="between" checked /> 区間 \(P(a\le Z\le b)\)</label>
+          <label><input type="radio" name="mode" value="left" /> 累積 \(P(Z\le b)\)</label>
+          <label><input type="radio" name="mode" value="zero" /> 表の形 \(P(0\le Z\le u)\)</label>
+        </div>
+        <div class="controls">
+          <label class="control" id="aControl"><span>左端 \(a\) <b id="aLabel">-1.0</b></span><input id="aSlider" type="range" min="-3" max="3" step="0.1" value="-1" /></label>
+          <label class="control"><span id="rightLabel">右端 \(b\) <b id="bLabel">1.0</b></span><input id="bSlider" type="range" min="-3" max="3" step="0.1" value="1" /></label>
+        </div>
+        <div class="probability">
+          <span id="probFormula">\(P(-1.0\le Z\le 1.0)\)</span>
+          <span class="value" id="probValue">0.6827</span>
+        </div>
+      </div>
+      <aside class="card">
+        <h2>授業で見るポイント</h2>
+        <ul class="point-list">
+          <li>曲線の高さそのものは確率ではない。</li>
+          <li>範囲に入る確率は、その範囲の曲線下の面積。</li>
+          <li>\(P(0\le Z\le u)\) は正規分布表につながる見方。</li>
+          <li>左右対称なので、0.5を足す・引く理由が見えやすい。</li>
+        </ul>
+      </aside>
+    </section>
+  </main>
+  <footer>
+    © 2026 shibasaki / Math Visual
+    <br />
+    <a href="https://github.com/yosu64/math-visual">https://github.com/yosu64/math-visual</a>
+  </footer>
+
+  <script>
+    const svg = document.getElementById("chart");
+    const aSlider = document.getElementById("aSlider");
+    const bSlider = document.getElementById("bSlider");
+    function normalPdf(x) { return Math.exp(-(x * x) / 2) / Math.sqrt(2 * Math.PI); }
+    function erf(x) {
+      const sign = x < 0 ? -1 : 1;
+      x = Math.abs(x);
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const t = 1 / (1 + p * x);
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+      return sign * y;
+    }
+    function normalCdf(x) { return 0.5 * (1 + erf(x / Math.SQRT2)); }
+    function el(name, attrs = {}) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([k, v]) => node.setAttribute(k, v));
+      return node;
+    }
+    function currentMode() { return document.querySelector("input[name='mode']:checked").value; }
+    function interval() {
+      const mode = currentMode();
+      const a = Number(aSlider.value);
+      const b = Number(bSlider.value);
+      if (mode === "left") return [-3.8, b, `P(Z\\le ${b.toFixed(1)})`, normalCdf(b), "右端 \\(b\\)"];
+      if (mode === "zero") {
+        const u = Math.max(0, Math.abs(b));
+        bSlider.value = u.toFixed(1);
+        return [0, u, `P(0\\le Z\\le ${u.toFixed(1)})`, normalCdf(u) - 0.5, "上端 \\(u\\)"];
+      }
+      return [Math.min(a, b), Math.max(a, b), `P(${Math.min(a, b).toFixed(1)}\\le Z\\le ${Math.max(a, b).toFixed(1)})`, normalCdf(Math.max(a, b)) - normalCdf(Math.min(a, b)), "右端 \\(b\\)"];
+    }
+    function draw() {
+      const mode = currentMode();
+      const [from, to, formula, prob, rightText] = interval();
+      const xMin = -3.8, xMax = 3.8, yMax = 0.46;
+      const pad = { l: 58, r: 26, t: 28, b: 58 }, W = 900, H = 520;
+      const sx = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * (W - pad.l - pad.r);
+      const sy = (y) => H - pad.b - (y / yMax) * (H - pad.t - pad.b);
+      svg.innerHTML = "";
+      for (let x = -3; x <= 3; x++) {
+        svg.appendChild(el("line", { x1: sx(x), y1: pad.t, x2: sx(x), y2: H - pad.b, stroke: "#eef2f7" }));
+        svg.appendChild(el("text", { x: sx(x), y: H - 24, "text-anchor": "middle", "font-size": 18, fill: "#64748b" })).textContent = x;
+      }
+      svg.appendChild(el("line", { x1: pad.l, y1: H - pad.b, x2: W - pad.r, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.5 }));
+      svg.appendChild(el("line", { x1: sx(0), y1: pad.t, x2: sx(0), y2: H - pad.b, stroke: "#dc2626", "stroke-width": 2, "stroke-dasharray": "6 5" }));
+      svg.appendChild(el("text", { x: sx(0), y: 48, "text-anchor": "middle", "font-size": 18, fill: "#dc2626", "font-weight": 700 })).textContent = "0";
+
+      const shade = [`${sx(from)},${sy(0)}`];
+      for (let i = 0; i <= 180; i++) {
+        const x = from + (to - from) * i / 180;
+        shade.push(`${sx(x)},${sy(normalPdf(x))}`);
+      }
+      shade.push(`${sx(to)},${sy(0)}`);
+      svg.appendChild(el("polygon", { points: shade.join(" "), fill: "var(--shade)" }));
+
+      [from, to].forEach((x) => {
+        svg.appendChild(el("line", { x1: sx(x), y1: sy(0), x2: sx(x), y2: sy(normalPdf(x)), stroke: "#0f766e", "stroke-width": 2 }));
+      });
+      const points = [];
+      for (let i = 0; i <= 280; i++) {
+        const x = xMin + (xMax - xMin) * i / 280;
+        points.push(`${sx(x)},${sy(normalPdf(x))}`);
+      }
+      svg.appendChild(el("polyline", { points: points.join(" "), fill: "none", stroke: "var(--curve)", "stroke-width": 4, "stroke-linejoin": "round" }));
+      svg.appendChild(el("text", { x: W - 30, y: H - 24, "text-anchor": "end", "font-size": 18, fill: "#334155" })).textContent = "z";
+      svg.appendChild(el("text", { x: 18, y: 32, "font-size": 18, fill: "#334155" })).textContent = "密度";
+
+      document.getElementById("aControl").style.display = mode === "between" ? "grid" : "none";
+      document.getElementById("rightLabel").innerHTML = `${rightText} <b id="bLabel">${Number(bSlider.value).toFixed(1)}</b>`;
+      document.getElementById("aLabel").textContent = Number(aSlider.value).toFixed(1);
+      document.getElementById("probFormula").innerHTML = `\\(${formula}\\)`;
+      document.getElementById("probValue").textContent = prob.toFixed(4);
+      if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+    }
+    aSlider.addEventListener("input", draw);
+    bSlider.addEventListener("input", draw);
+    document.querySelectorAll("input[name='mode']").forEach((radio) => radio.addEventListener("change", draw));
+    window.addEventListener("load", draw);
+  </script>
+</body>
+</html>
