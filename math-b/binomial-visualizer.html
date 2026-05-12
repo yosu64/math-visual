@@ -204,6 +204,10 @@
       min-width: 0;
     }
 
+    .table-wrap.is-hidden {
+      display: none;
+    }
+
     table {
       width: max-content;
       min-width: 100%;
@@ -247,6 +251,14 @@
       display: block;
     }
 
+    .result-grid.table-hidden {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .result-grid.table-hidden #distChart {
+      height: 520px !important;
+    }
+
     .chart-note {
       margin-top: 10px;
       color: var(--muted);
@@ -278,6 +290,10 @@
 
       #distChart {
         height: 320px !important;
+      }
+
+      .result-grid.table-hidden #distChart {
+        height: 420px !important;
       }
     }
 
@@ -339,6 +355,10 @@
       #distChart {
         height: 280px !important;
       }
+
+      .result-grid.table-hidden #distChart {
+        height: 360px !important;
+      }
     }
   </style>
 </head>
@@ -357,7 +377,7 @@
       <div class="controls">
         <label class="field">
           <span>試行回数 n</span>
-          <input id="nInput" type="number" min="1" max="30" step="1" value="3" />
+          <input id="nInput" type="number" min="1" max="100" step="1" value="3" />
         </label>
 
         <label class="field">
@@ -365,6 +385,8 @@
           <input id="pInput" type="text" value="1/3" />
         </label>
 
+        <button id="tableToggleButton" class="btn" type="button" aria-pressed="true">表を非表示</button>
+        <button id="normalCurveToggleButton" class="btn" type="button" aria-pressed="false">近似正規分布を表示</button>
         <button id="presetButton" class="btn" type="button">教科書例に戻す</button>
         <button id="coinPresetButton" class="btn" type="button">コイン（p=1/2）</button>
         <span class="hint">例: 1/3, 0.4, 0.25</span>
@@ -386,19 +408,21 @@
     </section>
 
     <div class="result-grid">
-      <section class="card table-wrap">
+      <section id="tableSection" class="card table-wrap">
         <table id="distTable"></table>
       </section>
 
       <section class="card chart-box">
         <canvas id="distChart"></canvas>
-        <div class="chart-note">横軸は r、縦軸は P(X=r) です。</div>
+        <div class="chart-note">横軸は r、縦軸は P(X=r) です。赤い線は正規分布による近似です。</div>
       </section>
     </div>
   </div>
 
   <script>
     let chart = null;
+    let isTableVisible = true;
+    let isNormalCurveVisible = false;
 
     function gcd(a, b) {
       let x = Math.abs(a);
@@ -512,14 +536,64 @@
       return combination(n, r) * Math.pow(p, r) * Math.pow(1 - p, n - r);
     }
 
+    function erf(x) {
+      const sign = x < 0 ? -1 : 1;
+      const ax = Math.abs(x);
+      const a1 = 0.254829592;
+      const a2 = -0.284496736;
+      const a3 = 1.421413741;
+      const a4 = -1.453152027;
+      const a5 = 1.061405429;
+      const p = 0.3275911;
+      const t = 1 / (1 + p * ax);
+      const y = 1 - (((((a5 * t + a4) * t + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax));
+      return sign * y;
+    }
+
+    function normalCdf(x, mean, sigma) {
+      if (!Number.isFinite(x)) {
+        return x < 0 ? 0 : 1;
+      }
+      return 0.5 * (1 + erf((x - mean) / (Math.SQRT2 * sigma)));
+    }
+
+    function normalApproximationProbability(n, r, p) {
+      const mean = n * p;
+      const variance = n * p * (1 - p);
+      if (variance <= 0) {
+        return null;
+      }
+      const sigma = Math.sqrt(variance);
+      const left = r === 0 ? Number.NEGATIVE_INFINITY : r - 0.5;
+      const right = r === n ? Number.POSITIVE_INFINITY : r + 0.5;
+      return normalCdf(right, mean, sigma) - normalCdf(left, mean, sigma);
+    }
+
     function validateInputs(n, parsedP) {
-      if (!Number.isInteger(n) || n < 1 || n > 30) {
-        return "試行回数 n は 1 以上 30 以下の整数にしてください。";
+      if (!Number.isInteger(n) || n < 1 || n > 100) {
+        return "試行回数 n は 1 以上 100 以下の整数にしてください。";
       }
       if (!Number.isFinite(parsedP.value) || parsedP.value < 0 || parsedP.value > 1) {
         return "成功確率 p は 0 以上 1 以下にしてください。";
       }
       return "";
+    }
+
+    function updateTableVisibility() {
+      const resultGrid = document.querySelector(".result-grid");
+      const tableSection = document.getElementById("tableSection");
+      const toggleButton = document.getElementById("tableToggleButton");
+
+      resultGrid.classList.toggle("table-hidden", !isTableVisible);
+      tableSection.classList.toggle("is-hidden", !isTableVisible);
+      toggleButton.textContent = isTableVisible ? "表を非表示" : "表を表示";
+      toggleButton.setAttribute("aria-pressed", String(isTableVisible));
+    }
+
+    function updateNormalCurveVisibility() {
+      const toggleButton = document.getElementById("normalCurveToggleButton");
+      toggleButton.textContent = isNormalCurveVisible ? "近似正規分布を非表示" : "近似正規分布を表示";
+      toggleButton.setAttribute("aria-pressed", String(isNormalCurveVisible));
     }
 
     function debounce(fn, delay = 200) {
@@ -601,10 +675,12 @@
     function buildChart(n, parsedP) {
       const labels = [];
       const data = [];
+      const normalData = [];
 
       for (let r = 0; r <= n; r++) {
         labels.push(String(r));
         data.push(binomialProbability(n, r, parsedP.value));
+        normalData.push(normalApproximationProbability(n, r, parsedP.value));
       }
 
       const ctx = document.getElementById("distChart").getContext("2d");
@@ -613,14 +689,31 @@
         chart.destroy();
       }
 
+      const datasets = [{
+        label: "P(X=r)",
+        data
+      }];
+
+      if (isNormalCurveVisible) {
+        datasets.push({
+          type: "line",
+          label: "正規分布による近似",
+          data: normalData,
+          borderColor: "#dc2626",
+          backgroundColor: "#dc2626",
+          borderWidth: 3,
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          tension: 0.28,
+          spanGaps: false
+        });
+      }
+
       chart = new Chart(ctx, {
         type: "bar",
         data: {
           labels,
-          datasets: [{
-            label: "P(X=r)",
-            data
-          }]
+          datasets
         },
         options: {
           responsive: true,
@@ -630,6 +723,9 @@
             tooltip: {
               callbacks: {
                 label: function(context) {
+                  if (context.dataset.type === "line") {
+                    return ` 正規近似 ≈ ${formatFixedDecimal(context.raw)}`;
+                  }
                   return ` P(X=${context.label}) = ${formatFixedDecimal(context.raw)}`;
                 }
               }
@@ -693,7 +789,11 @@
 
       errorMessage.textContent = "";
       await updateSummary(n, parsedP);
-      await buildTable(n, parsedP);
+      if (isTableVisible) {
+        await buildTable(n, parsedP);
+      } else {
+        table.innerHTML = "";
+      }
       buildChart(n, parsedP);
     }
 
@@ -710,6 +810,21 @@
       await updateView();
     });
 
+    document.getElementById("tableToggleButton").addEventListener("click", async () => {
+      isTableVisible = !isTableVisible;
+      updateTableVisibility();
+      await updateView();
+      if (chart) {
+        chart.resize();
+      }
+    });
+
+    document.getElementById("normalCurveToggleButton").addEventListener("click", async () => {
+      isNormalCurveVisible = !isNormalCurveVisible;
+      updateNormalCurveVisibility();
+      await updateView();
+    });
+
     document.getElementById("nInput").addEventListener("input", updateViewDebounced);
     document.getElementById("pInput").addEventListener("input", updateViewDebounced);
 
@@ -721,6 +836,8 @@
     });
 
     window.addEventListener("load", async () => {
+      updateTableVisibility();
+      updateNormalCurveVisibility();
       await buildLead();
       await updateView();
     });
