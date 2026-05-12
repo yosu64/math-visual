@@ -569,6 +569,33 @@
       return normalCdf(right, mean, sigma) - normalCdf(left, mean, sigma);
     }
 
+    function normalPdf(x, mean, sigma) {
+      const z = (x - mean) / sigma;
+      return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+    }
+
+    function buildNormalCurveData(n, p) {
+      const mean = n * p;
+      const variance = n * p * (1 - p);
+      if (variance <= 0) {
+        return [];
+      }
+
+      const sigma = Math.sqrt(variance);
+      const start = -0.5;
+      const end = n + 0.5;
+      const pointCount = 301;
+      const step = (end - start) / (pointCount - 1);
+      const data = [];
+
+      for (let i = 0; i < pointCount; i++) {
+        const x = start + step * i;
+        data.push({ x, y: normalPdf(x, mean, sigma) });
+      }
+
+      return data;
+    }
+
     function validateInputs(n, parsedP) {
       if (!Number.isInteger(n) || n < 1 || n > 100) {
         return "試行回数 n は 1 以上 100 以下の整数にしてください。";
@@ -673,14 +700,10 @@
     }
 
     function buildChart(n, parsedP) {
-      const labels = [];
       const data = [];
-      const normalData = [];
 
       for (let r = 0; r <= n; r++) {
-        labels.push(String(r));
-        data.push(binomialProbability(n, r, parsedP.value));
-        normalData.push(normalApproximationProbability(n, r, parsedP.value));
+        data.push({ x: r, y: binomialProbability(n, r, parsedP.value) });
       }
 
       const ctx = document.getElementById("distChart").getContext("2d");
@@ -691,28 +714,35 @@
 
       const datasets = [{
         label: "P(X=r)",
-        data
+        data,
+        borderColor: "#cbd5e1",
+        borderWidth: 1,
+        borderSkipped: false,
+        barPercentage: 1,
+        categoryPercentage: 1
       }];
 
       if (isNormalCurveVisible) {
-        datasets.push({
-          type: "line",
-          label: "正規分布による近似",
-          data: normalData,
-          borderColor: "#dc2626",
-          backgroundColor: "#dc2626",
-          borderWidth: 3,
-          pointRadius: 0,
-          pointHoverRadius: 4,
-          tension: 0.28,
-          spanGaps: false
-        });
+        const normalCurveData = buildNormalCurveData(n, parsedP.value);
+        if (normalCurveData.length > 0) {
+          datasets.push({
+            type: "line",
+            label: "正規分布による近似",
+            data: normalCurveData,
+            borderColor: "#dc2626",
+            backgroundColor: "#dc2626",
+            borderWidth: 3,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            tension: 0,
+            spanGaps: false
+          });
+        }
       }
 
       chart = new Chart(ctx, {
         type: "bar",
         data: {
-          labels,
           datasets
         },
         options: {
@@ -724,15 +754,24 @@
               callbacks: {
                 label: function(context) {
                   if (context.dataset.type === "line") {
-                    return ` 正規近似 ≈ ${formatFixedDecimal(context.raw)}`;
+                    return ` 正規近似 f(${formatTrimmedDecimal(context.parsed.x)}) ≈ ${formatFixedDecimal(context.parsed.y)}`;
                   }
-                  return ` P(X=${context.label}) = ${formatFixedDecimal(context.raw)}`;
+                  return ` P(X=${context.parsed.x}) = ${formatFixedDecimal(context.parsed.y)}`;
                 }
               }
             }
           },
           scales: {
             x: {
+              type: "linear",
+              min: -0.5,
+              max: n + 0.5,
+              ticks: {
+                stepSize: 1,
+                callback: function(value) {
+                  return Number.isInteger(value) && value >= 0 && value <= n ? value : "";
+                }
+              },
               title: {
                 display: true,
                 text: "r"
