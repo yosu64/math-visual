@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="author" content="shibasaki" />
+  <title>標本平均の分布を実験で見る</title>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"]] },
+      chtml: { scale: 1 },
+      startup: { typeset: false }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --bg-soft: #eef5f7;
+      --card: #ffffff;
+      --card-2: #f8fafc;
+      --ink: #172033;
+      --muted: #64748b;
+      --line: #d9e2ec;
+      --line-strong: #bac8d8;
+      --accent: #0f766e;
+      --accent-strong: #0f5f59;
+      --accent-soft: rgba(15, 118, 110, 0.12);
+      --cyan: #0e7490;
+      --cyan-soft: rgba(14, 116, 144, 0.13);
+      --orange: #ea580c;
+      --orange-soft: rgba(234, 88, 12, 0.13);
+      --violet: #7c3aed;
+      --shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+      --shadow-soft: 0 1px 0 rgba(15, 23, 42, 0.05);
+      --radius: 20px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background:
+        radial-gradient(circle at 8% 0%, rgba(14, 116, 144, 0.15), transparent 34%),
+        radial-gradient(circle at 92% 8%, rgba(15, 118, 110, 0.12), transparent 34%),
+        linear-gradient(180deg, #fbfdff 0%, var(--bg) 100%);
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", "Noto Sans JP", "Segoe UI", sans-serif;
+      line-height: 1.72;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    button, input, select { font: inherit; }
+
+    .container {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 72px;
+    }
+
+    .top-link {
+      margin: 0 0 12px;
+      font-size: 0.95rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(24px, 4vw, 36px);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      background:
+        radial-gradient(circle at top right, rgba(14, 116, 144, 0.18), transparent 34%),
+        linear-gradient(135deg, #ffffff 0%, #f8fafc 54%, #edf7f5 100%);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      bottom: -130px;
+      width: 320px;
+      height: 320px;
+      border-radius: 999px;
+      background: rgba(15, 118, 110, 0.08);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.85fr);
+      gap: 24px;
+      align-items: end;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 118, 110, 0.22);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 0.86rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    h1, h2, h3 { line-height: 1.28; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      letter-spacing: -0.03em;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 1.08rem;
+    }
+
+    p { margin: 8px 0; }
+
+    .lead {
+      max-width: 820px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    .hero-formula {
+      margin-top: 18px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      border: 1px solid rgba(14, 116, 144, 0.18);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.75);
+      text-align: center;
+      font-size: clamp(1rem, 2.2vw, 1.18rem);
+    }
+
+    .mini-dashboard {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.76);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .metric b {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(1.25rem, 3.8vw, 1.7rem);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .section-space { margin-top: 18px; }
+
+    .control-card {
+      position: sticky;
+      top: 10px;
+      z-index: 20;
+      margin-top: 18px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    }
+
+    .control-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px 20px;
+      margin-bottom: 16px;
+    }
+
+    .control-top p {
+      margin: 4px 0 0;
+      color: var(--muted);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: 13px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+      box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);
+    }
+
+    .btn:hover { transform: translateY(-1px); border-color: rgba(15, 118, 110, 0.42); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { cursor: not-allowed; opacity: 0.55; transform: none; }
+
+    .btn.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(15, 118, 110, 0.20);
+    }
+
+    .btn.secondary {
+      border-color: rgba(14, 116, 144, 0.30);
+      background: var(--cyan-soft);
+      color: #075985;
+    }
+
+    .btn.orange {
+      border-color: rgba(234, 88, 12, 0.30);
+      background: var(--orange-soft);
+      color: #9a3412;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: minmax(260px, 1.2fr) repeat(3, minmax(170px, 1fr));
+      gap: 14px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+      font-weight: 800;
+    }
+
+    .field .label-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--ink);
+    }
+
+    .field small {
+      display: block;
+      color: var(--muted);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+    input[type="number"], select {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 15px;
+      background: var(--card-2);
+      color: var(--muted);
+      font-size: 0.94rem;
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.12);
+    }
+
+    .progress {
+      height: 9px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e2e8f0;
+    }
+
+    .progress span {
+      display: block;
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+      transition: width 0.24s ease;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.48fr) minmax(330px, 0.82fr);
+      gap: 18px;
+      align-items: start;
+      margin-top: 18px;
+    }
+
+    .chart-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px 18px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .chart-head p { margin: 0; color: var(--muted); }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .swatch {
+      width: 22px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .swatch.curve { height: 4px; background: var(--orange); }
+    .swatch.mean { width: 4px; height: 18px; background: var(--cyan); }
+    .swatch.current { width: 4px; height: 18px; background: var(--violet); }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #ffffff;
+    }
+
+    #histogram { min-height: 360px; }
+    #samplePlot { min-height: 190px; }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 12px;
+      background: var(--card-2);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.84rem;
+      font-weight: 800;
+    }
+
+    .stat b {
+      display: block;
+      margin-top: 3px;
+      font-size: 1.18rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      overflow-wrap: anywhere;
+    }
+
+    .side-stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .sample-summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .sample-big {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    }
+
+    .sample-big span {
+      display: block;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+
+    .sample-big b {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(1.45rem, 4vw, 2rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .chip-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      max-height: 220px;
+      overflow: auto;
+      padding: 4px 2px 2px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 46px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 118, 110, 0.22);
+      background: var(--accent-soft);
+      color: var(--accent-strong);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .empty-note {
+      color: var(--muted);
+      border: 1px dashed var(--line-strong);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .insight-list {
+      margin: 0;
+      padding-left: 1.15em;
+    }
+
+    .insight-list li { margin: 8px 0; }
+
+    .calc-section {
+      margin-top: 18px;
+    }
+
+    .calc-intro {
+      max-width: 880px;
+      color: var(--muted);
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .calc-card {
+      position: relative;
+      overflow: hidden;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    }
+
+    .calc-card::before {
+      content: attr(data-step);
+      position: absolute;
+      right: 12px;
+      top: 8px;
+      color: rgba(14, 116, 144, 0.14);
+      font-size: 3.2rem;
+      line-height: 1;
+      font-weight: 900;
+    }
+
+    .calc-card h3 { position: relative; z-index: 1; }
+    .calc-card p { position: relative; z-index: 1; color: var(--muted); }
+
+    .formula-box {
+      position: relative;
+      z-index: 1;
+      margin-top: 10px;
+      padding: 10px 12px;
+      overflow-x: auto;
+      border-radius: 14px;
+      background: rgba(14, 116, 144, 0.07);
+      color: #164e63;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .reading-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .reading-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .reading-card strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 1.04rem;
+    }
+
+    footer {
+      text-align: center;
+      margin: 44px 0 24px;
+      font-size: 0.9em;
+      color: #667085;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1000px) {
+      .hero-grid, .layout { grid-template-columns: 1fr; }
+      .controls { grid-template-columns: repeat(2, minmax(220px, 1fr)); }
+      .calc-grid, .reading-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .control-card { position: static; }
+    }
+
+    @media (max-width: 720px) {
+      .container { width: min(100%, calc(100% - 20px)); padding-top: 18px; }
+      .card { padding: 18px; border-radius: 18px; }
+      .hero { padding: 22px 18px; border-radius: 22px; }
+      .mini-dashboard, .controls, .stat-grid, .sample-summary, .calc-grid, .reading-grid { grid-template-columns: 1fr; }
+      .button-row { display: grid; grid-template-columns: 1fr; width: 100%; }
+      .btn { width: 100%; }
+      .status-row { grid-template-columns: auto 1fr; }
+      .status-row .progress { grid-column: 1 / -1; }
+      #histogram { min-height: 300px; }
+      #samplePlot { min-height: 170px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <p class="top-link"><a href="../index.html">← 教材一覧へ</a></p>
+
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="badge-row" aria-label="教材情報">
+            <span class="badge">数B</span>
+            <span class="badge">標本平均</span>
+            <span class="badge">教科書 p.80 例21</span>
+          </div>
+          <h1>標本平均の分布を<br />実験で見る</h1>
+          <p class="lead">
+            1から999までの奇数を20個ランダムに発生させ、その平均 \(\bar{X}\) を記録する。
+            これを何度もくり返すと、\(\bar{X}\) は500の近くに集まり、ばらつきは約65になる。
+          </p>
+          <div id="heroFormula" class="hero-formula">
+            \[ E(\bar{X})=500, \qquad \sigma(\bar{X})=\frac{\sigma}{\sqrt{20}}=\frac{\sqrt{83333}}{\sqrt{20}} \]
+          </div>
+        </div>
+        <div class="mini-dashboard" aria-label="理論値の概要">
+          <div class="metric"><span>母集団</span><b>1, 3, …, 999</b></div>
+          <div class="metric"><span>母平均 \(m\)</span><b>500</b></div>
+          <div class="metric"><span>母標準偏差 \(\sigma\)</span><b>288.67</b></div>
+          <div class="metric"><span>標本平均の標準偏差 \(\sigma(\bar{X})\)</span><b id="heroSdText">64.55</b></div>
+        </div>
+      </div>
+    </header>
+
+    <section class="card control-card" aria-labelledby="controlTitle">
+      <div class="control-top">
+        <div>
+          <h2 id="controlTitle">操作する</h2>
+          <p>初期表示では、教科書の例に合わせて200回実験済みです。リセットして自分で試せます。</p>
+        </div>
+        <div class="button-row">
+          <button id="oneBtn" class="btn primary" type="button">1回抽出して記録</button>
+          <button id="batchBtn" class="btn secondary" type="button">200回まとめて実験</button>
+          <button id="slowBtn" class="btn orange" type="button">ゆっくり200回</button>
+          <button id="resetBtn" class="btn" type="button">リセット</button>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="field">
+          <span class="label-row">標本サイズ \(n\) <b id="nLabel">20</b></span>
+          <input id="nSlider" type="range" min="2" max="100" step="1" value="20" />
+          <small>例21は \(n=20\)。動かすと \(\sigma(\bar{X})=\sigma/\sqrt{n}\) の変化が見えます。</small>
+        </label>
+        <label class="field">
+          <span>ヒストグラムの階級幅</span>
+          <select id="binSelect">
+            <option value="25">25</option>
+            <option value="50" selected>50（教科書風）</option>
+            <option value="100">100</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>乱数シード</span>
+          <input id="seedInput" type="number" value="4239275929" inputmode="numeric" />
+          <small>同じシードなら同じ実験を再現できます。</small>
+        </label>
+        <div class="field">
+          <span>すぐ比較したいとき</span>
+          <button id="textbookBtn" class="btn" type="button">教科書設定で200回再現</button>
+        </div>
+      </div>
+
+      <div class="status-row" aria-live="polite">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span id="statusText">準備中です。</span>
+        <span id="progressText">0 / 200</span>
+        <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+      </div>
+    </section>
+
+    <section class="layout" aria-label="標本平均の実験結果">
+      <div class="card">
+        <div class="chart-head">
+          <div>
+            <h2>標本平均 \(\bar{X}\) のヒストグラム</h2>
+            <p>棒は実験で得た相対度数、曲線は理論値 \(N(500,\,\sigma(\bar{X})^2)\) の目安です。</p>
+          </div>
+          <div class="legend" aria-label="凡例">
+            <span class="legend-item"><span class="swatch"></span>実験</span>
+            <span class="legend-item"><span class="swatch curve"></span>理論曲線</span>
+            <span class="legend-item"><span class="swatch mean"></span>500</span>
+            <span class="legend-item"><span class="swatch current"></span>今回の平均</span>
+          </div>
+        </div>
+        <svg id="histogram" viewBox="0 0 980 560" role="img" aria-label="標本平均のヒストグラム"></svg>
+        <div class="stat-grid" aria-label="実験結果の統計量">
+          <div class="stat"><span>実験回数</span><b id="runCount">0</b></div>
+          <div class="stat"><span>実験平均</span><b id="expMean">—</b></div>
+          <div class="stat"><span>実験で得た標準偏差</span><b id="expSd">—</b></div>
+          <div class="stat"><span>公式から求めた標準偏差</span><b id="theorySd">64.55</b></div>
+          <div class="stat"><span>平均のずれ</span><b id="meanDiff">—</b></div>
+          <div class="stat"><span>標準偏差のずれ</span><b id="sdDiff">—</b></div>
+          <div class="stat"><span>平均から標準偏差1つ分以内</span><b id="withinOneSd">—</b></div>
+          <div class="stat"><span>ばらつきの比</span><b id="sdRatio">—</b></div>
+        </div>
+      </div>
+
+      <aside class="side-stack">
+        <div class="card">
+          <h2>今回の標本</h2>
+          <p class="lead">1回の実験では、奇数を <span id="sampleSizeText">20</span> 個発生させて平均します。同じ値が何度出てもOKです。</p>
+          <div class="sample-summary">
+            <div class="sample-big"><span>今回の平均</span><b id="currentMean">—</b></div>
+            <div class="sample-big"><span>平均との差</span><b id="currentDiff">—</b></div>
+          </div>
+          <svg id="samplePlot" viewBox="0 0 760 260" role="img" aria-label="今回抽出された値と平均"></svg>
+          <h3>発生した値（昇順）</h3>
+          <div id="sampleValues" class="chip-grid"><p class="empty-note">まだ標本がありません。ボタンで抽出してください。</p></div>
+        </div>
+
+        <div class="card">
+          <h2>見るポイント</h2>
+          <ul class="insight-list">
+            <li>1個の値は1〜999まで大きく散らばる。</li>
+            <li>20個の平均にすると、極端な値どうしが打ち消し合う。</li>
+            <li>だから \(\bar{X}\) の山は500付近にでき、横幅は母集団より狭くなる。</li>
+            <li>理論上の横幅は \(\sigma/\sqrt{n}\)。例21では約65。</li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card calc-section" aria-labelledby="calcTitle">
+      <h2 id="calcTitle">実際に計算して、なぜ約65になるか確認する</h2>
+      <p class="calc-intro">
+        母集団は500個の奇数 \(1,3,5,\ldots,999\)。標本平均の期待値は母平均と同じで、標準偏差は \(\sqrt{n}\) で割られます。
+      </p>
+      <div class="calc-grid">
+        <article class="calc-card" data-step="1">
+          <h3>母平均</h3>
+          <p>等間隔の数なので、真ん中が平均です。</p>
+          <div class="formula-box">\[m=\frac{1+999}{2}=500\]</div>
+        </article>
+        <article class="calc-card" data-step="2">
+          <h3>母分散</h3>
+          <p>500からのずれを2乗して平均します。</p>
+          <div class="formula-box">\[\sigma^2=\frac{1}{500}\sum_{k=1}^{500}\{(2k-1)-500\}^2=83333\]</div>
+        </article>
+        <article class="calc-card" data-step="3">
+          <h3>母標準偏差</h3>
+          <p>\(\sigma=\sqrt{83333}\) なので、母標準偏差は約288.7です。</p>
+          <div class="formula-box">\[\sigma=\sqrt{83333}\]</div>
+        </article>
+        <article class="calc-card" data-step="4">
+          <h3>標本平均の標準偏差</h3>
+          <p>平均をとると、ばらつきは \(\sqrt{n}\) 分の1になります。この式から、例21では標本平均の標準偏差は約65です。</p>
+          <div id="sampleMeanSdFormula" class="formula-box">\[\sigma(\bar{X})=\frac{\sigma}{\sqrt{20}}=\frac{\sqrt{83333}}{\sqrt{20}}\]</div>
+        </article>
+      </div>
+    </section>
+
+    <section class="reading-grid" aria-label="授業での読み取り">
+      <article class="reading-card">
+        <strong>実験平均を見る</strong>
+        200回くらいでも、実験平均は500にかなり近づきます。完全に500にならないのは、乱数によるゆれが残るからです。
+      </article>
+      <article class="reading-card">
+        <strong>実験で得た標準偏差を見る</strong>
+        実験で得た標準偏差は、公式から求めた値64.55の近くになります。教科書の「標準偏差65」と同じ意味を、棒グラフで確認できます。
+      </article>
+      <article class="reading-card">
+        <strong>nを動かす</strong>
+        \(n\) を大きくすると、標本平均の山は細くなります。これは \(\sigma(\bar{X})=\sigma/\sqrt{n}\) の式そのものです。
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 shibasaki / Math Visual
+    <br />
+    <a href="https://github.com/yosu64/math-visual">https://github.com/yosu64/math-visual</a>
+  </footer>
+
+  <script>
+    const POP_SIZE = 500;
+    const POP_MEAN = 500;
+    const POP_VARIANCE = 83333;
+    const POP_SIGMA = Math.sqrt(POP_VARIANCE);
+    const DEFAULT_SEED = 4239275929;
+    const DEFAULT_N = 20;
+    const DEFAULT_BATCH = 200;
+
+    const state = {
+      rng: null,
+      sampleSize: DEFAULT_N,
+      experiments: [],
+      currentSample: [],
+      isAnimating: false
+    };
+
+    const els = {
+      oneBtn: document.getElementById("oneBtn"),
+      batchBtn: document.getElementById("batchBtn"),
+      slowBtn: document.getElementById("slowBtn"),
+      resetBtn: document.getElementById("resetBtn"),
+      textbookBtn: document.getElementById("textbookBtn"),
+      nSlider: document.getElementById("nSlider"),
+      nLabel: document.getElementById("nLabel"),
+      binSelect: document.getElementById("binSelect"),
+      seedInput: document.getElementById("seedInput"),
+      statusText: document.getElementById("statusText"),
+      progressText: document.getElementById("progressText"),
+      progressBar: document.getElementById("progressBar"),
+      histogram: document.getElementById("histogram"),
+      samplePlot: document.getElementById("samplePlot"),
+      runCount: document.getElementById("runCount"),
+      expMean: document.getElementById("expMean"),
+      expSd: document.getElementById("expSd"),
+      theorySd: document.getElementById("theorySd"),
+      meanDiff: document.getElementById("meanDiff"),
+      sdDiff: document.getElementById("sdDiff"),
+      withinOneSd: document.getElementById("withinOneSd"),
+      sdRatio: document.getElementById("sdRatio"),
+      currentMean: document.getElementById("currentMean"),
+      currentDiff: document.getElementById("currentDiff"),
+      sampleValues: document.getElementById("sampleValues"),
+      sampleSizeText: document.getElementById("sampleSizeText"),
+      heroSdText: document.getElementById("heroSdText"),
+      heroFormula: document.getElementById("heroFormula"),
+      sampleMeanSdFormula: document.getElementById("sampleMeanSdFormula")
+    };
+
+    function mulberry32(seed) {
+      let t = seed >>> 0;
+      return function random() {
+        t = (t + 0x6D2B79F5) >>> 0;
+        let r = t;
+        r = Math.imul(r ^ (r >>> 15), r | 1);
+        r ^= r + Math.imul(r ^ (r >>> 7), r | 61);
+        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function getSeed() {
+      const value = Number(els.seedInput.value);
+      if (!Number.isFinite(value)) return DEFAULT_SEED;
+      return Math.trunc(value) >>> 0;
+    }
+
+    function resetRng() {
+      state.rng = mulberry32(getSeed());
+    }
+
+    function theoreticalSd() {
+      return Math.sqrt(POP_VARIANCE / state.sampleSize);
+    }
+
+    function normalPdf(x, m, s) {
+      return Math.exp(-((x - m) ** 2) / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s);
+    }
+
+    function oddRandom() {
+      return 2 * Math.floor(state.rng() * POP_SIZE) + 1;
+    }
+
+    function drawSample() {
+      const sample = [];
+      for (let i = 0; i < state.sampleSize; i += 1) sample.push(oddRandom());
+      return sample;
+    }
+
+    function mean(values) {
+      if (!values.length) return NaN;
+      return values.reduce((sum, value) => sum + value, 0) / values.length;
+    }
+
+    function sdPopulation(values) {
+      if (!values.length) return NaN;
+      const m = mean(values);
+      return Math.sqrt(values.reduce((sum, value) => sum + (value - m) ** 2, 0) / values.length);
+    }
+
+    function fmt(value, digits = 2) {
+      if (!Number.isFinite(value)) return "—";
+      return value.toLocaleString("ja-JP", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+    }
+
+    function fmtSigned(value, digits = 2) {
+      if (!Number.isFinite(value)) return "—";
+      const sign = value > 0 ? "+" : "";
+      return `${sign}${fmt(value, digits)}`;
+    }
+
+    function svgEl(name, attrs = {}, text = "") {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.entries(attrs).forEach(([key, value]) => node.setAttribute(key, value));
+      if (text !== "") node.textContent = text;
+      return node;
+    }
+
+    function addText(svg, x, y, text, attrs = {}) {
+      svg.appendChild(svgEl("text", { x, y, ...attrs }, text));
+    }
+
+    function drawHistogram() {
+      const svg = els.histogram;
+      svg.innerHTML = "";
+
+      const W = 980;
+      const H = 560;
+      const pad = { l: 76, r: 32, t: 38, b: 76 };
+      const binWidth = Number(els.binSelect.value);
+      const sd = theoreticalSd();
+      const values = state.experiments;
+      const observedMin = values.length ? Math.min(...values) : POP_MEAN;
+      const observedMax = values.length ? Math.max(...values) : POP_MEAN;
+      const rawMin = Math.min(250, POP_MEAN - 3.6 * sd, observedMin - binWidth);
+      const rawMax = Math.max(750, POP_MEAN + 3.6 * sd, observedMax + binWidth);
+      const xMin = Math.max(0, Math.floor(rawMin / binWidth) * binWidth);
+      const xMax = Math.min(1000, Math.ceil(rawMax / binWidth) * binWidth);
+      const span = Math.max(binWidth * 4, xMax - xMin);
+      const finalXMax = xMin + span;
+      const binCount = Math.ceil((finalXMax - xMin) / binWidth);
+      const bins = Array.from({ length: binCount }, () => 0);
+
+      values.forEach((value) => {
+        let index = Math.floor((value - xMin) / binWidth);
+        index = Math.max(0, Math.min(binCount - 1, index));
+        bins[index] += 1;
+      });
+
+      const relFreq = bins.map((count) => values.length ? count / values.length : 0);
+      const theoryPeak = normalPdf(POP_MEAN, POP_MEAN, sd) * binWidth;
+      const maxRel = Math.max(theoryPeak, ...relFreq, 0.08);
+      const yMax = Math.min(1, Math.max(0.12, Math.ceil(maxRel * 12) / 10));
+
+      const sx = (x) => pad.l + ((x - xMin) / (finalXMax - xMin)) * (W - pad.l - pad.r);
+      const sy = (y) => H - pad.b - (y / yMax) * (H - pad.t - pad.b);
+
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+
+      const yTicks = 4;
+      for (let i = 0; i <= yTicks; i += 1) {
+        const yValue = (yMax / yTicks) * i;
+        const y = sy(yValue);
+        svg.appendChild(svgEl("line", { x1: pad.l, y1: y, x2: W - pad.r, y2: y, stroke: "#e8eef5", "stroke-width": 1 }));
+        addText(svg, pad.l - 12, y + 5, yValue.toFixed(2), { "text-anchor": "end", "font-size": 16, fill: "#64748b" });
+      }
+
+      const tickStep = finalXMax - xMin > 650 ? 200 : 100;
+      for (let x = Math.ceil(xMin / tickStep) * tickStep; x <= finalXMax; x += tickStep) {
+        const tx = sx(x);
+        svg.appendChild(svgEl("line", { x1: tx, y1: pad.t, x2: tx, y2: H - pad.b, stroke: "#f1f5f9", "stroke-width": 1 }));
+        addText(svg, tx, H - 34, String(x), { "text-anchor": "middle", "font-size": 17, fill: "#64748b" });
+      }
+
+      svg.appendChild(svgEl("line", { x1: pad.l, y1: H - pad.b, x2: W - pad.r, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.5 }));
+      svg.appendChild(svgEl("line", { x1: pad.l, y1: pad.t, x2: pad.l, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.5 }));
+      addText(svg, W - pad.r, H - 16, "標本平均  X̄", { "text-anchor": "end", "font-size": 18, fill: "#334155", "font-weight": 700 });
+      addText(svg, 22, 28, "相対度数", { "font-size": 18, fill: "#334155", "font-weight": 700 });
+
+      relFreq.forEach((height, i) => {
+        const x0 = xMin + i * binWidth;
+        const x1 = x0 + binWidth;
+        const barX = sx(x0) + 3;
+        const barY = sy(height);
+        const barW = Math.max(1, sx(x1) - sx(x0) - 6);
+        const barH = Math.max(0, H - pad.b - barY);
+        svg.appendChild(svgEl("rect", {
+          x: barX,
+          y: barY,
+          width: barW,
+          height: barH,
+          rx: 5,
+          fill: "rgba(15, 118, 110, 0.44)",
+          stroke: "rgba(15, 118, 110, 0.62)",
+          "stroke-width": 1
+        }));
+        if (height > 0.035) {
+          addText(svg, barX + barW / 2, barY - 8, height.toFixed(3), { "text-anchor": "middle", "font-size": 13, fill: "#0f5f59", "font-weight": 800 });
+        }
+      });
+
+      const curvePoints = [];
+      for (let i = 0; i <= 260; i += 1) {
+        const x = xMin + ((finalXMax - xMin) * i) / 260;
+        const y = normalPdf(x, POP_MEAN, sd) * binWidth;
+        curvePoints.push(`${sx(x)},${sy(y)}`);
+      }
+      svg.appendChild(svgEl("polyline", {
+        points: curvePoints.join(" "),
+        fill: "none",
+        stroke: "#ea580c",
+        "stroke-width": 4,
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round"
+      }));
+
+      function verticalLine(x, label, color, dash = "") {
+        if (x < xMin || x > finalXMax) return;
+        const vx = sx(x);
+        svg.appendChild(svgEl("line", { x1: vx, y1: pad.t, x2: vx, y2: H - pad.b, stroke: color, "stroke-width": 2.5, "stroke-dasharray": dash }));
+        if (Array.isArray(label)) {
+          const text = svgEl("text", { x: vx, y: pad.t - 24, "text-anchor": "middle", "font-size": 13, fill: color, "font-weight": 900 });
+          label.forEach((line, index) => {
+            const tspan = svgEl("tspan", { x: vx, dy: index === 0 ? 0 : 15 }, line);
+            text.appendChild(tspan);
+          });
+          svg.appendChild(text);
+        } else {
+          addText(svg, vx, pad.t - 10, label, { "text-anchor": "middle", "font-size": 15, fill: color, "font-weight": 900 });
+        }
+      }
+
+      verticalLine(POP_MEAN, "500", "#0e7490");
+      verticalLine(POP_MEAN - sd, ["平均から", "標準偏差1つ分"], "#64748b", "6 5");
+      verticalLine(POP_MEAN + sd, ["平均から", "標準偏差1つ分"], "#64748b", "6 5");
+
+      if (state.currentSample.length) {
+        verticalLine(mean(state.currentSample), "今回", "#7c3aed", "4 5");
+      }
+
+      if (!values.length) {
+        svg.appendChild(svgEl("rect", { x: 250, y: 190, width: 480, height: 116, rx: 18, fill: "rgba(248, 250, 252, 0.92)", stroke: "#d9e2ec" }));
+        addText(svg, 490, 238, "まだ実験結果がありません", { "text-anchor": "middle", "font-size": 22, fill: "#334155", "font-weight": 900 });
+        addText(svg, 490, 274, "「1回抽出」または「200回実験」を押してください", { "text-anchor": "middle", "font-size": 16, fill: "#64748b" });
+      }
+    }
+
+    function drawSamplePlot() {
+      const svg = els.samplePlot;
+      svg.innerHTML = "";
+      const W = 760;
+      const H = 260;
+      const pad = { l: 42, r: 34, t: 34, b: 54 };
+      const sx = (x) => pad.l + ((x - 1) / 998) * (W - pad.l - pad.r);
+      const baseY = H - pad.b;
+
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+      svg.appendChild(svgEl("line", { x1: pad.l, y1: baseY, x2: W - pad.r, y2: baseY, stroke: "#334155", "stroke-width": 1.5 }));
+
+      [1, 500, 999].forEach((x) => {
+        const tx = sx(x);
+        svg.appendChild(svgEl("line", { x1: tx, y1: baseY - 8, x2: tx, y2: baseY + 8, stroke: "#334155" }));
+        addText(svg, tx, H - 20, String(x), { "text-anchor": "middle", "font-size": 17, fill: "#64748b" });
+      });
+
+      const meanX = sx(POP_MEAN);
+      svg.appendChild(svgEl("line", { x1: meanX, y1: pad.t, x2: meanX, y2: baseY, stroke: "#0e7490", "stroke-width": 2, "stroke-dasharray": "6 5" }));
+      addText(svg, meanX, 24, "母平均 500", { "text-anchor": "middle", "font-size": 15, fill: "#0e7490", "font-weight": 900 });
+
+      if (!state.currentSample.length) {
+        addText(svg, W / 2, 118, "ここに抽出された値が点で表示されます", { "text-anchor": "middle", "font-size": 18, fill: "#64748b", "font-weight": 800 });
+        return;
+      }
+
+      const sorted = [...state.currentSample].sort((a, b) => a - b);
+      sorted.forEach((value, i) => {
+        const x = sx(value);
+        const y = baseY - 22 - (i % 6) * 21;
+        svg.appendChild(svgEl("line", { x1: x, y1: baseY, x2: x, y2: y + 7, stroke: "rgba(15, 118, 110, 0.14)", "stroke-width": 1 }));
+        svg.appendChild(svgEl("circle", { cx: x, cy: y, r: 7.5, fill: "#0f766e", stroke: "#ffffff", "stroke-width": 2 }));
+      });
+
+      const sampleM = mean(state.currentSample);
+      const sampleX = sx(sampleM);
+      svg.appendChild(svgEl("line", { x1: sampleX, y1: pad.t, x2: sampleX, y2: baseY + 8, stroke: "#7c3aed", "stroke-width": 3 }));
+      svg.appendChild(svgEl("rect", { x: sampleX - 74, y: pad.t + 6, width: 148, height: 30, rx: 15, fill: "rgba(124, 58, 237, 0.10)", stroke: "rgba(124, 58, 237, 0.28)" }));
+      addText(svg, sampleX, pad.t + 27, `今回の平均 ${fmt(sampleM, 1)}`, { "text-anchor": "middle", "font-size": 14, fill: "#5b21b6", "font-weight": 900 });
+    }
+
+    function updateSampleValues() {
+      if (!state.currentSample.length) {
+        els.sampleValues.innerHTML = '<p class="empty-note">まだ標本がありません。ボタンで抽出してください。</p>';
+        els.currentMean.textContent = "—";
+        els.currentDiff.textContent = "—";
+        return;
+      }
+      const sorted = [...state.currentSample].sort((a, b) => a - b);
+      els.sampleValues.innerHTML = sorted.map((value) => `<span class="chip">${value}</span>`).join("");
+      const sampleM = mean(state.currentSample);
+      els.currentMean.textContent = fmt(sampleM, 2);
+      els.currentDiff.textContent = fmtSigned(sampleM - POP_MEAN, 2);
+    }
+
+    function updateStats() {
+      const n = state.experiments.length;
+      const theory = theoreticalSd();
+      const expM = mean(state.experiments);
+      const expSdValue = sdPopulation(state.experiments);
+      const within = n ? state.experiments.filter((value) => Math.abs(value - POP_MEAN) <= theory).length / n : NaN;
+
+      els.runCount.textContent = n.toLocaleString("ja-JP");
+      els.expMean.textContent = fmt(expM, 2);
+      els.expSd.textContent = fmt(expSdValue, 2);
+      els.theorySd.textContent = fmt(theory, 2);
+      els.meanDiff.textContent = fmtSigned(expM - POP_MEAN, 2);
+      els.sdDiff.textContent = fmtSigned(expSdValue - theory, 2);
+      els.withinOneSd.textContent = Number.isFinite(within) ? `${fmt(within * 100, 1)}%` : "—";
+      els.sdRatio.textContent = Number.isFinite(expSdValue) ? fmt(expSdValue / theory, 3) : "—";
+      els.heroSdText.textContent = fmt(theory, 2);
+      els.sampleSizeText.textContent = state.sampleSize;
+      els.nLabel.textContent = state.sampleSize;
+      els.progressText.textContent = `${Math.min(n, DEFAULT_BATCH)} / ${DEFAULT_BATCH}`;
+      els.progressBar.style.width = `${Math.min(100, (n / DEFAULT_BATCH) * 100)}%`;
+    }
+
+    function updateMathText() {
+      const theory = theoreticalSd();
+      els.heroFormula.innerHTML = `\\[ E(\\bar{X})=500, \\qquad \\sigma(\\bar{X})=\\frac{\\sigma}{\\sqrt{${state.sampleSize}}}=\\frac{\\sqrt{83333}}{\\sqrt{${state.sampleSize}}} \\]`;
+      els.sampleMeanSdFormula.innerHTML = `\\[\\sigma(\\bar{X})=\\frac{\\sigma}{\\sqrt{${state.sampleSize}}}=\\frac{\\sqrt{83333}}{\\sqrt{${state.sampleSize}}}\\]`;
+      if (window.MathJax?.typesetPromise) {
+        const nodes = [document.body];
+        if (window.MathJax.typesetClear) MathJax.typesetClear(nodes);
+        MathJax.typesetPromise(nodes).catch(() => {});
+      }
+    }
+
+    function updateAll(message) {
+      updateStats();
+      updateSampleValues();
+      drawHistogram();
+      drawSamplePlot();
+      if (message) els.statusText.textContent = message;
+    }
+
+    function setBusy(isBusy) {
+      state.isAnimating = isBusy;
+      [els.oneBtn, els.batchBtn, els.slowBtn, els.resetBtn, els.textbookBtn, els.nSlider, els.binSelect, els.seedInput].forEach((element) => {
+        element.disabled = isBusy;
+      });
+    }
+
+    function recordOneSample() {
+      state.currentSample = drawSample();
+      state.experiments.push(mean(state.currentSample));
+    }
+
+    function runBatch(count, { animated = false, message = "" } = {}) {
+      if (state.isAnimating) return;
+      if (!animated) {
+        for (let i = 0; i < count; i += 1) recordOneSample();
+        updateAll(message || `${count}回分を追加しました。理論値と比べてみましょう。`);
+        return;
+      }
+
+      setBusy(true);
+      let done = 0;
+      els.statusText.textContent = `ゆっくり実験中… 0 / ${count}`;
+
+      const tick = () => {
+        const perFrame = 4;
+        for (let i = 0; i < perFrame && done < count; i += 1) {
+          recordOneSample();
+          done += 1;
+        }
+        updateAll(`ゆっくり実験中… ${done} / ${count}`);
+        if (done < count) {
+          window.setTimeout(tick, 28);
+        } else {
+          setBusy(false);
+          updateAll(`${count}回の実験が終わりました。棒の山と理論曲線を比べましょう。`);
+        }
+      };
+      tick();
+    }
+
+    function clearExperiment(message = "実験結果をリセットしました。") {
+      resetRng();
+      state.experiments = [];
+      state.currentSample = [];
+      updateAll(message);
+    }
+
+    function runTextbookPreset() {
+      state.sampleSize = DEFAULT_N;
+      els.nSlider.value = DEFAULT_N;
+      els.seedInput.value = DEFAULT_SEED;
+      els.binSelect.value = "50";
+      resetRng();
+      state.experiments = [];
+      state.currentSample = [];
+      updateStats();
+      updateMathText();
+      runBatch(DEFAULT_BATCH, { animated: false, message: "教科書設定で200回実験しました。平均は500付近、標準偏差は約65になります。" });
+    }
+
+    els.oneBtn.addEventListener("click", () => {
+      recordOneSample();
+      updateAll("1回抽出して、その標本平均を記録しました。");
+    });
+
+    els.batchBtn.addEventListener("click", () => runBatch(DEFAULT_BATCH));
+    els.slowBtn.addEventListener("click", () => runBatch(DEFAULT_BATCH, { animated: true }));
+    els.resetBtn.addEventListener("click", () => clearExperiment("実験結果をリセットしました。次は自分で抽出してみましょう。"));
+    els.textbookBtn.addEventListener("click", runTextbookPreset);
+
+    els.nSlider.addEventListener("input", () => {
+      state.sampleSize = Number(els.nSlider.value);
+      updateMathText();
+      clearExperiment(`n=${state.sampleSize} に変更しました。200回実験を押して山の幅を比べましょう。`);
+    });
+
+    els.binSelect.addEventListener("change", () => {
+      drawHistogram();
+      els.statusText.textContent = `階級幅を ${els.binSelect.value} にしました。棒の見え方だけが変わります。`;
+    });
+
+    els.seedInput.addEventListener("change", () => {
+      clearExperiment("乱数シードを変更しました。同じシードなら同じ実験を再現できます。" );
+    });
+
+    window.addEventListener("load", () => {
+      resetRng();
+      updateMathText();
+      runTextbookPreset();
+    });
+  </script>
+</body>
+</html>

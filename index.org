@@ -127,6 +127,18 @@
 標準正規分布 \\(N(0,1)\\) で、確率を曲線下の面積として見る考えを視覚的に理解する教材。
 区間確率、累積確率、\\(P(0\le Z\le u)\\) の面積を切り替えて確認できる。
 
+** 標本平均の分布を実験で見る
+:PROPERTIES:
+:PATH: ./math-b/sample-mean-odd-numbers.html
+:TEXTBOOK: 深進数学B
+:PAGE: 80
+:APP: HTML / MathJax / SVG
+:PUBLISHED: 2026-05-28
+:UPDATED: 2026-05-28
+:END:
+1から999までの奇数を20個発生させて平均する実験をくり返し、標本平均が500の近くに集まる様子を視覚的に理解する教材。
+公式 \\(\sigma(\bar{X})=\sigma/\sqrt{n}\\) から求めた標準偏差と、実験で得た標準偏差を比べながら確認できる。
+
 * 数C
 :PROPERTIES:
 :TEXTBOOK: 深進数学C
