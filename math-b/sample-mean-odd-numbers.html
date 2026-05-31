@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="author" content="shibasaki" />
   <title>標本平均の分布を実験で見る</title>
+  <link rel="icon" href="data:," />
   <script>
     window.MathJax = {
       tex: { inlineMath: [["\\(", "\\)"], ["$", "$"]], displayMath: [["\\[", "\\]"]] },
@@ -579,6 +580,84 @@
       font-size: 1.04rem;
     }
 
+    .extension-section {
+      margin-top: 18px;
+    }
+
+    .extension-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px 18px;
+      margin-bottom: 16px;
+    }
+
+    .extension-head p {
+      max-width: 820px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .comparison-grid.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .comparison-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    }
+
+    .comparison-card h3 {
+      margin: 0;
+      font-size: 1.02rem;
+    }
+
+    .comparison-card .subtle {
+      margin: 2px 0 10px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 800;
+    }
+
+    .comparison-chart {
+      min-height: 178px;
+      border-radius: 14px;
+    }
+
+    .comparison-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .extension-formula {
+      margin: 0 0 14px;
+    }
+
+    .section-status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: var(--card-2);
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
     footer {
       text-align: center;
       margin: 44px 0 24px;
@@ -610,7 +689,7 @@
       .btn { min-height: 48px; padding-inline: 12px; }
       .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .stat { padding: 14px 16px; }
-      .calc-grid, .reading-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .calc-grid, .reading-grid, .comparison-grid, .comparison-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .control-card { position: static; }
       #histogram { min-height: 390px; }
     }
@@ -619,7 +698,7 @@
       .container { width: min(100%, calc(100% - 20px)); padding-top: 18px; }
       .card { padding: 18px; border-radius: 18px; }
       .hero { padding: 22px 18px; border-radius: 22px; }
-      .mini-dashboard, .controls, .stat-grid, .sample-summary, .calc-grid, .reading-grid { grid-template-columns: 1fr; }
+      .mini-dashboard, .controls, .stat-grid, .sample-summary, .calc-grid, .reading-grid, .comparison-grid, .comparison-grid.three { grid-template-columns: 1fr; }
       .button-row { display: grid; grid-template-columns: 1fr; width: 100%; }
       .btn { width: 100%; }
       .status-row { grid-template-columns: auto 1fr; }
@@ -805,6 +884,70 @@
         \(n\) を大きくすると、標本平均の山は細くなります。これは \(\sigma(\bar{X})=\sigma/\sqrt{n}\) の式そのものです。
       </article>
     </section>
+
+    <section class="card extension-section" aria-labelledby="lawTitle">
+      <div class="extension-head">
+        <div>
+          <h2 id="lawTitle">大数の法則を、4つの \(n\) で比べる</h2>
+          <p>標本サイズ \(n=4,9,36,100\) について、標本平均を10000回ずつ作ります。\(n\) が大きくなるほど、山が母平均500の近くに集まることを確認できます。</p>
+        </div>
+        <button id="lawRunBtn" class="btn secondary" type="button">4つのnで10000回実験</button>
+      </div>
+      <div class="comparison-grid" aria-label="大数の法則の比較グラフ">
+        <article class="comparison-card">
+          <h3>\(n=4\)</h3>
+          <p class="subtle" id="lawNote4">標本平均の標準偏差は約144.3</p>
+          <svg id="lawChart4" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=4の標本平均の分布"></svg>
+        </article>
+        <article class="comparison-card">
+          <h3>\(n=9\)</h3>
+          <p class="subtle" id="lawNote9">標本平均の標準偏差は約96.2</p>
+          <svg id="lawChart9" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=9の標本平均の分布"></svg>
+        </article>
+        <article class="comparison-card">
+          <h3>\(n=36\)</h3>
+          <p class="subtle" id="lawNote36">標本平均の標準偏差は約48.1</p>
+          <svg id="lawChart36" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=36の標本平均の分布"></svg>
+        </article>
+        <article class="comparison-card">
+          <h3>\(n=100\)</h3>
+          <p class="subtle" id="lawNote100">標本平均の標準偏差は約28.9</p>
+          <svg id="lawChart100" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=100の標本平均の分布"></svg>
+        </article>
+      </div>
+      <p id="lawStatus" class="section-status">まだ比較実験をしていません。</p>
+    </section>
+
+    <section class="card extension-section" aria-labelledby="standardTitle">
+      <div class="extension-head">
+        <div>
+          <h2 id="standardTitle">標本平均を標準化して比べる</h2>
+          <p>\(\bar{X}\) をそのまま見ると山の幅が変わります。そこで \(Z\) に直すと、平均0、標準偏差1の目盛りで形を比べられます。</p>
+        </div>
+        <button id="standardRunBtn" class="btn orange" type="button">標準化して10000回実験</button>
+      </div>
+      <div class="formula-box extension-formula">
+        \[Z=\frac{\sqrt{n}(\bar{X}-500)}{\sqrt{83333}}=\frac{\bar{X}-500}{\sqrt{83333}/\sqrt{n}}\]
+      </div>
+      <div class="comparison-grid three" aria-label="標準化した標本平均の比較グラフ">
+        <article class="comparison-card">
+          <h3>\(n=1\)</h3>
+          <p class="subtle" id="standardNote1">もとの値を標準化</p>
+          <svg id="standardChart1" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=1の標準化した分布"></svg>
+        </article>
+        <article class="comparison-card">
+          <h3>\(n=4\)</h3>
+          <p class="subtle" id="standardNote4">少し山の形が整う</p>
+          <svg id="standardChart4" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=4の標準化した分布"></svg>
+        </article>
+        <article class="comparison-card">
+          <h3>\(n=100\)</h3>
+          <p class="subtle" id="standardNote100">標準正規分布に近い形</p>
+          <svg id="standardChart100" class="comparison-chart" viewBox="0 0 460 260" role="img" aria-label="n=100の標準化した分布"></svg>
+        </article>
+      </div>
+      <p id="standardStatus" class="section-status">まだ標準化の比較実験をしていません。</p>
+    </section>
   </main>
 
   <footer>
@@ -821,6 +964,9 @@
     const DEFAULT_SEED = 4239275929;
     const DEFAULT_N = 20;
     const DEFAULT_BATCH = 200;
+    const EXTENSION_RUNS = 10000;
+    const LAW_SIZES = [4, 9, 36, 100];
+    const STANDARD_SIZES = [1, 4, 100];
 
     const state = {
       rng: null,
@@ -859,7 +1005,33 @@
       sampleSizeText: document.getElementById("sampleSizeText"),
       heroSdText: document.getElementById("heroSdText"),
       heroFormula: document.getElementById("heroFormula"),
-      sampleMeanSdFormula: document.getElementById("sampleMeanSdFormula")
+      sampleMeanSdFormula: document.getElementById("sampleMeanSdFormula"),
+      lawRunBtn: document.getElementById("lawRunBtn"),
+      lawStatus: document.getElementById("lawStatus"),
+      standardRunBtn: document.getElementById("standardRunBtn"),
+      standardStatus: document.getElementById("standardStatus"),
+      lawCharts: {
+        4: document.getElementById("lawChart4"),
+        9: document.getElementById("lawChart9"),
+        36: document.getElementById("lawChart36"),
+        100: document.getElementById("lawChart100")
+      },
+      lawNotes: {
+        4: document.getElementById("lawNote4"),
+        9: document.getElementById("lawNote9"),
+        36: document.getElementById("lawNote36"),
+        100: document.getElementById("lawNote100")
+      },
+      standardCharts: {
+        1: document.getElementById("standardChart1"),
+        4: document.getElementById("standardChart4"),
+        100: document.getElementById("standardChart100")
+      },
+      standardNotes: {
+        1: document.getElementById("standardNote1"),
+        4: document.getElementById("standardNote4"),
+        100: document.getElementById("standardNote100")
+      }
     };
 
     function mulberry32(seed) {
@@ -891,8 +1063,12 @@
       return Math.exp(-((x - m) ** 2) / (2 * s * s)) / (Math.sqrt(2 * Math.PI) * s);
     }
 
+    function oddRandomFrom(rng) {
+      return 2 * Math.floor(rng() * POP_SIZE) + 1;
+    }
+
     function oddRandom() {
-      return 2 * Math.floor(state.rng() * POP_SIZE) + 1;
+      return oddRandomFrom(state.rng);
     }
 
     function drawSample() {
@@ -910,6 +1086,26 @@
       if (!values.length) return NaN;
       const m = mean(values);
       return Math.sqrt(values.reduce((sum, value) => sum + (value - m) ** 2, 0) / values.length);
+    }
+
+    function seededComparisonRandom(sampleSize, offset) {
+      const base = getSeed();
+      return mulberry32((base + Math.imul(sampleSize + offset, 2654435761)) >>> 0);
+    }
+
+    function sampleMeanFromRng(sampleSize, rng) {
+      let sum = 0;
+      for (let i = 0; i < sampleSize; i += 1) sum += oddRandomFrom(rng);
+      return sum / sampleSize;
+    }
+
+    function simulateSampleMeans(sampleSize, count, offset) {
+      const rng = seededComparisonRandom(sampleSize, offset);
+      const values = [];
+      for (let i = 0; i < count; i += 1) {
+        values.push(sampleMeanFromRng(sampleSize, rng));
+      }
+      return values;
     }
 
     function fmt(value, digits = 2) {
@@ -932,6 +1128,165 @@
 
     function addText(svg, x, y, text, attrs = {}) {
       svg.appendChild(svgEl("text", { x, y, ...attrs }, text));
+    }
+
+    function drawComparisonPlaceholder(svg, message) {
+      svg.innerHTML = "";
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: 460, height: 260, fill: "#fff" }));
+      svg.appendChild(svgEl("rect", { x: 34, y: 76, width: 392, height: 108, rx: 18, fill: "#f8fafc", stroke: "#d9e2ec" }));
+      addText(svg, 230, 132, message, { "text-anchor": "middle", "font-size": 18, fill: "#64748b", "font-weight": 900 });
+    }
+
+    function initializeComparisonCharts() {
+      LAW_SIZES.forEach((sampleSize) => {
+        drawComparisonPlaceholder(els.lawCharts[sampleSize], "ボタンで比較実験");
+      });
+      STANDARD_SIZES.forEach((sampleSize) => {
+        drawComparisonPlaceholder(els.standardCharts[sampleSize], "ボタンで標準化");
+      });
+    }
+
+    function drawDistributionChart(svg, values, options) {
+      svg.innerHTML = "";
+      const W = 460;
+      const H = 260;
+      const pad = { l: 52, r: 18, t: 22, b: 42 };
+      const {
+        xMin,
+        xMax,
+        binWidth,
+        curveMean,
+        curveSd,
+        xTicks,
+        xLabel,
+        centerLabel,
+        centerColor = "#0e7490"
+      } = options;
+      const binCount = Math.ceil((xMax - xMin) / binWidth);
+      const bins = Array.from({ length: binCount }, () => 0);
+
+      values.forEach((value) => {
+        if (value < xMin || value > xMax) return;
+        let index = Math.floor((value - xMin) / binWidth);
+        index = Math.max(0, Math.min(binCount - 1, index));
+        bins[index] += 1;
+      });
+
+      const relFreq = bins.map((count) => values.length ? count / values.length : 0);
+      const curvePeak = Number.isFinite(curveSd) ? normalPdf(curveMean, curveMean, curveSd) * binWidth : 0;
+      const maxRel = Math.max(curvePeak, ...relFreq, 0.06);
+      const yMax = Math.max(0.1, Math.ceil(maxRel * 10) / 10);
+      const sx = (x) => pad.l + ((x - xMin) / (xMax - xMin)) * (W - pad.l - pad.r);
+      const sy = (y) => H - pad.b - (y / yMax) * (H - pad.t - pad.b);
+
+      svg.appendChild(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+      [0, yMax / 2, yMax].forEach((yValue) => {
+        const y = sy(yValue);
+        svg.appendChild(svgEl("line", { x1: pad.l, y1: y, x2: W - pad.r, y2: y, stroke: "#eef2f7", "stroke-width": 1 }));
+        addText(svg, pad.l - 8, y + 4, yValue.toFixed(2), { "text-anchor": "end", "font-size": 12, fill: "#64748b" });
+      });
+
+      xTicks.forEach((x) => {
+        const tx = sx(x);
+        svg.appendChild(svgEl("line", { x1: tx, y1: pad.t, x2: tx, y2: H - pad.b, stroke: "#f1f5f9", "stroke-width": 1 }));
+        addText(svg, tx, H - 16, String(x), { "text-anchor": "middle", "font-size": 13, fill: "#64748b" });
+      });
+
+      svg.appendChild(svgEl("line", { x1: pad.l, y1: H - pad.b, x2: W - pad.r, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.2 }));
+      svg.appendChild(svgEl("line", { x1: pad.l, y1: pad.t, x2: pad.l, y2: H - pad.b, stroke: "#334155", "stroke-width": 1.2 }));
+      addText(svg, W - pad.r, H - 3, xLabel, { "text-anchor": "end", "font-size": 13, fill: "#334155", "font-weight": 800 });
+
+      relFreq.forEach((height, i) => {
+        const x0 = xMin + i * binWidth;
+        const x1 = x0 + binWidth;
+        const barX = sx(x0) + 1.5;
+        const barY = sy(height);
+        const barW = Math.max(1, sx(x1) - sx(x0) - 3);
+        const barH = Math.max(0, H - pad.b - barY);
+        svg.appendChild(svgEl("rect", {
+          x: barX,
+          y: barY,
+          width: barW,
+          height: barH,
+          rx: 3,
+          fill: "rgba(15, 118, 110, 0.38)",
+          stroke: "rgba(15, 118, 110, 0.55)",
+          "stroke-width": 0.8
+        }));
+      });
+
+      if (Number.isFinite(curveSd)) {
+        const curvePoints = [];
+        for (let i = 0; i <= 220; i += 1) {
+          const x = xMin + ((xMax - xMin) * i) / 220;
+          const y = normalPdf(x, curveMean, curveSd) * binWidth;
+          curvePoints.push(`${sx(x)},${sy(y)}`);
+        }
+        svg.appendChild(svgEl("polyline", {
+          points: curvePoints.join(" "),
+          fill: "none",
+          stroke: "#ea580c",
+          "stroke-width": 3,
+          "stroke-linecap": "round",
+          "stroke-linejoin": "round"
+        }));
+
+        const cx = sx(curveMean);
+        svg.appendChild(svgEl("line", { x1: cx, y1: pad.t, x2: cx, y2: H - pad.b, stroke: centerColor, "stroke-width": 2, "stroke-dasharray": "5 4" }));
+        addText(svg, cx, pad.t - 6, centerLabel, { "text-anchor": "middle", "font-size": 12, fill: centerColor, "font-weight": 900 });
+      }
+    }
+
+    function runLawComparison() {
+      setBusy(true);
+      els.lawStatus.textContent = "4つの標本サイズで実験中です。";
+      window.setTimeout(() => {
+        LAW_SIZES.forEach((sampleSize) => {
+          const values = simulateSampleMeans(sampleSize, EXTENSION_RUNS, 1000);
+          const experimentMean = mean(values);
+          const experimentSpread = sdPopulation(values);
+          const formulaSpread = Math.sqrt(POP_VARIANCE / sampleSize);
+          drawDistributionChart(els.lawCharts[sampleSize], values, {
+            xMin: 0,
+            xMax: 1000,
+            binWidth: 25,
+            curveMean: POP_MEAN,
+            curveSd: formulaSpread,
+            xTicks: [0, 500, 1000],
+            xLabel: "標本平均",
+            centerLabel: "500"
+          });
+          els.lawNotes[sampleSize].textContent = `実験平均 ${fmt(experimentMean, 1)}、標準偏差 ${fmt(experimentSpread, 1)}（公式 ${fmt(formulaSpread, 1)}）`;
+        });
+        els.lawStatus.textContent = "10000回ずつ実験しました。nが大きいほど、山が500の近くに集まります。";
+        setBusy(false);
+      }, 30);
+    }
+
+    function runStandardComparison() {
+      setBusy(true);
+      els.standardStatus.textContent = "標準化した値を作っています。";
+      window.setTimeout(() => {
+        STANDARD_SIZES.forEach((sampleSize) => {
+          const means = simulateSampleMeans(sampleSize, EXTENSION_RUNS, 2000);
+          const values = means.map((value) => Math.sqrt(sampleSize) * (value - POP_MEAN) / POP_SIGMA);
+          const experimentMean = mean(values);
+          const experimentSpread = sdPopulation(values);
+          drawDistributionChart(els.standardCharts[sampleSize], values, {
+            xMin: -4,
+            xMax: 4,
+            binWidth: 0.25,
+            curveMean: 0,
+            curveSd: 1,
+            xTicks: [-4, -2, 0, 2, 4],
+            xLabel: "Z",
+            centerLabel: "0"
+          });
+          els.standardNotes[sampleSize].textContent = `平均 ${fmt(experimentMean, 2)}、標準偏差 ${fmt(experimentSpread, 2)}`;
+        });
+        els.standardStatus.textContent = "10000回ずつ標準化しました。nが大きいほど、標準正規分布に近い形になります。";
+        setBusy(false);
+      }, 30);
     }
 
     function drawHistogram() {
@@ -1158,7 +1513,7 @@
 
     function setBusy(isBusy) {
       state.isAnimating = isBusy;
-      [els.oneBtn, els.batchBtn, els.slowBtn, els.resetBtn, els.textbookBtn, els.nSlider, els.binSelect, els.seedInput].forEach((element) => {
+      [els.oneBtn, els.batchBtn, els.slowBtn, els.resetBtn, els.textbookBtn, els.lawRunBtn, els.standardRunBtn, els.nSlider, els.binSelect, els.seedInput].forEach((element) => {
         element.disabled = isBusy;
       });
     }
@@ -1226,6 +1581,8 @@
     els.slowBtn.addEventListener("click", () => runBatch(DEFAULT_BATCH, { animated: true }));
     els.resetBtn.addEventListener("click", () => clearExperiment("実験結果をリセットしました。次は自分で抽出してみましょう。"));
     els.textbookBtn.addEventListener("click", runTextbookPreset);
+    els.lawRunBtn.addEventListener("click", runLawComparison);
+    els.standardRunBtn.addEventListener("click", runStandardComparison);
 
     els.nSlider.addEventListener("input", () => {
       state.sampleSize = Number(els.nSlider.value);
@@ -1244,6 +1601,7 @@
 
     window.addEventListener("load", () => {
       resetRng();
+      initializeComparisonCharts();
       updateMathText();
       runTextbookPreset();
     });
