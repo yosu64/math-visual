@@ -1,0 +1,39 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>アポロニウスの円｜例題11</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#12243a;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}main{max-width:1320px;margin:auto;padding:20px 28px}header{display:flex;align-items:center;justify-content:space-between;gap:16px}h1{font-size:clamp(24px,3vw,38px);margin:0 0 10px}p{margin:4px 0 14px;font-size:20px;line-height:1.6}.math{font-family:Georgia,"Times New Roman",serif}i{font-family:Georgia,"Times New Roman",serif}.blue{color:#1468b8}.orange{color:#c74716}.panel{background:#fff;border:1px solid #d8e0eb;border-radius:18px;padding:16px 22px;box-shadow:0 4px 18px #1232}svg{display:block;width:100%;height:auto;max-height:54vh;touch-action:none}button,select{font:inherit;font-weight:600;border:1px solid #bbc9d8;background:white;border-radius:9px;padding:10px 17px;cursor:pointer;color:#17334d}button:hover{background:#edf4fb}button.active,#play{background:#1766a4;color:#fff;border-color:#1766a4}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.controls label{display:flex;gap:8px;align-items:center}input[type=range]{flex:1;min-width:170px;accent-color:#1766a4}input[type=checkbox]{width:19px;height:19px;accent-color:#1766a4}.steps{display:flex;gap:8px;margin:14px 0}.steps button{flex:1}.explain{min-height:112px;border-left:5px solid #1766a4;padding:12px 18px;background:#edf5fc;border-radius:5px}.explain h2{font-size:24px;margin:0 0 7px}.explain p{font-size:21px;margin:0}.equation{font-size:27px}.subtle{color:#506378;font-size:14px;margin-top:12px}#angleValue{min-width:55px}svg text{font-family:Georgia,"Times New Roman","Yu Gothic",serif;fill:#183047}svg .label{font-size:25px;font-style:italic;font-weight:600}.hidden{display:none}@media(max-width:650px){main{padding:14px}header{align-items:flex-start}h1{font-size:25px}p{font-size:16px}.panel{padding:8px}.steps button{font-size:13px;padding:10px 5px}.explain h2{font-size:20px}.explain p{font-size:17px}svg{max-height:none}#full{display:none}}
+
+svg{max-height:65vh}.controls .math{font-size:22px}svg #aValue,svg #bValue{font-variant-numeric:tabular-nums}@media(max-width:650px){svg{max-height:none}}</style><main><header><div><h1>距離の比が 2 : 1 になる点は？</h1><p>定点 <i>A</i>(0, 0)、<i>B</i>(6, 0) に対して、<strong><span class="blue"><i>AP</i></span> : <span class="orange"><i>BP</i></span> = 2 : 1</strong> を保つ点 <i>P</i> の動きを見よう。</p></div><button id="full">全画面</button></header>
+<div class="panel"><svg viewBox="0 0 1100 610" role="img" aria-label="AとBからの距離比が2対1となる点Pが、中心8,0、半径4の円を描くアニメーション">
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#77889a"/></marker></defs>
+<line x1="40" y1="280" x2="1030" y2="280" stroke="#8795a5" marker-end="url(#arrow)"/><line x1="212" y1="515" x2="212" y2="25" stroke="#8795a5" marker-end="url(#arrow)"/>
+<text x="1045" y="287" font-size="24" font-style="italic">x</text><text x="194" y="26" font-size="24" font-style="italic">y</text>
+<circle id="circle" cx="660" cy="280" r="224" fill="none" stroke="#8871b7" stroke-dasharray="7 7" stroke-width="2" visibility="hidden"/>
+<path id="trace" fill="none" stroke="#8a3bb1" stroke-width="5" stroke-linecap="round"/>
+<line id="AP" stroke="#1468b8" stroke-width="4"/><line id="BP" stroke="#da602b" stroke-width="5"/>
+<g id="radius" visibility="hidden"><line id="CP" stroke="#a999ba" stroke-width="2" stroke-dasharray="5 5"/><circle cx="660" cy="280" r="5" fill="#795391"/><text x="668" y="311" font-size="21">C(8, 0)</text><text id="rlabel" font-size="22">4</text></g>
+<circle cx="212" cy="280" r="7" fill="#16324b"/><text x="155" y="318" font-size="24">A(0, 0)</text>
+<circle cx="548" cy="280" r="7" fill="#16324b"/><text x="500" y="318" font-size="24">B(6, 0)</text>
+<circle id="P" r="10" fill="#8a3bb1" stroke="white" stroke-width="2"/><text id="plabel" class="label">P</text>
+<text x="125" y="545" font-size="22" fill="#1468b8">AP</text><line id="barA" x1="180" y1="539" y2="539" stroke="#1468b8" stroke-width="16"/><text id="aValue" y="546" font-size="21"/>
+<text x="125" y="583" font-size="22" fill="#da602b">BP</text><line id="barB" x1="180" y1="577" y2="577" stroke="#da602b" stroke-width="16"/><text id="bValue" y="584" font-size="21"/>
+<text x="810" y="560" font-size="28">AP : BP = 2 : 1</text>
+</svg>
+<div class="controls"><button id="play">▶ 再生</button><button id="reset">最初から</button><label>速さ <select id="speed"><option value="0.5">ゆっくり</option><option value="1" selected>ふつう</option><option value="2">速い</option></select></label><input id="angle" type="range" min="0" max="360" value="0" step="0.1" aria-label="点Pの位置"><span id="angleValue">0°</span></div>
+<div class="controls"><label><input id="showTrace" type="checkbox" checked>軌跡を残す</label><label><input id="showCircle" type="checkbox">円・中心・半径を表示</label><button id="clear">軌跡を消す</button><span id="equation" class="math" hidden>中心 (8, 0)・半径 4　(<i>x</i> − 8)² + <i>y</i>² = 16</span></div>
+</div></main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);let theta=0,running=false,prev=null,start=0;
+// 同一縮尺で円を描く：x方向もy方向も56px/単位。
+const screen=(x,y)=>[212+56*x,280-56*y];
+// Aはx=0、Bはx=6。以下で固定点も同一座標系に合わせる。
+const geometry=d=>{const a=(180+d)*Math.PI/180;return [8+4*Math.cos(a),4*Math.sin(a)];};
+function line(el,a,b){['x1','y1','x2','y2'].forEach((k,i)=>el.setAttribute(k,[...a,...b][i]));}
+function render(){const p=geometry(theta),P=screen(...p),A=screen(0,0),B=screen(6,0),C=screen(8,0);line($('AP'),A,P);line($('BP'),B,P);line($('CP'),C,P);$('P').setAttribute('cx',P[0]);$('P').setAttribute('cy',P[1]);$('plabel').setAttribute('x',P[0]+13);$('plabel').setAttribute('y',P[1]-16);$('rlabel').setAttribute('x',(P[0]+C[0])/2+8);$('rlabel').setAttribute('y',(P[1]+C[1])/2-9);
+const a=Math.hypot(...p),b=Math.hypot(p[0]-6,p[1]);$('barA').setAttribute('x2',180+a*40);$('barB').setAttribute('x2',180+b*40);$('aValue').setAttribute('x',195+a*40);$('bValue').setAttribute('x',195+b*40);$('aValue').textContent=a.toFixed(2);$('bValue').textContent=b.toFixed(2);
+let d='';const step=theta>=start?1:-1;for(let t=start;step>0?t<theta:t>theta;t+=step){d+=(d?'L':'M')+screen(...geometry(t)).join(',');}d+=(d?'L':'M')+P.join(',');$('trace').setAttribute('d',d);$('trace').style.display=$('showTrace').checked?'':'none';$('angle').value=theta;$('angleValue').textContent=Math.round(theta)+'°';const show=$('showCircle').checked;$('circle').setAttribute('visibility',show?'visible':'hidden');$('radius').setAttribute('visibility',show?'visible':'hidden');$('equation').hidden=!show;}
+function pause(){running=false;prev=null;$('play').textContent='▶ 再生';}function toggle(){if(running)return pause();if(theta>=360){theta=0;start=0;}running=true;prev=null;$('play').textContent='⏸ 一時停止';}
+$('play').onclick=toggle;$('reset').onclick=()=>{pause();theta=0;start=0;render();};$('angle').oninput=e=>{pause();theta=+e.target.value;render();};$('showTrace').onchange=render;$('showCircle').onchange=render;$('clear').onclick=()=>{start=theta;render();};
+$('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{alert('ブラウザの全画面機能をご利用ください。');}};
+document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();toggle();}else if(['ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();pause();theta=Math.max(0,Math.min(360,theta+(e.key==='ArrowRight'?5:-5)));render();}});
+function frame(t){if(running){if(prev!==null)theta=Math.min(360,theta+Math.min(t-prev,100)*.024*+$('speed').value);prev=t;render();if(theta===360)pause();}requestAnimationFrame(frame);}render();requestAnimationFrame(frame);
+</script></html>
