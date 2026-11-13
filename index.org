@@ -37,6 +37,18 @@
 :TEXTBOOK: 深進数学II
 :END:
 
+** 中点の軌跡 — 円を描く点
+:PROPERTIES:
+:PATH: ./math-ii/midpoint-locus-circle.html
+:TEXTBOOK: 深進数学II
+:PAGE: 89
+:APP: HTML / SVG
+:PUBLISHED: 2026-11-13
+:UPDATED: 2026-11-13
+:END:
+円上を動く点Pと定点Aを結ぶ線分の中点Qが描く軌跡を、アニメーションで観察する教材。
+再生・停止や角度スライダーで、中点の位置と円の軌跡を確認できる。
+
 ** 二項定理の係数の決まり方
 :PROPERTIES:
 :PATH: ./math-ii/binomial-coefficient-visualizer.html

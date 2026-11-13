@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>中点が描く円｜例題12</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6fa;color:#12243a;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}main{max-width:1320px;margin:auto;padding:20px 28px}header{display:flex;align-items:center;justify-content:space-between;gap:16px}h1{font-size:clamp(24px,3vw,38px);margin:0 0 10px}p{margin:4px 0 14px;font-size:20px;line-height:1.6}.math{font-family:Georgia,"Times New Roman",serif}i{font-family:Georgia,"Times New Roman",serif}.blue{color:#1468b8}.orange{color:#c74716}.panel{background:#fff;border:1px solid #d8e0eb;border-radius:18px;padding:16px 22px;box-shadow:0 4px 18px #1232}svg{display:block;width:100%;height:auto;max-height:54vh;touch-action:none}button,select{font:inherit;font-weight:600;border:1px solid #bbc9d8;background:white;border-radius:9px;padding:10px 17px;cursor:pointer;color:#17334d}button:hover{background:#edf4fb}button.active,#play{background:#1766a4;color:#fff;border-color:#1766a4}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0}.controls label{display:flex;gap:8px;align-items:center}input[type=range]{flex:1;min-width:170px;accent-color:#1766a4}input[type=checkbox]{width:19px;height:19px;accent-color:#1766a4}.steps{display:flex;gap:8px;margin:14px 0}.steps button{flex:1}.explain{min-height:112px;border-left:5px solid #1766a4;padding:12px 18px;background:#edf5fc;border-radius:5px}.explain h2{font-size:24px;margin:0 0 7px}.explain p{font-size:21px;margin:0}.equation{font-size:27px}.subtle{color:#506378;font-size:14px;margin-top:12px}#angleValue{min-width:55px}svg text{font-family:Georgia,"Times New Roman","Yu Gothic",serif;fill:#183047}svg .label{font-size:25px;font-style:italic;font-weight:600}.hidden{display:none}@media(max-width:650px){main{padding:14px}header{align-items:flex-start}h1{font-size:25px}p{font-size:16px}.panel{padding:8px}.steps button{font-size:13px;padding:10px 5px}.explain h2{font-size:20px}.explain p{font-size:17px}svg{max-height:none}#full{display:none}}
+</style>
+<main>
+<header><div><div style="font-size:15px;color:#506378;margin-bottom:6px">数学II · 教科書 P.89</div><h1>中点 <i>Q</i> は、どんな道を描く？</h1>
+<p><span class="blue">点 <i>P</i></span> が円 <span class="math"><i>x</i>² + <i>y</i>² = 4</span> を一周。<br>定点 <span class="math"><i>A</i>(8, 0)</span> と <i>P</i> を結ぶ線分の <strong class="orange">中点が <i>Q</i></strong>。</p></div><button id="full">全画面</button></header>
+<div class="panel">
+<svg id="diagram" viewBox="0 0 1100 460" role="img" aria-label="中心O、半径2の円上を点Pが動き、線分APの中点Qが中心C、半径1の円を描く図">
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#77889a"/></marker></defs>
+<g id="grid"></g>
+<line x1="28" y1="230" x2="1060" y2="230" stroke="#8795a5" stroke-width="1.6" marker-end="url(#arrow)"/>
+<line x1="245" y1="425" x2="245" y2="28" stroke="#8795a5" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="1070" y="224" font-size="22" font-style="italic">x</text><text x="256" y="35" font-size="22" font-style="italic">y</text>
+<circle cx="245" cy="230" r="156" fill="#e9f4ff" fill-opacity=".5" stroke="#2a76b8" stroke-width="2.7"/>
+<circle id="answerCircle" cx="557" cy="230" r="78" fill="none" stroke="#dc6234" stroke-dasharray="7 6" stroke-width="2" class="hidden"/>
+<path id="trail" fill="none" stroke="#e15a24" stroke-width="5" stroke-linecap="round"/>
+<line id="AP" stroke="#8896a5" stroke-width="3"/>
+
+<g id="marks" stroke="#5e7a8e" stroke-width="2.5"></g>
+<circle cx="245" cy="230" r="4" fill="#183047"/><text x="218" y="256" class="label">O</text>
+<circle cx="869" cy="230" r="7" fill="#183047"/><text x="884" y="220" class="label">A</text><text x="881" y="252" font-size="22">(8, 0)</text>
+<circle id="P" r="9" fill="#1468b8" stroke="white" stroke-width="2"/><text id="pLabel" class="label">P</text>
+<circle id="Q" r="9" fill="#df5421" stroke="white" stroke-width="2"/><text id="qLabel" class="label">Q</text>
+<text x="84" y="254" font-size="18">−2</text><text x="396" y="254" font-size="18">2</text><text x="222" y="81" font-size="18">2</text><text x="214" y="395" font-size="18">−2</text>
+<text x="34" y="448" font-family="sans-serif" font-size="17">青：P の動き　　橙：中点 Q の軌跡　　同じ印の線分は同じ長さ</text>
+</svg>
+<div class="controls"><button id="play">▶ 再生</button><button id="reset">最初から</button><label>速さ <select id="speed"><option value="0.5">ゆっくり</option><option value="1" selected>ふつう</option><option value="2">速い</option></select></label><input id="angle" type="range" min="0" max="360" value="0" step="0.1" aria-label="点Pの回転角"><span id="angleValue">0°</span></div>
+<div class="controls"><label><input id="showTrace" type="checkbox" checked>軌跡を残す</label><label><input id="showCircle" type="checkbox">円全体を表示</label><span class="subtle">スライダーで好きな位置に止められます。</span></div>
+</div>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+let theta=0,running=false,prev=null;
+const xy=(x,y)=>[245+x*78,230-y*78];
+function line(el,a,b){el.setAttribute('x1',a[0]);el.setAttribute('y1',a[1]);el.setAttribute('x2',b[0]);el.setAttribute('y2',b[1]);}
+function dot(el,p){el.setAttribute('cx',p[0]);el.setAttribute('cy',p[1]);}
+function label(el,p,dx,dy){el.setAttribute('x',p[0]+dx);el.setAttribute('y',p[1]+dy);}
+function geometry(deg){const a=deg*Math.PI/180;return {p:[2*Math.cos(a),2*Math.sin(a)],q:[4+Math.cos(a),Math.sin(a)]};}
+function render(){
+ const {p,q}=geometry(theta),P=xy(...p),Q=xy(...q),A=xy(8,0),O=xy(0,0),C=xy(4,0);
+ dot($('P'),P);dot($('Q'),Q);label($('pLabel'),P,-22,-14);label($('qLabel'),Q,12,-13);
+ line($('AP'),A,P);
+ const dx=P[0]-A[0],dy=P[1]-A[1],len=Math.hypot(dx,dy),nx=-dy/len,ny=dx/len,ux=dx/len,uy=dy/len;
+ $('marks').replaceChildren();
+ for(const t of [.25,.75]) for(const offset of [-3,3]){
+  const x=A[0]+dx*t+ux*offset,y=A[1]+dy*t+uy*offset;
+  const l=document.createElementNS(NS,'line');line(l,[x-6*nx,y-6*ny],[x+6*nx,y+6*ny]);$('marks').append(l);
+ }
+ let d='';for(let a=0;a<=theta;a+=1){const z=xy(...geometry(a).q);d+=(d?'L':'M')+z.join(',');}
+ const z=xy(...q);d+='L'+z.join(',');$('trail').setAttribute('d',d);
+ $('trail').classList.toggle('hidden',!$('showTrace').checked);
+ $('angle').value=theta;$('angleValue').textContent=Math.round(theta)+'°';
+ $('answerCircle').classList.toggle('hidden',!$('showCircle').checked);
+}
+function pause(){running=false;$('play').textContent='▶ 再生';prev=null;}
+function toggle(){if(running){pause();return;}if(theta>=360)theta=0;running=true;prev=null;$('play').textContent='⏸ 一時停止';}
+$('play').onclick=toggle;$('reset').onclick=()=>{pause();theta=0;render();};
+$('angle').oninput=e=>{pause();theta=+e.target.value;render();};
+$('showTrace').onchange=render;$('showCircle').onchange=render;
+$('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{alert('ブラウザの全画面機能をご利用ください。');}};
+document.addEventListener('keydown',e=>{if(['INPUT','SELECT','BUTTON'].includes(e.target.tagName))return;if(e.code==='Space'){e.preventDefault();toggle();}if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();pause();theta=Math.max(0,Math.min(360,theta+(e.key==='ArrowRight'?5:-5)));render();}});
+function frame(t){if(running){if(prev!==null){theta=Math.min(360,theta+Math.min(t-prev,100)/1000*24*+$('speed').value);}prev=t;render();if(theta===360)pause();}requestAnimationFrame(frame);}
+render();requestAnimationFrame(frame);
+</script>
+</html>
