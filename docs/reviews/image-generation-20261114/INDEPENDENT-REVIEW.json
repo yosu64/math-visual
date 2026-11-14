@@ -1,0 +1,123 @@
+{
+  "schema": "image-pipeline-independent-review/v1",
+  "created_at": "2026-11-14T17:22:04+09:00",
+  "implementation_commit": "c1b4cf2d18e616c524eb8215c1e044d49722ae7c",
+  "reviewer": "Separate ChatGPT agent, non-author of implementation, generator and product documentation",
+  "codex_cloud_or_external_review_bot": false,
+  "independence_exception": {
+    "path": "tools/imagegen-config/math-visual-briefs.json",
+    "reason": "Reviewer authored these briefs; primary agent checked all 18 briefs and source bindings."
+  },
+  "scope": "Common engine, CLI/math adapter, Org generator, templates, operator documentation and anonymous verification",
+  "verdict": "no_unresolved_blocking_findings",
+  "unresolved": {
+    "critical": 0,
+    "high": 0,
+    "medium": 0
+  },
+  "tested": {
+    "python_passed": 71,
+    "ert_passed": 17,
+    "real_emacs_anonymous_smoke": "passed",
+    "fixed_base_cards_and_pickup": "preserved"
+  },
+  "files": [
+    {
+      "path": "tools/image_pipeline.py",
+      "sha256": "e942fd77935c50c6be0437f6ce369cb8bf70a0a23e37575ba098abad2be79b79"
+    },
+    {
+      "path": "tools/imagegen.py",
+      "sha256": "7d259f2bee848e68efcdfa82feb49d658a5fac75349a425a58d6f1a92ff4fdd6"
+    },
+    {
+      "path": "tools/math-visual-build.el",
+      "sha256": "0355812c7512ed62ff7f52479133604bd5be4ff3bbc04d1fccf54bbf9104f757"
+    },
+    {
+      "path": "docs/image-generation.md",
+      "sha256": "b967c3ac0610efe4abc7228d49630837164770508e3cca7370cc43f3d33cbe9f"
+    },
+    {
+      "path": "tools/imagegen-config/price.example.json",
+      "sha256": "36e00d84f654977eca36e55fd178791784350d75a18308b8b268ebf255a54a1a"
+    },
+    {
+      "path": "tools/imagegen-config/settings.example.json",
+      "sha256": "ec710c516973560d74e7292951fc9185ef4b795f8a75eecdb9b3fff5149226cd"
+    },
+    {
+      "path": "tools/test/test_image_pipeline.py",
+      "sha256": "aae6c72298b37cc1a350f75f42073476c6cea2c75a5fa51e9333435eb6c3ca72"
+    },
+    {
+      "path": "tools/test/test_imagegen_adapter.py",
+      "sha256": "30aa1b58842c1767de6474afe168a112a68742ead2ace206bda7e61e11fc1882"
+    },
+    {
+      "path": "tools/test/math-visual-build-test.el",
+      "sha256": "5cdf6ff5844a5cecc9b54d82b9a8671731c17fdb5774e3fa4ab65133eb7bb281"
+    },
+    {
+      "path": "tools/test/image_pipeline_smoke.py",
+      "sha256": "b0cd8d20806c62d843a266118c5d0a580ba9dfafcc4cb358126ee0f239dd53de"
+    }
+  ],
+  "resolved_findings": [
+    {
+      "id": "R1",
+      "severity": "high",
+      "topic": "superseded candidate approval",
+      "resolution": "latest review pointer and candidate lock; old approval refused"
+    },
+    {
+      "id": "R2",
+      "severity": "high",
+      "topic": "inventory symlink overwrite",
+      "resolution": "reject before subprocess; validate unique temp output then atomic replacement"
+    },
+    {
+      "id": "R3",
+      "severity": "medium",
+      "topic": "run directory durability",
+      "resolution": "fsync runs parent before dispatch; not an actual power-loss test"
+    },
+    {
+      "id": "R4",
+      "severity": "medium",
+      "topic": "PNG ICC metadata",
+      "resolution": "clear image info before encoding; regression passes"
+    },
+    {
+      "id": "R5",
+      "severity": "medium",
+      "topic": "lexical parent traversal",
+      "resolution": "resolve physical workspace after rejecting symlinks"
+    },
+    {
+      "id": "R6",
+      "severity": "medium",
+      "topic": "request ID secret-like data",
+      "resolution": "filter both normal and exception request IDs"
+    },
+    {
+      "id": "R7",
+      "severity": "medium",
+      "topic": "source symlinks and article aliases",
+      "resolution": "reject symlink index/generator and require canonical article paths"
+    }
+  ],
+  "real_api_calls": 0,
+  "real_key_reads": 0,
+  "m5_operations": 0,
+  "limits": [
+    "M5 native regression",
+    "real Keychain item and access",
+    "real project/key binding",
+    "actual OpenAI model availability and image output",
+    "actual billing",
+    "mathematical correctness of future generated candidates",
+    "browser visual/mobile rendering",
+    "power-loss test"
+  ]
+}
