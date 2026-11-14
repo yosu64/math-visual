@@ -1,0 +1,121 @@
+{
+  "schema": "image-source-preservation/v1",
+  "base_commit": "218811cb490ba7ac46ce4b100c0c86af1d5a54ab",
+  "status": "passed",
+  "protected_files": [
+    {
+      "path": ".agents/skills/math-visual-publication/SKILL.md",
+      "sha256": "a2d15370effc5aad6a32c6084f34d0171bf0c04b30c295921689e36e0a3f8738"
+    },
+    {
+      "path": "images/ogp/multinomial-ogp.png",
+      "sha256": "540fa6783707b9358fdcd2d76a7318260bd459d33b4f975cc0ab1a22d82fb790"
+    },
+    {
+      "path": "index.html",
+      "sha256": "993776b1b162f3de1a9cfff86baef5c53373c22ee326be7f95cceeac43b1d4ac"
+    },
+    {
+      "path": "index.org",
+      "sha256": "a065b10ba1d66f6b1d0f41eb7bf96670d3afd81b4112f225bdb65197dec190a1"
+    },
+    {
+      "path": "math-b/binomial-visualizer.html",
+      "sha256": "685208bb53829eabe3a72df70d058f9774fdfc08a01e3a82990b9779c7abefa4"
+    },
+    {
+      "path": "math-b/normal-distribution-area-probability.html",
+      "sha256": "e9cc39bb372845600fb5ace8a0371ec491f46fe0817b499d51559bf4471295ec"
+    },
+    {
+      "path": "math-b/normal-distribution-histogram-transition.html",
+      "sha256": "7a82d5893e4c30f880dc4c8882221f851872c4929fc0d5fd2aa4c038c8e660d2"
+    },
+    {
+      "path": "math-b/normal-distribution-sigma-slider.html",
+      "sha256": "cfc7e5ad92a9dea47f366b3bfbd3358845363052128708bf75bb418251ebd270"
+    },
+    {
+      "path": "math-b/potato-confidence-interval-visualizer.html",
+      "sha256": "7b0cf0a201066a95d286606a949d614f8ece2a7a10540e2019c99cc4172bb9ad"
+    },
+    {
+      "path": "math-b/sample-mean-odd-numbers.html",
+      "sha256": "3db0ecf69d38da24b261cf85d0b62a00342c15d288e4d88aa6f80afe989cfeea"
+    },
+    {
+      "path": "math-c/index.html",
+      "sha256": "90be3849aa22d21623a5082356a0272000d2898c20dd33966600093ca9608bb8"
+    },
+    {
+      "path": "math-c/space-vector-decomposition-with-reference.html",
+      "sha256": "5bb4484aa7b6dbd3c4f15f029a08dd5651dc99a1fee5b4a521e426ab19805c56"
+    },
+    {
+      "path": "math-i/De-morgan-visualizer.html",
+      "sha256": "62e965acda8e3919b69dc807c4ecb4bf31193ea82a6add272574a8be27a176bf"
+    },
+    {
+      "path": "math-i/images/necessary.png",
+      "sha256": "cf6b94568d28cd859cf0bcb9cd3cdc94008f8b981e8484aaeb57baa42b20085a"
+    },
+    {
+      "path": "math-i/images/sufficient.png",
+      "sha256": "5a1bc65f09a49ffc4fd0dd842e978a255542fa7a19fe3691f5d643b9f5398a7b"
+    },
+    {
+      "path": "math-i/necessary-and-sufficient-conditions.html",
+      "sha256": "3ce0d00766521976c5d6712766402d8441ecf036c64f79cf8ad95fd8b1a90dd6"
+    },
+    {
+      "path": "math-ii/apollonius-circle.html",
+      "sha256": "a73c5ae9727f9a0e27cf5ad39b18054baf0d2f46b019e3bd3598bbff8a7da193"
+    },
+    {
+      "path": "math-ii/binomial-coefficient-visualizer.html",
+      "sha256": "9ba227b7dd392221139b0b134a548ed8859b5b36f5a146edf9620fd139b4e845"
+    },
+    {
+      "path": "math-ii/midpoint-locus-circle.html",
+      "sha256": "e78d0c67a39a43bde79b09c222f7fb6d74b0c537f164fd51024440c6ed4d28f8"
+    },
+    {
+      "path": "math-ii/multinomial-coefficient-visualizer.html",
+      "sha256": "32f2a2160b6c2387f6615c0f66ce0f7d4ecfc570be0450b39aa39f0aab10e17a"
+    },
+    {
+      "path": "math-ii/trig-value-time-attack.html",
+      "sha256": "91f3f70885496ae21df605caee0a23f001199b505b0435486a193a67d6916da4"
+    },
+    {
+      "path": "math-iii/Riemann-sum.html",
+      "sha256": "f243fbe7228d6ee2451b55ef5dd9f41ead738943cb249d8345d0fdd053021061"
+    },
+    {
+      "path": "math-iii/cycloid-rotation-solid.html",
+      "sha256": "0f28b8600e4f1442b355d1ff56b1dad2db12620365a9c9feded4ed6982130ac5"
+    },
+    {
+      "path": "math-iii/cylinder-slice-integral.html",
+      "sha256": "308d6fc09b5c784c41d5c4e623e4437d5fa9617cfd5b98584a1dd8e88557b751"
+    },
+    {
+      "path": "math-iii/index.html",
+      "sha256": "8f6dcf99410b220d4d3abf7a765b3185e2b4609556438da51da541dde75b84ed"
+    },
+    {
+      "path": "math-iii/torus-v1-v2-visualization.html",
+      "sha256": "781c5ac0274a00c85dc62299cd7d4152b9035f39f041c245255380168f9d622a"
+    }
+  ],
+  "protected_file_count": 26,
+  "article_count": 18,
+  "all_article_briefs_plan_offline": true,
+  "all_briefs_have_three_review_checks": true,
+  "article_markup_unchanged": true,
+  "pickup_markup_unchanged": true,
+  "empty_approved_manifest": true,
+  "real_generated_images": 0,
+  "api_calls": 0,
+  "keys_read": 0
+}

@@ -1,0 +1,349 @@
+{
+  "schema": "image-generation-handoff-manifest/v1",
+  "created_at": "2026-11-14T17:23:15+09:00",
+  "purpose": "Reusable reviewed image generation; math-visual article entry illustrations; source-only delivery",
+  "repository": "yosu64/math-visual",
+  "visibility": "public existing repository",
+  "pull_request": "https://github.com/yosu64/math-visual/pull/3",
+  "branch": "feature/reviewed-image-pipeline-20261114",
+  "base_commit": "218811cb490ba7ac46ce4b100c0c86af1d5a54ab",
+  "base_tree": "a0a396401cf8f02a254919618dbc61952055999e",
+  "implementation_commit": "c1b4cf2d18e616c524eb8215c1e044d49722ae7c",
+  "implementation_tree": "cfb045791b49a5941595b48f4db064fe75655297",
+  "delivery_commit_locator": "The immutable Git commit containing this manifest; exact SHA is recorded in the final PR description and reply.",
+  "file_hash_algorithm": "sha256 of exact repository bytes",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 317,
+      "sha256": "c5adc21605d01ec56a62ca2da556aaf77ce8163be7bc9fa079868d03858665ee",
+      "git_blob_sha": "29d1c5bc1fe30b9ef5b48195f1b9d0a13a17c8cd"
+    },
+    {
+      "path": "README.md",
+      "bytes": 992,
+      "sha256": "99a0f07ef60b93258e424b871bf119578ce3530708942451c60570ebcb7d0936",
+      "git_blob_sha": "440adf56831b7386e02b75a6eaf7a6f85ae1025c"
+    },
+    {
+      "path": "docs/image-generation.md",
+      "bytes": 27774,
+      "sha256": "b967c3ac0610efe4abc7228d49630837164770508e3cca7370cc43f3d33cbe9f",
+      "git_blob_sha": "82dd0aea4e77b4924855f1478f20d191913ce3ea"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/INDEPENDENT-REVIEW.json",
+      "bytes": 4111,
+      "sha256": "6f300ba1751636ed3531875bd82863fdfcc550a4838d43559051ab7a0d000d34",
+      "git_blob_sha": "d7d76c666b6317f611f6dda54867f1c77fc01b19"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/M5-CONTINUE.md",
+      "bytes": 7632,
+      "sha256": "b3372255fd2726cabf461baf59389f773dffe3c407184fb93f45def62adcdfcc",
+      "git_blob_sha": "7828213bd19f85515df50b9db59d57a45b3060f2"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/README.md",
+      "bytes": 4226,
+      "sha256": "bae91c075daff91288a3845ae95a64964a7507e77df8f1f07ac768d03c6b5d63",
+      "git_blob_sha": "6e993927af20a4ba4b2ff766198ac6590b144b78"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/REVIEW.md",
+      "bytes": 4096,
+      "sha256": "7a4eb329b36f2f7415fd9ec6526bff94524e2096b47befbdfff3d63425a8af5d",
+      "git_blob_sha": "a14f622213d5250f2060cefaa9f5ee8bb560c50a"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/VALIDATION.md",
+      "bytes": 5785,
+      "sha256": "a953f223e87c1152a7a61dc83e79fb1c2c700bf6bfa5a360660e33aaf925b12e",
+      "git_blob_sha": "1730c890d1b1ec5254dbdb2c12d7dae88a255c94"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/ert-tests.txt",
+      "bytes": 2189,
+      "sha256": "18a25960d8eb779f1ceb383eeac30a9d898bfea47124a3b6efe097f4a9bc9929",
+      "git_blob_sha": "8f231d761572ebabb875e6b305f72163639ec577"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/python-tests.txt",
+      "bytes": 11062,
+      "sha256": "ef04a5a592d96f003022316d11698996cf3f0ade76871718f1a6ceb81b01835c",
+      "git_blob_sha": "9f7ef12b81f89b61f96bafb2acf79887f03764ef"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/smoke.json",
+      "bytes": 1412,
+      "sha256": "8fc6be1f6ce0e4c147d23c2eaa50cef6ff957269b85116fd9493aa287677114e",
+      "git_blob_sha": "af6d7e341f382d1df9d9e6612dea449cd028599f"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/source-preservation.json",
+      "bytes": 4341,
+      "sha256": "56c6371dba27fea02c7eb560e9c03f47cd5f30205b29c073339ec18f77d031e4",
+      "git_blob_sha": "5bdafe648c8019c753885f068f461d55e88e398a"
+    },
+    {
+      "path": "docs/reviews/image-generation-20261114/validation.json",
+      "bytes": 2154,
+      "sha256": "f06259b092806de6b7c1cd60f0e8f19f9c96e9690782cceca232ef7aed1d7bd8",
+      "git_blob_sha": "150cb190a920559e5f14b81f608f7505f9e02ed2"
+    },
+    {
+      "path": "images/entries/manifest.json",
+      "bytes": 62,
+      "sha256": "67bc325e992c1d0ee51dd6c925b7f441c6110e9c41111c1f2a58970d2c57ade3",
+      "git_blob_sha": "964c310a272d43c86ba6e598dbbf3245cb745a0d"
+    },
+    {
+      "path": "tools/README.md",
+      "bytes": 5869,
+      "sha256": "9d30456e7b63e958593d6bc2d530966ed1133c9aa445b249f6e75662c1fdaa37",
+      "git_blob_sha": "597ce4af03117d6c9c356aa77008442e4b831f55"
+    },
+    {
+      "path": "tools/image_pipeline.py",
+      "bytes": 27586,
+      "sha256": "e942fd77935c50c6be0437f6ce369cb8bf70a0a23e37575ba098abad2be79b79",
+      "git_blob_sha": "1de7dea626b01eb5d26d9ef9649690049cf33eed"
+    },
+    {
+      "path": "tools/imagegen-config/math-visual-briefs.json",
+      "bytes": 20247,
+      "sha256": "6ee6e37ecafc90ec277b8f163893c3c1be58c9f9843d90013d66528eeed3f957",
+      "git_blob_sha": "12fbe47de94b968652394519c4d93cbb04e5d1a6"
+    },
+    {
+      "path": "tools/imagegen-config/price.example.json",
+      "bytes": 469,
+      "sha256": "36e00d84f654977eca36e55fd178791784350d75a18308b8b268ebf255a54a1a",
+      "git_blob_sha": "6986d94987297657b79d295468e3d2cf557dd7af"
+    },
+    {
+      "path": "tools/imagegen-config/settings.example.json",
+      "bytes": 270,
+      "sha256": "ec710c516973560d74e7292951fc9185ef4b795f8a75eecdb9b3fff5149226cd",
+      "git_blob_sha": "dcf45688991e09d2db626b9a6e761d825276c078"
+    },
+    {
+      "path": "tools/imagegen.py",
+      "bytes": 19775,
+      "sha256": "7d259f2bee848e68efcdfa82feb49d658a5fac75349a425a58d6f1a92ff4fdd6",
+      "git_blob_sha": "b8ef541b3c7503aa9970bda799fdc33f52215b6e"
+    },
+    {
+      "path": "tools/math-visual-build.el",
+      "bytes": 31333,
+      "sha256": "0355812c7512ed62ff7f52479133604bd5be4ff3bbc04d1fccf54bbf9104f757",
+      "git_blob_sha": "cfbe9d3e59431062b2073a904e4ad09830663fb8"
+    },
+    {
+      "path": "tools/requirements-imagegen.txt",
+      "bytes": 97,
+      "sha256": "8c356a6adf3c5c8ef3e639cd0060fe31e6aa73276f4740f619bee2f867919c07",
+      "git_blob_sha": "327dab64b13877d54ae8fbd7c95ab178973ef391"
+    },
+    {
+      "path": "tools/test/image_pipeline_smoke.py",
+      "bytes": 20695,
+      "sha256": "b0cd8d20806c62d843a266118c5d0a580ba9dfafcc4cb358126ee0f239dd53de",
+      "git_blob_sha": "0aaf121dbe4f516e549a54d19645cbcac83bcfed"
+    },
+    {
+      "path": "tools/test/math-visual-build-test.el",
+      "bytes": 15431,
+      "sha256": "5cdf6ff5844a5cecc9b54d82b9a8671731c17fdb5774e3fa4ab65133eb7bb281",
+      "git_blob_sha": "440651276deea01e92f177f7927be1ef11f409d1"
+    },
+    {
+      "path": "tools/test/test_image_pipeline.py",
+      "bytes": 31342,
+      "sha256": "aae6c72298b37cc1a350f75f42073476c6cea2c75a5fa51e9333435eb6c3ca72",
+      "git_blob_sha": "a2b0b009d33b971bad8dd78843eec53e2df2e4de"
+    },
+    {
+      "path": "tools/test/test_imagegen_adapter.py",
+      "bytes": 25623,
+      "sha256": "30aa1b58842c1767de6474afe168a112a68742ead2ace206bda7e61e11fc1882",
+      "git_blob_sha": "e1b470e455e23503847855950f19c423e665d8c7"
+    }
+  ],
+  "hash_exclusions": [
+    "docs/reviews/image-generation-20261114/MANIFEST.json"
+  ],
+  "required_unchanged_baseline": [
+    {
+      "path": ".agents/skills/math-visual-publication/SKILL.md",
+      "sha256": "a2d15370effc5aad6a32c6084f34d0171bf0c04b30c295921689e36e0a3f8738",
+      "git_blob_sha": "62222920a03742b24e8d6289954bf027abe50c38"
+    },
+    {
+      "path": "images/ogp/multinomial-ogp.png",
+      "sha256": "540fa6783707b9358fdcd2d76a7318260bd459d33b4f975cc0ab1a22d82fb790",
+      "git_blob_sha": "7ccd49aea782b7c5ffe37f3a6b3d060e41aadbce"
+    },
+    {
+      "path": "index.html",
+      "sha256": "993776b1b162f3de1a9cfff86baef5c53373c22ee326be7f95cceeac43b1d4ac",
+      "git_blob_sha": "e4fb6960ee411bb06b4dd74c984c55721bf75ff3"
+    },
+    {
+      "path": "index.org",
+      "sha256": "a065b10ba1d66f6b1d0f41eb7bf96670d3afd81b4112f225bdb65197dec190a1",
+      "git_blob_sha": "4a1adbf1d8a3ebdbc0e7e26df2966ca195451283"
+    },
+    {
+      "path": "math-b/binomial-visualizer.html",
+      "sha256": "685208bb53829eabe3a72df70d058f9774fdfc08a01e3a82990b9779c7abefa4",
+      "git_blob_sha": "a68b7cf39886d55500b45e2fabbb5a67830e40a7"
+    },
+    {
+      "path": "math-b/normal-distribution-area-probability.html",
+      "sha256": "e9cc39bb372845600fb5ace8a0371ec491f46fe0817b499d51559bf4471295ec",
+      "git_blob_sha": "0e6b41ff0ce5ea94f7bd916685e9d4707c161dfb"
+    },
+    {
+      "path": "math-b/normal-distribution-histogram-transition.html",
+      "sha256": "7a82d5893e4c30f880dc4c8882221f851872c4929fc0d5fd2aa4c038c8e660d2",
+      "git_blob_sha": "86c0732a0626f148be8640012a548e3f3ec0bd0c"
+    },
+    {
+      "path": "math-b/normal-distribution-sigma-slider.html",
+      "sha256": "cfc7e5ad92a9dea47f366b3bfbd3358845363052128708bf75bb418251ebd270",
+      "git_blob_sha": "91153ad2236a1019b856e511683c42f34e49ca44"
+    },
+    {
+      "path": "math-b/potato-confidence-interval-visualizer.html",
+      "sha256": "7b0cf0a201066a95d286606a949d614f8ece2a7a10540e2019c99cc4172bb9ad",
+      "git_blob_sha": "dd7100372966a35af2ee118df5bc4cade38b0baf"
+    },
+    {
+      "path": "math-b/sample-mean-odd-numbers.html",
+      "sha256": "3db0ecf69d38da24b261cf85d0b62a00342c15d288e4d88aa6f80afe989cfeea",
+      "git_blob_sha": "e084d629ed759b3945495fe656303fad7cb4498d"
+    },
+    {
+      "path": "math-c/index.html",
+      "sha256": "90be3849aa22d21623a5082356a0272000d2898c20dd33966600093ca9608bb8",
+      "git_blob_sha": "a3f2cabfcc495fc4fd8478c1816de2b5ee9c533b"
+    },
+    {
+      "path": "math-c/space-vector-decomposition-with-reference.html",
+      "sha256": "5bb4484aa7b6dbd3c4f15f029a08dd5651dc99a1fee5b4a521e426ab19805c56",
+      "git_blob_sha": "c3882910cac122e7e74499b345d52902c2d5f29c"
+    },
+    {
+      "path": "math-i/De-morgan-visualizer.html",
+      "sha256": "62e965acda8e3919b69dc807c4ecb4bf31193ea82a6add272574a8be27a176bf",
+      "git_blob_sha": "4be62c12b69a4de13c49d537c6c91091e6fbf5f3"
+    },
+    {
+      "path": "math-i/images/necessary.png",
+      "sha256": "cf6b94568d28cd859cf0bcb9cd3cdc94008f8b981e8484aaeb57baa42b20085a",
+      "git_blob_sha": "068be44b5514f930f4451943e84d9a74e2707b5d"
+    },
+    {
+      "path": "math-i/images/sufficient.png",
+      "sha256": "5a1bc65f09a49ffc4fd0dd842e978a255542fa7a19fe3691f5d643b9f5398a7b",
+      "git_blob_sha": "9a4ba4709aaa316c2dfec3deeadb27719ffb7966"
+    },
+    {
+      "path": "math-i/necessary-and-sufficient-conditions.html",
+      "sha256": "3ce0d00766521976c5d6712766402d8441ecf036c64f79cf8ad95fd8b1a90dd6",
+      "git_blob_sha": "4ad9a36fbb179ff65a67650dfd6bbdb1a47711fd"
+    },
+    {
+      "path": "math-ii/apollonius-circle.html",
+      "sha256": "a73c5ae9727f9a0e27cf5ad39b18054baf0d2f46b019e3bd3598bbff8a7da193",
+      "git_blob_sha": "2db1b8758e45fb9a0008ed47a9f2057ba0f756b6"
+    },
+    {
+      "path": "math-ii/binomial-coefficient-visualizer.html",
+      "sha256": "9ba227b7dd392221139b0b134a548ed8859b5b36f5a146edf9620fd139b4e845",
+      "git_blob_sha": "21c632dee2c13f30482d5992b6ac7616813c8030"
+    },
+    {
+      "path": "math-ii/midpoint-locus-circle.html",
+      "sha256": "e78d0c67a39a43bde79b09c222f7fb6d74b0c537f164fd51024440c6ed4d28f8",
+      "git_blob_sha": "3614ecfddaa1076e6cf946cb00cb886d19681d0d"
+    },
+    {
+      "path": "math-ii/multinomial-coefficient-visualizer.html",
+      "sha256": "32f2a2160b6c2387f6615c0f66ce0f7d4ecfc570be0450b39aa39f0aab10e17a",
+      "git_blob_sha": "57bc755fa28a1ca221f3dfd69cf67da658f59c40"
+    },
+    {
+      "path": "math-ii/trig-value-time-attack.html",
+      "sha256": "91f3f70885496ae21df605caee0a23f001199b505b0435486a193a67d6916da4",
+      "git_blob_sha": "990b7b3af274c4cc7b5f186de22ab97ae8a7066f"
+    },
+    {
+      "path": "math-iii/Riemann-sum.html",
+      "sha256": "f243fbe7228d6ee2451b55ef5dd9f41ead738943cb249d8345d0fdd053021061",
+      "git_blob_sha": "a0831535b192ab642a4145d2798a3921afbd0667"
+    },
+    {
+      "path": "math-iii/cycloid-rotation-solid.html",
+      "sha256": "0f28b8600e4f1442b355d1ff56b1dad2db12620365a9c9feded4ed6982130ac5",
+      "git_blob_sha": "dc1e12df9b64e0f3935316d717810fe012347a22"
+    },
+    {
+      "path": "math-iii/cylinder-slice-integral.html",
+      "sha256": "308d6fc09b5c784c41d5c4e623e4437d5fa9617cfd5b98584a1dd8e88557b751",
+      "git_blob_sha": "d5a019bad185b6083127d162832d0e42ecdfce33"
+    },
+    {
+      "path": "math-iii/index.html",
+      "sha256": "8f6dcf99410b220d4d3abf7a765b3185e2b4609556438da51da541dde75b84ed",
+      "git_blob_sha": "cc88d5037d5ef1a632dfea0b5216f6b3cd2e983a"
+    },
+    {
+      "path": "math-iii/torus-v1-v2-visualization.html",
+      "sha256": "781c5ac0274a00c85dc62299cd7d4152b9035f39f041c245255380168f9d622a",
+      "git_blob_sha": "45b43bea55f907a9955151a27cb769d7cb589979"
+    }
+  ],
+  "validation": {
+    "python": {
+      "passed": 71,
+      "failed": 0
+    },
+    "ert": {
+      "passed": 17,
+      "failed": 0
+    },
+    "real_emacs_anonymous_smoke": "passed",
+    "independent_review_unresolved_blocking": 0,
+    "real_image_api_calls": 0,
+    "real_key_reads": 0,
+    "adopted_production_images": 0,
+    "m5_native": "not_performed",
+    "browser_visual": "not_verified"
+  },
+  "scope_exclusions": [
+    "real image generation",
+    "API key creation or modification",
+    "permission changes",
+    "site deployment",
+    "main merge",
+    "M5 installation or stopped-service recovery",
+    "yosu-icons source/SVG edits"
+  ],
+  "readback_contract": {
+    "implementation_content": {
+      "commit": "c1b4cf2d18e616c524eb8215c1e044d49722ae7c",
+      "files": 16,
+      "result": "exact_content_verified"
+    },
+    "delivery": "Read every files entry and this manifest at the delivery commit, compare exact content and Git blob SHA, check protected baseline blobs, PR head and unchanged main. Completion is recorded in the final PR description."
+  },
+  "sensitive_data_scan": {
+    "scope": "All changed source plus handoff documents and retained anonymous logs, excluding untouched baseline/history",
+    "key_like_literals": 0,
+    "private_machine_path_literals": 0,
+    "real_material_or_teacher_images_added": 0,
+    "not_a_claim_about_full_repository_history": true
+  }
+}
