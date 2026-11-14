@@ -1,0 +1,10 @@
+{
+  "schema": "image-settings/v1",
+  "project_id": null,
+  "textbook_project_id": null,
+  "same_project_confirmed": false,
+  "dedicated_image_key_confirmed": false,
+  "key_source": "keychain",
+  "keychain_service": "org.yosu.openai.images",
+  "keychain_account": null
+}
