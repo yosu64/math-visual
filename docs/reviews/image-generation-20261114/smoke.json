@@ -1,0 +1,42 @@
+{
+  "schema": "image-pipeline-smoke/v1",
+  "status": "passed",
+  "product_files_sha256": {
+    "tools/image_pipeline.py": "e942fd77935c50c6be0437f6ce369cb8bf70a0a23e37575ba098abad2be79b79",
+    "tools/imagegen.py": "7d259f2bee848e68efcdfa82feb49d658a5fac75349a425a58d6f1a92ff4fdd6",
+    "tools/math-visual-build.el": "0355812c7512ed62ff7f52479133604bd5be4ff3bbc04d1fccf54bbf9104f757"
+  },
+  "fixture": "anonymous-temporary-repository-and-private-workspace",
+  "temporary_files_removed": true,
+  "image_origin": "Pillow solid-color synthetic fixture; no API generation",
+  "price_profile": "synthetic test input; not a service quote",
+  "human_review": "simulated fixture checks; no real candidate approval",
+  "api_calls": 0,
+  "fake_transport_calls": 1,
+  "keychain_calls": 0,
+  "network_calls": 0,
+  "emacs_calls": [
+    "inventory",
+    "site-build",
+    "site-build",
+    "site-build",
+    "site-build"
+  ],
+  "article_count": 2,
+  "page_order": [
+    10,
+    20
+  ],
+  "links_preserved": true,
+  "teaching_dates_preserved": true,
+  "pickup_preserved": true,
+  "initial_without_images": 2,
+  "approved_images": 1,
+  "fallback_articles": 1,
+  "rebuild_idempotent": true,
+  "stale_image_fallback": true,
+  "private_sources_excluded_from_inventory_payload_and_public_output": true,
+  "published": false,
+  "real_repository_adoption": false,
+  "browser_visual_verification": "not performed by this smoke test"
+}

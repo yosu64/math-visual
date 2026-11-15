@@ -1,0 +1,15 @@
+{
+  "schema": "image-price-quote/v1",
+  "model": "gpt-image-2.5-flare-2026-09-08",
+  "quality": "low",
+  "size": "1536x1024",
+  "output_format": "png",
+  "background": "opaque",
+  "text_input_usd_per_million": "5",
+  "image_output_usd_per_million": "30",
+  "output_image_estimate_usd": null,
+  "source_url": "https://developers.openai.com/api/docs/guides/image-generation#calculating-costs",
+  "verified_at": null,
+  "valid_until": null,
+  "operator_verified": false
+}

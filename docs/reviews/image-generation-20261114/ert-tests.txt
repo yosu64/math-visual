@@ -1,0 +1,29 @@
+Running 17 tests (2026-11-14 17:10:48+0900, selector ‘t’)
+   passed   1/17  math-visual-build-approved-image-keeps-title-link-and-metadata (0.248768 sec)
+Some entry images were omitted: approval or asset validation failed
+   passed   2/17  math-visual-build-duplicate-image-binding-is-rejected (0.004080 sec)
+   passed   3/17  math-visual-build-image-alt-is-html-escaped (0.003890 sec)
+   passed   4/17  math-visual-build-inventory-is-public-metadata-and-hashes-only (0.004274 sec)
+   passed   5/17  math-visual-build-inventory-refuses-unsafe-or-missing-source (0.002091 sec)
+Some entry images were omitted: approval or asset validation failed
+   passed   6/17  math-visual-build-malformed-manifest-falls-back-without-leaking-contents (0.003245 sec)
+Some entry images were omitted: approval or asset validation failed
+   passed   7/17  math-visual-build-missing-image-retains-article-link (0.003452 sec)
+   passed   8/17  math-visual-build-page-order-is-stable-and-does-not-change-dates (0.000111 sec)
+   passed   9/17  math-visual-build-parse-org-file (0.001765 sec)
+Some entry images were omitted: approval or asset validation failed
+Some entry images were omitted: approval or asset validation failed
+   passed  10/17  math-visual-build-pending-and-wrong-article-are-not-guessed (0.008142 sec)
+   passed  11/17  math-visual-build-refuses-custom-content-between-subjects (0.006019 sec)
+   passed  12/17  math-visual-build-refuses-unknown-shell-before-writing (0.004283 sec)
+Some entry images were omitted: approval or asset validation failed
+   passed  13/17  math-visual-build-safe-path-rejects-traversal-and-symlinks (0.004654 sec)
+   passed  14/17  math-visual-build-site-writes-html (0.004004 sec)
+Some entry images were omitted: approval or asset validation failed
+   passed  15/17  math-visual-build-stale-article-omits-image (0.004565 sec)
+Some entry images were omitted: approval or asset validation failed
+   passed  16/17  math-visual-build-tampered-image-omits-image (0.004731 sec)
+   passed  17/17  math-visual-build-template-preserves-pick-up-and-is-idempotent (0.011090 sec)
+
+Ran 17 tests, 17 results as expected, 0 unexpected (2026-11-14 17:10:48+0900, 0.320022 sec)
+

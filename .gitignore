@@ -1,0 +1,15 @@
+# Image candidates, secrets, and private runtime data must live outside this repo.
+# These patterns are a secondary guard, not permission to store them here.
+.env
+.env.*
+*.key
+*.pem
+*settings.local.json
+*price.local.json
+.imagegen/
+image-candidates/
+image-runs/
+**/__pycache__/
+*.pyc
+*.elc
+images/entries/.adopt.lock

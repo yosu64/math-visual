@@ -1,46 +1,126 @@
 # math-visual build tools
 
-`tools/math-visual-build.el` は、リポジトリ直下の `index.org` を読み込み、公開用の `index.html` を生成するための Emacs Lisp ツールです。公開サイト本体と生成器を同一リポジトリ内で管理する前提に合わせ、入力元と出力先はこのリポジトリのルートに固定しやすい構成にしています。
+`tools/math-visual-build.el` reads the repository's `index.org` with Org's syntax
+tree. It builds the subject lists and can export a public article inventory for
+the reviewed image workflow. These operations do not call an API or publish a
+site.
 
-## 期待する Org 形式
+## Preserve the existing site
 
-入力ファイルは `/Users/yosu64/math-visual/index.org` です。想定する構造は次のとおりです。
+`math-visual-build-site` accepts `input-file`, `output-file`, and an optional
+`template-file`. With no arguments, it uses the repository's `index.org` and
+`index.html`. When `index.html` exists beside the input, the builder uses it as
+the template, even when writing a preview elsewhere.
 
-- レベル1見出し `* サイト情報`
-- property として `:TITLE:` `:DESCRIPTION:`
-- レベル1見出し `* 数I` `* 数C` `* 数III` など
-- 分野見出しには `:TEXTBOOK:` を持たせてもよい
-- 各分野の直下にレベル2見出し `** ドモルガンの法則` などを置く
-- 各教材見出しでは `:PATH:` `:TEXTBOOK:` `:PAGE:` `:APP:` `:APP_URL:` `:PUBLISHED:` `:UPDATED:` を使える
-- 教材見出しの本文は説明文として使われる
+The builder replaces only the contiguous `subject-section` region and its own
+entry-image CSS block. The surrounding HTML, including **Pick Up**, existing
+styles, header, and other custom content, stays in place. An explicit third
+argument selects another template. If an existing template is malformed, or
+custom content is found between subject sections, the build stops before
+writing. It never silently falls back to a fresh document and discards the
+existing shell. A fresh complete document is generated only when no template
+exists.
 
-`サイト情報` 以外のレベル1見出しは分野セクションとして扱われます。教材は各分野直下のレベル2見出しだけを読みます。並び順は Org ファイル上の見出し順です。
+From the repository root, create a preview in a fresh temporary directory:
 
-## 使い方
-
-Emacs から `tools/math-visual-build.el` を読み込み、公開関数 `math-visual-build-site` を実行してください。
-
-```bash
-emacs --batch \
-  -l /Users/yosu64/math-visual/tools/math-visual-build.el \
-  --eval "(math-visual-build-site)"
+```sh
+image_preview_dir="$(mktemp -d "${TMPDIR:-/tmp}/math-visual-preview.XXXXXX")"
+emacs -Q --batch -l tools/math-visual-build.el \
+  --eval "(math-visual-build-site \"index.org\" \"$image_preview_dir/index.html\")"
 ```
 
-Emacs を開いている場合は `M-x load-file` で `tools/math-visual-build.el` を読み込んだあと、`M-x math-visual-build-site` でも実行できます。
+Relative article and image links need the repository's accompanying files. For
+a clickable preview, use an isolated copy of the repository, build its
+`index.html`, and serve or open that copy. A standalone temporary HTML is useful
+for a diff, but is not a complete site preview. Check the diff and browser view
+before separately approving publication. Building does not commit, push, merge,
+or deploy anything.
 
-## 読み込み元
+## Org metadata and ordering
 
-- `/Users/yosu64/math-visual/index.org`
+- The level-one `サイト情報` heading has `TITLE` and `DESCRIPTION`.
+- Other level-one headings are subjects and may have `TEXTBOOK`.
+- Direct level-two headings are articles. Supported metadata remains `PATH`,
+  `TEXTBOOK`, `PAGE`, `APP`, `APP_URL`, `PUBLISHED`, and `UPDATED`.
+- Article descriptions come from the direct heading body. Article HTML is not
+  imported into the sitemap.
+- Subject order and first-seen textbook group order are retained. Within each
+  textbook, confirmed integer `PAGE` values sort numerically. Equal pages retain
+  their existing order. Unconfirmed/non-numeric pages stay last without being
+  guessed. Date metadata is displayed as recorded and is never rewritten by
+  sorting or image adoption.
 
-## 生成先
+The existing publication Skill remains authoritative for confirming actual
+textbook pages and keeping textbook images and teacher notes out of public
+HTML. This change does not modify that Skill or authorize publication.
 
-- `/Users/yosu64/math-visual/index.html`
+## Approved entry illustrations
 
-生成される HTML は UTF-8 で書き出され、CSS は当面 `index.html` に埋め込みます。`PATH` がある教材名は内部リンクになり、`APP_URL` がある場合だけ APP 表示の横に外部リンクが付きます。公開 URL を安定させるため、`PATH` には `./math-i/...` `./math-iii/...` `./math-c/...` のような英語ディレクトリ名を使います。
+The optional manifest is `images/entries/manifest.json`. It is written by the
+separate reviewed image adoption step; editing a manifest is not a substitute
+for reviewing a candidate. Its public schema is:
 
-## 将来拡張の余地
+```json
+{
+  "schema": "math-visual-entry-images/v1",
+  "images": [
+    {
+      "article": "./math-i/example.html",
+      "article_sha256": "64 lowercase hexadecimal characters",
+      "image": "./images/entries/<image-sha256>.png",
+      "sha256": "64 lowercase hexadecimal characters",
+      "alt": "The reviewed image's useful short description",
+      "role": "entry-illustration",
+      "reviewed_at": "2026-11-14T00:00:00Z",
+      "review_id": "64 lowercase hexadecimal characters",
+      "approved": true
+    }
+  ]
+}
+```
 
-- HTML テンプレートと CSS を別ファイルへ分離する
-- 分野や教材ごとの追加 property を表示項目に反映する
-- CI から自動生成を呼ぶためのバッチ実行ラッパーを追加する
-- `index.org` の妥当性チェックや警告出力を追加する
+The builder requires an exact article `PATH` match, matching article and image
+SHA-256 hashes, approval metadata, a PNG header, and confined local file paths.
+It rejects symlink components, traversal, external URLs, duplicated article
+bindings, and stale assets. An absent, invalid, stale, or missing image is
+omitted; the existing title link, description, textbook page, and dates remain
+usable. A generic warning contains no raw manifest data.
+
+An accepted illustration links to the same article as the title, has reviewed
+alt text, uses `object-fit: contain`, and has the caption
+「教材をイメージしたイラスト」. The title link is always present, including when
+the browser cannot load the image. The image is an entrance illustration;
+mathematical explanations remain in the article. No candidate directory,
+private review receipt, textbook image, or teacher note is rendered by this
+manifest reader.
+
+## Export an article inventory
+
+```sh
+image_inventory_dir="$(mktemp -d "${TMPDIR:-/tmp}/math-visual-inventory.XXXXXX")"
+emacs -Q --batch -l tools/math-visual-build.el \
+  --eval "(math-visual-build-image-inventory \"index.org\" \"$image_inventory_dir/inventory.json\")"
+```
+
+The schema is `math-visual-image-inventory/v1`. The `articles` array contains
+`path`, `title`, `description`, `subject`, `textbook`, `page`, `published`,
+`updated`, and `article_sha256`. It is generated from the same Org parser and
+ordering rules as the site. Article bytes are read only to calculate their
+hash; the inventory contains no article HTML or referenced files. Missing,
+unsafe, or duplicate article paths cause a failure before output is written.
+The inventory is data for offline planning, not permission to send its content
+to an image API.
+
+## Anonymous regression tests
+
+```sh
+emacs -Q --batch -L tools \
+  -l tools/test/math-visual-build-test.el \
+  -f ert-run-tests-batch-and-exit
+```
+
+Fixtures use synthetic article HTML and a local one-pixel PNG. They make no API
+calls. Coverage includes Pick Up preservation and repeatability, refusal to
+discard custom shell content, page/date/link preservation, approval and hash
+binding, missing/stale assets, symlinks and traversal, malformed/duplicate
+manifests, escaped alt text, and metadata-only inventory export.

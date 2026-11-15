@@ -1,0 +1,72 @@
+{
+  "schema": "image-pipeline-validation/v1",
+  "created_at": "2026-11-14T17:22:04+09:00",
+  "repository": "yosu64/math-visual",
+  "base_commit": "218811cb490ba7ac46ce4b100c0c86af1d5a54ab",
+  "implementation_commit": "c1b4cf2d18e616c524eb8215c1e044d49722ae7c",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.14",
+    "pillow": "13.0.0",
+    "emacs": "30.1",
+    "org": "9.7.11"
+  },
+  "tests": [
+    {
+      "name": "python-anonymous-core-and-adapter",
+      "command": "python3 -m unittest discover -s tools/test -p 'test_image*.py' -v",
+      "passed": 71,
+      "failed": 0,
+      "core": 40,
+      "adapter": 31,
+      "exit_code": 0,
+      "evidence": "python-tests.txt"
+    },
+    {
+      "name": "emacs-org-ert",
+      "command": "emacs -Q --batch -L tools -l tools/test/math-visual-build-test.el -f ert-run-tests-batch-and-exit",
+      "passed": 17,
+      "failed": 0,
+      "exit_code": 0,
+      "evidence": "ert-tests.txt"
+    },
+    {
+      "name": "anonymous-real-emacs-integration",
+      "command": "python3 tools/test/image_pipeline_smoke.py --emacs emacs",
+      "status": "passed",
+      "exit_code": 0,
+      "evidence": "smoke.json"
+    },
+    {
+      "name": "fixed-baseline-preservation",
+      "status": "passed",
+      "protected_files": 26,
+      "article_cards": 18,
+      "evidence": "source-preservation.json"
+    }
+  ],
+  "real_image_api_calls": 0,
+  "real_key_reads": 0,
+  "keychain_mutations": 0,
+  "production_image_adoptions": 0,
+  "site_published": false,
+  "codex_cloud_tasks_started": 0,
+  "m5_execution": "not_performed",
+  "browser_visual": "unverified; Chromium process_singleton socket EPERM before page open",
+  "remote_implementation_readback": {
+    "files": 16,
+    "bytes_equal": true,
+    "ref": "c1b4cf2d18e616c524eb8215c1e044d49722ae7c"
+  },
+  "unverified": [
+    "M5 native regression",
+    "real Keychain item and access",
+    "real project/key binding",
+    "actual OpenAI model availability and image output",
+    "actual billing",
+    "mathematical correctness of future generated candidates",
+    "browser visual/mobile rendering",
+    "power-loss test"
+  ]
+}
