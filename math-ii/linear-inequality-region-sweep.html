@@ -222,7 +222,7 @@ document.addEventListener('keydown',e=>{
  if(['INPUT','BUTTON','SELECT','TEXTAREA'].includes(e.target.tagName))return;
  if(e.code==='Space'){e.preventDefault();start();}
  else if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
-  e.preventDefault();pause();state.k=Math.max(MIN,Math.min(MAX,Number((state.k+(e.key==='ArrowRight'?.1:-.1)).toFixed(1))));render();
+  e.preventDefault();pause();state.k=Math.max(MIN,Math.min(MAX,Number((state.k+(e.key==='ArrowRight'?0.1:-0.1)).toFixed(1))));render();
  }
 });
 document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
