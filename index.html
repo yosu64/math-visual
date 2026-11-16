@@ -146,7 +146,7 @@ a:hover {
 }
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 18px;
 }
 .material-card {
@@ -249,22 +249,17 @@ a:hover {
       <h1>数学ビジュアル教材</h1>
       <p class="lead">分野ごとに教材ページへ移動できます。</p>
     </header>
-    <section class="featured-section" aria-label="注目教材">
-      <a class="featured-card" href="./math-ii/multinomial-coefficient-visualizer.html">
-        <img class="featured-image" src="./images/ogp/multinomial-ogp.png" alt="三項の展開と係数の決まり方">
-        <div class="featured-copy">
-          <p class="featured-label">Pick Up</p>
-          <h2 class="featured-title">三項の展開と係数の決まり方</h2>
-          <p class="featured-description">多項定理の係数を、展開項の列挙と「場所の選び方」から視覚的に確認できる教材。</p>
-        </div>
-      </a>
-    </section>
     <section class="subject-section">
       <div class="section-header">
         <h2>数I</h2>
       </div>
       <div class="card-grid">
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-i/De-morgan-visualizer.html" aria-label="ドモルガンの法則を開く">
+              <img class="entry-image" src="./images/entries/5c4602c9422bd65947bc37aeac84e843207c65ae6e320764215176ea1dd04224.png" alt="長方形の色紙から重なり合う二つの円全体を切り抜いた形" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-i/De-morgan-visualizer.html">ドモルガンの法則</a></h3>
             <p class="item-book-page">深進数学I p.90</p>
@@ -274,6 +269,11 @@ a:hover {
           <p class="item-meta-inline">HTML / 2026-04-15（公開）・2026-04-15（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-i/necessary-and-sufficient-conditions.html" aria-label="必要条件と十分条件を開く">
+              <img class="entry-image" src="./images/entries/c44dc3dd8cf997bef86e8e2874f12e5c4bb1a40dbd125fcc3d7c3ac35ec931d2.png" alt="大きな円の内側に小さな円を収め、両方に入る点と大きな円だけに入る点を置く" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-i/necessary-and-sufficient-conditions.html">必要条件と十分条件</a></h3>
             <p class="item-book-page">深進数学I p.94</p>
@@ -290,6 +290,11 @@ a:hover {
       </div>
       <div class="card-grid">
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-ii/binomial-coefficient-visualizer.html" aria-label="二項定理の係数の決まり方を開く">
+              <img class="entry-image" src="./images/entries/d6aebc6200f294f31c5f2193d9865fadd7b34f43a80e8a9965a76c0efe512bca.png" alt="青緑二枚と琥珀二枚を四つの位置に並べる六通り" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-ii/binomial-coefficient-visualizer.html">二項定理の係数の決まり方</a></h3>
             <p class="item-book-page">深進数学II p.9</p>
@@ -299,6 +304,11 @@ a:hover {
           <p class="item-meta-inline">HTML / MathJax / 2026-04-20（公開）・2026-04-20（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-ii/multinomial-coefficient-visualizer.html" aria-label="三項の展開と係数の決まり方を開く">
+              <img class="entry-image" src="./images/entries/3dc449b06dc257864dd825b7e4cac475f63f59e4fa1afe23bdf4ef8c39440c94.png" alt="三色の紙片を一枚ずつ使い、順序だけを変えた六通りの並び" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-ii/multinomial-coefficient-visualizer.html">三項の展開と係数の決まり方</a></h3>
             <p class="item-book-page">深進数学II p.10</p>
@@ -308,6 +318,11 @@ a:hover {
           <p class="item-meta-inline">HTML / MathJax / 2026-04-20（公開）・2026-05-06（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-ii/apollonius-circle.html" aria-label="アポロニウスの円 — 距離の比が2:1になる点を開く">
+              <img class="entry-image" src="./images/entries/31cddc278e40e542046ecfda28f044d7e08ccedba8a07fb28898eb3869da5251.png" alt="円の外と内の二定点から円周上の点へ、長さが二対一の二本の糸を張る" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-ii/apollonius-circle.html">アポロニウスの円 — 距離の比が2:1になる点</a></h3>
             <p class="item-book-page">深進数学II p.88</p>
@@ -373,6 +388,11 @@ a:hover {
           <p class="item-meta-inline">HTML / SVG / 2026-11-16（公開）・2026-11-16（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-ii/trig-value-time-attack.html" aria-label="三角関数タイムアタックを開く">
+              <img class="entry-image" src="./images/entries/d355dd1ab0b6572cac019d07a8361f1622641c9a3c84f5be0ad07f6474f9403d.png" alt="円の半径と横縦の投影でできた直角三角形のそばに小さな時計を置く" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-ii/trig-value-time-attack.html">三角関数タイムアタック</a></h3>
             <p class="item-book-page">深進数学II p.106</p>
@@ -389,6 +409,11 @@ a:hover {
       </div>
       <div class="card-grid">
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-b/binomial-visualizer.html" aria-label="二項分布ビジュアライザを開く">
+              <img class="entry-image" src="./images/entries/8a7fa2f88026c4849e0eaf3ceb892770a7c2a255a3308f375fbee60b3eee12ca.png" alt="整数の成功回数ごとに離れて並ぶ二項分布の棒" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-b/binomial-visualizer.html">二項分布ビジュアライザ</a></h3>
             <p class="item-book-page">深進数学B p.60</p>
@@ -398,6 +423,11 @@ a:hover {
           <p class="item-meta-inline"><a class="external-link" href="https://www.chartjs.org/" target="_blank" rel="noopener noreferrer">Chart.js</a> / 2026-04-19（公開）・2026-05-12（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-b/normal-distribution-histogram-transition.html" aria-label="ヒストグラムから正規分布へを開く">
+              <img class="entry-image" src="./images/entries/304f75290c2b75bb2fa60cf64edaf1b5895547be58adbb15a92456519b8f653e.png" alt="隙間のない密度ヒストグラムと、その上に重なる滑らかな正規曲線" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-b/normal-distribution-histogram-transition.html">ヒストグラムから正規分布へ</a></h3>
             <p class="item-book-page">深進数学B p.67</p>
@@ -407,6 +437,11 @@ a:hover {
           <p class="item-meta-inline">HTML / MathJax / SVG / 2026-05-08（公開）・2026-05-08（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-b/normal-distribution-sigma-slider.html" aria-label="標準偏差 σ と正規分布の形を開く">
+              <img class="entry-image" src="./images/entries/2433256aa9655a46755734ee38f1eaa8042383f2b4991238d87d1fc227785ad6.png" alt="同じ中心をもつ、幅広で低い正規曲線と幅狭で高い正規曲線" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-b/normal-distribution-sigma-slider.html">標準偏差 σ と正規分布の形</a></h3>
             <p class="item-book-page">深進数学B p.68</p>
@@ -416,6 +451,11 @@ a:hover {
           <p class="item-meta-inline">HTML / MathJax / SVG / 2026-05-08（公開）・2026-05-08（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-b/normal-distribution-area-probability.html" aria-label="曲線下の面積＝確率を開く">
+              <img class="entry-image" src="./images/entries/091d6ad6eb1fadf441fec7bb4ff7fc43861ec19bdcb9ce586a47ff985d04d8c7.png" alt="二本の縦線の間で、正規曲線の下だけを満たす琥珀色の領域" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-b/normal-distribution-area-probability.html">曲線下の面積＝確率</a></h3>
             <p class="item-book-page">深進数学B p.69</p>
@@ -425,6 +465,11 @@ a:hover {
           <p class="item-meta-inline">HTML / MathJax / SVG / 2026-05-08（公開）・2026-05-08（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-b/sample-mean-odd-numbers.html" aria-label="標本平均の分布を実験で見るを開く">
+              <img class="entry-image" src="./images/entries/6b7d5d99ffd7e5f3210ad8558a20242004f603ec2dc9fe0436c9307543c64343.png" alt="広く散らばる奇数の標本ごとに、平均を表す琥珀の点が中央近くに集まる" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-b/sample-mean-odd-numbers.html">標本平均の分布を実験で見る</a></h3>
             <p class="item-book-page">深進数学B p.80</p>
@@ -434,6 +479,11 @@ a:hover {
           <p class="item-meta-inline">HTML / MathJax / SVG / 2026-05-28（公開）・2026-06-01（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-b/potato-confidence-interval-visualizer.html" aria-label="ポテトの重さで見る95%信頼区間を開く">
+              <img class="entry-image" src="./images/entries/1bb0a4288c51b2cd6aa746450f359e107e1c4561b3607c21a2710820c697e007.png" alt="固定した母平均の縦線を、多くの区間がまたぎ、一つの区間だけが外れる" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-b/potato-confidence-interval-visualizer.html">ポテトの重さで見る95%信頼区間</a></h3>
             <p class="item-book-page">深進数学B p.84</p>
@@ -450,6 +500,11 @@ a:hover {
       </div>
       <div class="card-grid">
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-c/space-vector-decomposition-with-reference.html" aria-label="空間ベクトル分解を開く">
+              <img class="entry-image" src="./images/entries/bc96d5a278c4f8b91783669a2cb8b92cee4b9570fa8cb22ca00672e19e2b49e7.png" alt="三方向のベクトルを順につなぎ、始点から同じ終点へ合成ベクトルを引く" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-c/space-vector-decomposition-with-reference.html">空間ベクトル分解</a></h3>
             <p class="item-book-page">深進数学C p.45</p>
@@ -465,6 +520,11 @@ a:hover {
       </div>
       <div class="card-grid">
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-iii/Riemann-sum.html" aria-label="区分求積法を開く">
+              <img class="entry-image" src="./images/entries/6683d097f765fe1aa91d7c460c5b3b68998c320fd348a0f7b852810ad2eabe59.png" alt="右上がりの放物線の下を、左端で高さをそろえた同幅の長方形で近似する" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-iii/Riemann-sum.html">区分求積法</a></h3>
             <p class="item-book-page">深進数学III p.146</p>
@@ -473,6 +533,11 @@ a:hover {
           <p class="item-meta-inline"><a class="external-link" href="https://www.desmos.com/" target="_blank" rel="noopener noreferrer">Desmos</a> / 2026-04-15（公開）・2026-04-15（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-iii/cylinder-slice-integral.html" aria-label="円柱の斜め切断を開く">
+              <img class="entry-image" src="./images/entries/9885735ccbeb8acf6b213384074e8b16df8c59cb7ecdd04d924de6394204d7a4.png" alt="斜面で切り取った円柱の中に、大きさの異なる直角二等辺三角形の断面が並ぶ" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-iii/cylinder-slice-integral.html">円柱の斜め切断</a></h3>
             <p class="item-book-page">深進数学III p.159</p>
@@ -481,6 +546,11 @@ a:hover {
           <p class="item-meta-inline"><a class="external-link" href="https://threejs.org/" target="_blank" rel="noopener noreferrer">Three.js</a> / 2026-04-16（公開）・2026-04-16（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-iii/torus-v1-v2-visualization.html" aria-label="円環体（トーラス）の体積可視化を開く">
+              <img class="entry-image" src="./images/entries/c1820162b99a735710c6d93dda0916f491bc2a81c2fdeb8ae0e6881a45240505.png" alt="円形断面が中心軸の周りを回ってできた、中央に穴のあるトーラス" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-iii/torus-v1-v2-visualization.html">円環体（トーラス）の体積可視化</a></h3>
             <p class="item-book-page">深進数学III p.162</p>
@@ -489,6 +559,11 @@ a:hover {
           <p class="item-meta-inline"><a class="external-link" href="https://threejs.org/" target="_blank" rel="noopener noreferrer">Three.js</a> / 2026-04-17（公開）・2026-04-17（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-iii/cycloid-rotation-solid.html" aria-label="サイクロイドの回転体を開く">
+              <img class="entry-image" src="./images/entries/b96cf3c2deee4effc05c7f206218ba6bc4609783128221ecbec5d4215290a571.png" alt="一山のサイクロイドを回転し、両端がすぼまり中央が太い立体と円形断面を示す" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-iii/cycloid-rotation-solid.html">サイクロイドの回転体</a></h3>
             <p class="item-book-page">深進数学III p.163</p>
