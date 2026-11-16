@@ -87,8 +87,8 @@ omitted; the existing title link, description, textbook page, and dates remain
 usable. A generic warning contains no raw manifest data.
 
 An accepted illustration links to the same article as the title, has reviewed
-alt text, uses `object-fit: contain`, and has the caption
-「教材をイメージしたイラスト」. The title link is always present, including when
+alt text, uses `object-fit: contain`, and has no visible caption.
+The title link is always present, including when
 the browser cannot load the image. The image is an entrance illustration;
 mathematical explanations remain in the article. No candidate directory,
 private review receipt, textbook image, or teacher note is rendered by this

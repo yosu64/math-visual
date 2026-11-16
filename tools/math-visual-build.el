@@ -482,7 +482,6 @@ orders the rendered view; it does not rewrite Org or teaching dates."
        "\" alt=\"" (math-visual-build--escape-attribute (alist-get 'alt entry))
        "\" loading=\"lazy\" decoding=\"async\">\n"
        "            </a>\n"
-       "            <figcaption>教材をイメージしたイラスト</figcaption>\n"
        "          </figure>\n")
     ""))
 
