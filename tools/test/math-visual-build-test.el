@@ -284,4 +284,23 @@
       (should-error (math-visual-build-image-inventory source inventory))
       (should-not (file-exists-p inventory)))))
 
+(ert-deftest math-visual-build-grid-preserves-empty-columns-and-narrow-width ()
+  (math-visual-build-test--with-image-fixture
+    (let ((html (math-visual-build--render-document (math-visual-build--parse-org-file source))))
+      (should (string-match-p
+               (regexp-quote "grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));") html))
+      (should (string-match-p (regexp-quote "width: min(1120px, calc(100% - 32px));") html))
+      (should-not (string-match-p "repeat(auto-fit" html)))))
+
+(ert-deftest math-visual-build-preserves-shell-without-featured-section ()
+  (math-visual-build-test--with-image-fixture
+    (let* ((shell (expand-file-name "index.html" root))
+           (html (math-visual-build--render-document (math-visual-build--parse-org-file source))))
+      (should-not (string-match-p "featured-section" html))
+      (math-visual-build-test--write shell html)
+      (math-visual-build-site source target shell)
+      (let ((result (math-visual-build-test--read target)))
+        (should-not (string-match-p "featured-section\\|Pick Up" result))
+        (should (string-match-p "subject-section" result))))))
+
 ;;; math-visual-build-test.el ends here
