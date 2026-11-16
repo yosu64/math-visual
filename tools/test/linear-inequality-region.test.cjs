@@ -153,7 +153,17 @@ test('math II index preserves page order and Pick Up', () => {
   assert.match(index, /class="featured-section"/);
   assert.match(index, /href="\.\/math-ii\/linear-inequality-region-sweep\.html"/);
   assert.match(org, /:PATH: \.\/math-ii\/linear-inequality-region-sweep\.html/);
-  assert.match(org, /:PAGE: 108/);
+  assert.match(org, /:PAGE: 91/);
   const section = index.split('<h2>数II</h2>')[1].split('<h2>数B</h2>')[0];
-  assert.deepEqual([...section.matchAll(/深進数学II p\.(\d+)/g)].map(m => +m[1]), [9,10,88,89,106,108]);
+  assert.deepEqual([...section.matchAll(/深進数学II p\.(\d+)/g)].map(m => +m[1]), [9,10,88,89,91,106]);
+});
+
+
+test('lesson links back to the index and shows textbook page 91', () => {
+  assert.match(article, /<a\b[^>]*href="\.\.\/index\.html"[^>]*>← 教材一覧へ戻る<\/a>/);
+  assert.match(article, /数学II \/ 図形と方程式 \/ 教科書 P\.91/);
+  assert.match(article, /class="header-actions"/);
+  const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  assert.match(index, /href="\.\/math-ii\/linear-inequality-region-sweep\.html">縦線を集めると領域になる<\/a>/);
+  assert.match(index, /深進数学II p\.91/);
 });
