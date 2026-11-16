@@ -240,6 +240,16 @@ a:hover {
 .entry-image { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: contain; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
 .entry-illustration figcaption { margin-top: 5px; font-size: 0.75rem; color: var(--muted); }
 /* math-visual-entry-images:end */
+/* math-visual-gallery-css:start */
+.gallery-controls { margin-top: 20px; }
+.gallery-controls[hidden] { display: none; }
+.gallery-toggle { display: inline-flex; align-items: center; gap: 9px; padding: 8px 0; cursor: pointer; }
+.gallery-toggle input { width: 1.15em; height: 1.15em; margin: 0; accent-color: var(--accent-strong); }
+.gallery-toggle input:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.compact-gallery .material-card .item-book-page,
+.compact-gallery .material-card .item-description,
+.compact-gallery .material-card .item-meta-inline { display: none; }
+/* math-visual-gallery-css:end */
   </style>
 </head>
 <body>
@@ -248,6 +258,11 @@ a:hover {
       <p class="eyebrow">Math Visual</p>
       <h1>数学ビジュアル教材</h1>
       <p class="lead">分野ごとに教材ページへ移動できます。</p>
+<!-- math-visual-gallery-control:start -->
+      <div class="gallery-controls" hidden>
+        <label class="gallery-toggle"><input id="compact-gallery-toggle" type="checkbox" autocomplete="off">画像とタイトルだけ</label>
+      </div>
+<!-- math-visual-gallery-control:end -->
     </header>
     <section class="subject-section">
       <div class="section-header">
@@ -574,5 +589,21 @@ a:hover {
       </div>
     </section>
   </main>
+<!-- math-visual-gallery-script:start -->
+<script>
+(() => {
+  const toggle = document.getElementById('compact-gallery-toggle');
+  const controls = document.querySelector('.gallery-controls');
+  if (!toggle || !controls) return;
+  const apply = () => document.body.classList.toggle('compact-gallery', toggle.checked);
+  const reset = () => { toggle.checked = false; apply(); };
+  toggle.addEventListener('change', apply);
+  // Every opening, reload and history restore starts with the full details.
+  window.addEventListener('pageshow', reset);
+  reset();
+  controls.hidden = false;
+})();
+</script>
+<!-- math-visual-gallery-script:end -->
 </body>
 </html>

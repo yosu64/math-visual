@@ -39,7 +39,7 @@
 When called interactively, read the repository root `index.org' and
 write the generated UTF-8 HTML to the repository root `index.html'.
 By default use index.html beside INPUT-FILE as the template, when it
-exists.  Only the contiguous subject sections and managed image CSS are
+exists.  Only the contiguous subject sections and managed image/gallery blocks are
 replaced; Pick Up and other surrounding content remain byte-for-byte.
 A malformed existing template is an error, never a reason to discard it.
 For a new site with no template, render a complete document."
@@ -240,7 +240,7 @@ from rendering.  A generic warning does not echo manifest contents."
                          (mapconcat #'math-visual-build--render-section
                                     (alist-get 'sections site) "\n")
                          (substring html finish)))
-      (math-visual-build--insert-image-css html))))
+      (math-visual-build--insert-gallery-ui (math-visual-build--insert-image-css html)))))
 
 (defun math-visual-build--insert-image-css (html)
   "Insert or replace only the managed entry-image CSS block in HTML."
@@ -263,6 +263,42 @@ from rendering.  A generic warning does not echo manifest contents."
           (error "Existing index template has multiple style blocks"))
         (concat (substring html 0 position) css "\n  " (substring html position))))
      (t (error "Existing index template has no style block")))))
+
+(defun math-visual-build--upsert-gallery-block (html start end block anchor)
+  "Update one managed BLOCK without changing the surrounding HTML."
+  (let ((begin (string-match (regexp-quote start) html))
+        (finish (string-match (regexp-quote end) html)))
+    (cond
+     ((or begin finish)
+      (unless (and begin finish (< begin finish)
+                   (not (string-match (regexp-quote start) html (1+ begin)))
+                   (not (string-match (regexp-quote end) html (1+ finish))))
+        (error "Malformed gallery block"))
+      (concat (substring html 0 begin) block (substring html (+ finish (length end)))))
+     ((or (string-match (regexp-quote anchor) html)
+          (string-match (regexp-quote (string-trim-left anchor)) html))
+      (let ((position (match-beginning 0)))
+        (concat (substring html 0 position) block "\n" (substring html position))))
+     (t (error "Missing gallery insertion anchor")))))
+
+(defun math-visual-build--insert-gallery-ui (html)
+  "Add an opt-in compact view. Without JavaScript, details remain visible."
+  (setq html (math-visual-build--upsert-gallery-block html
+    "/* math-visual-gallery-css:start */"
+    "/* math-visual-gallery-css:end */"
+    "/* math-visual-gallery-css:start */\n.gallery-controls { margin-top: 20px; }\n.gallery-controls[hidden] { display: none; }\n.gallery-toggle { display: inline-flex; align-items: center; gap: 9px; padding: 8px 0; cursor: pointer; }\n.gallery-toggle input { width: 1.15em; height: 1.15em; margin: 0; accent-color: var(--accent-strong); }\n.gallery-toggle input:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }\n.compact-gallery .material-card .item-book-page,\n.compact-gallery .material-card .item-description,\n.compact-gallery .material-card .item-meta-inline { display: none; }\n/* math-visual-gallery-css:end */"
+    "  </style>"))
+  (setq html (math-visual-build--upsert-gallery-block html
+    "<!-- math-visual-gallery-control:start -->"
+    "<!-- math-visual-gallery-control:end -->"
+    "<!-- math-visual-gallery-control:start -->\n      <div class=\"gallery-controls\" hidden>\n        <label class=\"gallery-toggle\"><input id=\"compact-gallery-toggle\" type=\"checkbox\" autocomplete=\"off\">画像とタイトルだけ</label>\n      </div>\n<!-- math-visual-gallery-control:end -->"
+    "    </header>"))
+  (setq html (math-visual-build--upsert-gallery-block html
+    "<!-- math-visual-gallery-script:start -->"
+    "<!-- math-visual-gallery-script:end -->"
+    "<!-- math-visual-gallery-script:start -->\n<script>\n(() => {\n  const toggle = document.getElementById('compact-gallery-toggle');\n  const controls = document.querySelector('.gallery-controls');\n  if (!toggle || !controls) return;\n  const apply = () => document.body.classList.toggle('compact-gallery', toggle.checked);\n  const reset = () => { toggle.checked = false; apply(); };\n  toggle.addEventListener('change', apply);\n  // Every opening, reload and history restore starts with the full details.\n  window.addEventListener('pageshow', reset);\n  reset();\n  controls.hidden = false;\n})();\n</script>\n<!-- math-visual-gallery-script:end -->"
+    "</body>"))
+  html)
 
 (defun math-visual-build--image-stylesheet ()
   "CSS for optional illustration links, with no crop or required JavaScript."
@@ -381,6 +417,10 @@ orders the rendered view; it does not rewrite Org or teaching dates."
       (org-element-property :end element)))))
 
 (defun math-visual-build--render-document (site)
+  "Render SITE with the opt-in gallery control."
+  (math-visual-build--insert-gallery-ui (math-visual-build--render-document-base site)))
+
+(defun math-visual-build--render-document-base (site)
   "Render SITE alist into a full HTML document string."
   (concat
    "<!DOCTYPE html>\n"

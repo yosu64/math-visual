@@ -94,10 +94,10 @@ test('movable witness stays in D and on the objective line for every sample', ()
   }
 });
 
-test('page 95 is linked in correct math II textbook order without modifying Pick Up', () => {
+test('page 95 is linked in correct math II textbook order without the removed Pick Up', () => {
   const index = fs.readFileSync(path.join(root,'index.html'),'utf8');
   const org = fs.readFileSync(path.join(root,'index.org'),'utf8');
-  assert.match(index, /class="featured-section"/);
+  assert.doesNotMatch(index, /class="featured-section"/);
   assert.match(index,/href="\.\/math-ii\/linear-objective-extrema\.html"/);
   assert.match(org, /:PATH: \.\/math-ii\/linear-objective-extrema\.html\n:TEXTBOOK: 深進数学II\n:PAGE: 95/);
   const section=index.split('<h2>数II</h2>')[1].split('<h2>数B</h2>')[0];
