@@ -108,6 +108,18 @@
 半径の異なる同心円周を、t=3・t=2など右辺の値を変えながら重ね、円の内部と外部の領域ができる様子を観察する教材。
 境界を含む・含まないの切替にも対応する。
 
+** 領域の最大・最小 — 同じ和の直線
+:PROPERTIES:
+:PATH: ./math-ii/linear-objective-extrema.html
+:TEXTBOOK: 深進数学II
+:PAGE: 95
+:APP: HTML / SVG
+:PUBLISHED: 2026-11-16
+:UPDATED: 2026-11-16
+:END:
+直線 \\(x+y=k\\) 上ではどの点も和が同じであることを、3点の例で確認する教材。
+直線を平行移動し、領域との共通部分が最後に1点だけ残るときに最大値5をとり、通り過ぎると実現できないことを観察する。最小値0にも対応する。
+
 ** 三角関数タイムアタック
 :PROPERTIES:
 :PATH: ./math-ii/trig-value-time-attack.html
