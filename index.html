@@ -246,9 +246,28 @@ a:hover {
 .gallery-toggle { display: inline-flex; align-items: center; gap: 9px; padding: 8px 0; cursor: pointer; }
 .gallery-toggle input { width: 1.15em; height: 1.15em; margin: 0; accent-color: var(--accent-strong); }
 .gallery-toggle input:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
-.compact-gallery .material-card .item-book-page,
+.compact-gallery .material-card .item-head { flex-direction: column; align-items: flex-start; gap: 4px; }
 .compact-gallery .material-card .item-description,
 .compact-gallery .material-card .item-meta-inline { display: none; }
+.gallery-preview {
+  position: fixed;
+  z-index: 10;
+  width: min(22rem, calc(100vw - 24px));
+  padding: 12px 14px;
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(47, 40, 27, .18);
+  line-height: 1.55;
+}
+.gallery-preview[hidden] { display: none; }
+.gallery-preview p { margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.gallery-preview p + p { margin-top: 7px; }
+.gallery-preview .preview-meta { color: var(--muted); font-size: .9rem; }
 /* math-visual-gallery-css:end */
   </style>
 </head>
@@ -260,7 +279,7 @@ a:hover {
       <p class="lead">分野ごとに教材ページへ移動できます。</p>
 <!-- math-visual-gallery-control:start -->
       <div class="gallery-controls" hidden>
-        <label class="gallery-toggle"><input id="compact-gallery-toggle" type="checkbox" autocomplete="off">画像とタイトルだけ</label>
+        <label class="gallery-toggle"><input id="gallery-details-toggle" type="checkbox" autocomplete="off">詳しい情報を表示</label>
       </div>
 <!-- math-visual-gallery-control:end -->
     </header>
@@ -592,16 +611,94 @@ a:hover {
 <!-- math-visual-gallery-script:start -->
 <script>
 (() => {
-  const toggle = document.getElementById('compact-gallery-toggle');
+  const toggle = document.getElementById('gallery-details-toggle');
   const controls = document.querySelector('.gallery-controls');
   if (!toggle || !controls) return;
-  const apply = () => document.body.classList.toggle('compact-gallery', toggle.checked);
+  const apply = () => document.body.classList.toggle('compact-gallery', !toggle.checked);
   const reset = () => { toggle.checked = false; apply(); };
   toggle.addEventListener('change', apply);
-  // Every opening, reload and history restore starts with the full details.
+  // Every opening, reload and history restore starts with the compact view.
   window.addEventListener('pageshow', reset);
   reset();
   controls.hidden = false;
+  const preview = document.createElement('div');
+  preview.className = 'gallery-preview';
+  preview.id = 'gallery-card-preview';
+  preview.setAttribute('role', 'tooltip');
+  preview.hidden = true;
+  document.body.append(preview);
+  let pending, leaving, active, describedLink;
+  const hidePreview = () => {
+    clearTimeout(pending);
+    clearTimeout(leaving);
+    if (describedLink) describedLink.removeAttribute('aria-describedby');
+    describedLink = null;
+    active = null;
+    preview.hidden = true;
+  };
+  const afterLeave = () => {
+    clearTimeout(pending);
+    clearTimeout(leaving);
+    leaving = setTimeout(hidePreview, 160);
+  };
+  const schedulePreview = (card, fields, link) => {
+    clearTimeout(leaving);
+    if (active === card && !link) return;
+    hidePreview();
+    if (toggle.checked) return;
+    pending = setTimeout(() => {
+      if (!fields.some(Boolean)) return;
+      window.MathJax?.typesetClear?.([preview]);
+      preview.replaceChildren();
+      fields.forEach((value, index) => {
+        if (!value) return;
+        const text = document.createElement('p');
+        if (index === 1) text.className = 'preview-meta';
+        text.textContent = value;
+        preview.append(text);
+      });
+      const edge = 12, gap = 6;
+      const rect = card.getBoundingClientRect();
+      preview.hidden = false;
+      const below = window.innerHeight - rect.bottom - gap - edge;
+      const above = rect.top - gap - edge;
+      preview.style.maxHeight = Math.max(64, Math.max(below, above)) + 'px';
+      try { window.MathJax?.typeset?.([preview]); } catch { /* Leave the original math text readable. */ }
+      const height = preview.offsetHeight;
+      const top = below >= height || below >= above ? rect.bottom + gap : rect.top - gap - height;
+      preview.style.top = Math.max(edge, Math.min(top, window.innerHeight - height - edge)) + 'px';
+      preview.style.left = Math.max(edge, Math.min(rect.left, window.innerWidth - preview.offsetWidth - edge)) + 'px';
+      active = card;
+      if (link) {
+        describedLink = link;
+        link.setAttribute('aria-describedby', preview.id);
+      }
+    }, 500);
+  };
+  for (const card of document.querySelectorAll('.material-card')) {
+    // Keep the original text before MathJax replaces inline math with SVG.
+    const fields = ['.item-description', '.item-meta-inline']
+      .map(selector => card.querySelector(selector)?.textContent.trim() || '');
+    card.addEventListener('pointerenter', event => {
+      if (event.pointerType === 'mouse') schedulePreview(card, fields);
+    });
+    card.addEventListener('pointerleave', event => {
+      if (event.pointerType === 'mouse') afterLeave();
+    });
+    card.addEventListener('focusin', event => {
+      if (event.target.matches('a:focus-visible')) schedulePreview(card, fields, event.target);
+    });
+    card.addEventListener('focusout', hidePreview);
+  }
+  preview.addEventListener('pointerenter', () => clearTimeout(leaving));
+  preview.addEventListener('pointerleave', afterLeave);
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') hidePreview();
+  });
+  window.addEventListener('resize', hidePreview);
+  window.addEventListener('scroll', hidePreview);
+  toggle.addEventListener('change', hidePreview);
+  window.addEventListener('pageshow', hidePreview);
 })();
 </script>
 <!-- math-visual-gallery-script:end -->

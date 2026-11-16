@@ -305,14 +305,16 @@
 
 ;;; math-visual-build-test.el ends here
 
-(ert-deftest math-visual-build-gallery-is-opt-in-and-idempotent ()
+(ert-deftest math-visual-build-gallery-details-are-opt-in-and-idempotent ()
   (math-visual-build-test--with-image-fixture
     (let* ((html (math-visual-build--render-document (math-visual-build--parse-org-file source)))
            (again (math-visual-build--insert-gallery-ui html)))
       (should (equal html again))
-      (should (string-match-p (regexp-quote "画像とタイトルだけ") html))
+      (should (string-match-p (regexp-quote "詳しい情報を表示") html))
       (should (string-match-p (regexp-quote "class=\"gallery-controls\" hidden") html))
       (should (string-match-p (regexp-quote "toggle.checked = false") html))
+      (should (string-match-p (regexp-quote "toggle('compact-gallery', !toggle.checked)") html))
+      (should-not (string-match-p (regexp-quote "compact-gallery .material-card .item-book-page") html))
       (should-not (string-match-p "localStorage\\|sessionStorage" html))
       (should-not (string-match-p "<body class=\"compact-gallery\"" html))
       (should (string-match-p (regexp-quote "compact-gallery .material-card .item-description") html)))))
