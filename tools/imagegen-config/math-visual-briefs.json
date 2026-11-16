@@ -235,6 +235,19 @@
         "記事の回転体の軸や体積を、別の軸・数値で説明していない。"
       ],
       "alt": "車輪の縁の光でサイクロイドの動きをイメージしたイラスト"
+    },
+    {
+      "path": "./math-ii/linear-inequality-region-sweep.html",
+      "article_sha256": "5d6cdf7e92f6da6f8b5e14da412518e522dc0eee59213e42cfa258944d888ae0",
+      "title": "縦線を集めると領域になる",
+      "public_summary": "条件を満たす縦の切れ端を横に並べていくと、ひとつの領域として見えてくることを体験する。",
+      "visual_brief": "A wide editorial paper-cut still life viewed straight from above on warm ivory. Use slender vertical strips of translucent teal tracing paper. On the right, place many fine strips side by side without gaps. Their LOWER ends form a fine regular staircase closely following one straight diagonal rising from the lower left to the upper right of the image. Every strip extends only UPWARD from this lower edge. All upper ends continue beyond the TOP CROP of the image, so no upper mathematical boundary is visible. The assembled paper suggests the region above a positively sloped straight boundary, not below it. Do not draw a diagonal guide line, graph, coordinates, inequality symbol, numbers or text. Place exactly one separate vertical strip on the left with generous empty space separating it from the assembled region; show its lower end and let its upper end also continue beyond the top crop, emphasizing how one vertical slice joins the region. Keep the assembled lower edge consistent and straight in overall direction: no curves, irregular waviness, reverse slope, downward extensions, or closed trapezoid silhouette. Minimal soft shadows only, not extra decorative boundaries. Clear at thumbnail size; physical paper metaphor rather than an exact mathematical solution diagram.",
+      "review_checks": [
+        "右側の紙片の下端が左下から右上へ上がる正の勾配の直線に近い細かい階段になり、逆勾配・曲線・不規則な端ではない。",
+        "紙片は下端から上側だけに延び、下側を塗った領域や閉じた台形の解答図に見えない。",
+        "上端が画面上端のトリミングに続き別の境界に見えず、斜めのガイド線・装飾の境界・文字・式・座標軸・人物がない。"
+      ],
+      "alt": "青緑色の縦の紙片が、右上がりの下端から上方向へ隙間なく並ぶイラスト"
     }
   ]
 }

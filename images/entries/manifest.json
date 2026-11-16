@@ -1,4 +1,1 @@
-{
-  "schema": "math-visual-entry-images/v1",
-  "images": []
-}
+{"images":[{"alt":"右上がりに下端をそろえた青緑の紙片が、上側に一つの面を作るイラスト","approved":true,"article":"./math-ii/linear-inequality-region-sweep.html","article_sha256":"5d6cdf7e92f6da6f8b5e14da412518e522dc0eee59213e42cfa258944d888ae0","image":"./images/entries/35e48fa6edd286af92eaf2ac1adeb08374cf6007ac5930c89200ea2bdd736d39.png","review_id":"4b841db940ae52086ffa0ee1a6bf777b282de90ef4dc7c982fa9c21b9163c1e2","reviewed_at":"2026-11-16T11:18:17+00:00","role":"entry-illustration","sha256":"35e48fa6edd286af92eaf2ac1adeb08374cf6007ac5930c89200ea2bdd736d39"}],"schema":"math-visual-entry-images/v1"}

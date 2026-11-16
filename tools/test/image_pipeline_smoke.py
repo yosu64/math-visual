@@ -316,7 +316,7 @@ def smoke(emacs):
                 check(adopted.signature() == expected, "adopted_links_pages_dates")
                 check([len(card["images"]) for card in adopted.cards] == [1, 0], "approved_and_fallback_counts")
                 check(adopted.cards[0]["images"][0]["src"] == row["image"], "adopted_image_binding")
-                check("教材をイメージしたイラスト" in adopted_html, "illustration_caption")
+                check("教材をイメージしたイラスト" not in adopted_html, "illustration_caption_absent")
                 check("object-fit: contain" in adopted_html, "illustration_no_crop")
                 repeated_html, repeated = build()
                 check(repeated_html == adopted_html, "rebuild_not_idempotent")

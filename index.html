@@ -233,6 +233,13 @@ a:hover {
     white-space: normal;
   }
 }
+  /* math-visual-entry-images:start */
+.entry-illustration { margin: 0 0 14px; }
+.entry-image-link { display: block; border-radius: 12px; }
+.entry-image-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
+.entry-image { display: block; width: 100%; aspect-ratio: 3 / 2; object-fit: contain; background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+.entry-illustration figcaption { margin-top: 5px; font-size: 0.75rem; color: var(--muted); }
+/* math-visual-entry-images:end */
   </style>
 </head>
 <body>
@@ -319,6 +326,11 @@ a:hover {
           <p class="item-meta-inline">HTML / SVG / 2026-11-13（公開）・2026-11-13（更新）</p>
         </article>
         <article class="material-card">
+          <figure class="entry-illustration">
+            <a class="entry-image-link" href="./math-ii/linear-inequality-region-sweep.html" aria-label="縦線を集めると領域になるを開く">
+              <img class="entry-image" src="./images/entries/35e48fa6edd286af92eaf2ac1adeb08374cf6007ac5930c89200ea2bdd736d39.png" alt="右上がりに下端をそろえた青緑の紙片が、上側に一つの面を作るイラスト" loading="lazy" decoding="async">
+            </a>
+          </figure>
           <div class="item-head">
             <h3 class="item-title"><a href="./math-ii/linear-inequality-region-sweep.html">縦線を集めると領域になる</a></h3>
             <p class="item-book-page">深進数学II p.91</p>
