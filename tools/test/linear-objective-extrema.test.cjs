@@ -104,3 +104,22 @@ test('page 95 is linked in correct math II textbook order without the removed Pi
   const pages=[...section.matchAll(/深進数学II p\.(\d+)/g)].map(m=>Number(m[1]));
   assert.deepEqual(pages,[9,10,88,89,91,92,95,106]);
 });
+
+test('P.95 retains one catalog card and prominently links the optional interactive view', () => {
+  const index = fs.readFileSync(path.join(root,'index.html'),'utf8');
+  const org = fs.readFileSync(path.join(root,'index.org'),'utf8');
+  const v2 = fs.readFileSync(path.join(root,'math-ii/linear-objective-extrema-v2.html'),'utf8');
+  assert.match(source, /<\/header>\s*<a class="lesson-v2" href="\.\/linear-objective-extrema-v2\.html">[^\n]*グラフを動かして学ぶ/);
+  assert.match(v2, /href="https:\/\/yosu64\.github\.io\/math-visual\/math-ii\/linear-objective-extrema\.html"/);
+  assert.match(v2, /<title>和が同じ点を一本の直線に。和の値は、y 切片で読める。<\/title>/);
+  assert.match(v2, /<h1><span>和が同じ点を一本の直線に。<\/span><span>和の値は、<i>y<\/i> 切片で読める。<\/span><\/h1>/);
+  assert.doesNotMatch(v2, /<script\b[^>]*\bsrc=|<link\b[^>]*\bhref=/);
+  assert.doesNotMatch(index+org, /linear-objective-extrema-v2\.html/);
+  assert.equal([...index.matchAll(/class="item-title"><a href="\.\/math-ii\/linear-objective-extrema\.html"/g)].length,1);
+  const manifest = JSON.parse(fs.readFileSync(path.join(root,'images/entries/manifest.json'),'utf8'));
+  const entry = manifest.images.find(image => image.article === './math-ii/linear-objective-extrema.html');
+  assert.ok(entry?.approved && index.includes(entry.image));
+  const hash = data => require('node:crypto').createHash('sha256').update(data).digest('hex');
+  assert.equal(entry.article_sha256,hash(source));
+  assert.equal(entry.sha256,hash(fs.readFileSync(path.join(root,entry.image))));
+});
