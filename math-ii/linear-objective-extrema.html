@@ -21,12 +21,14 @@ main{height:100dvh;min-height:730px;max-width:1920px;padding:13px 20px 12px;marg
 @media(max-width:380px){h1{font-size:19px}.quiet{font-size:11px;padding:7px 8px}.step{font-size:10px}.slider-wrap{gap:6px}.legend{font-size:9px;gap:8px}.value-chip{display:none}.stage{height:430px}}
 @media(min-width:781px) and (max-height:830px){main{min-height:830px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+.lesson-v2{display:flex;align-items:center;gap:9px;min-height:39px;padding:6px 12px;flex:none;border-radius:9px;background:#005b55;color:#fff;text-decoration:none;font-size:14px;line-height:1.3}.lesson-v2:hover{background:#004943}.lesson-v2:focus-visible{outline-color:#005b55}.lesson-v2 small{font-size:12px;color:#e4f4ef}.lesson-v2 .lesson-arrow{margin-left:auto;font-size:18px}.lesson-v2 .lesson-icon{font-size:13px}@media(max-width:490px){.lesson-v2 small{display:none}}@media(max-width:350px){.brand b{display:none}h1{font-size:18px}}
 </style>
 </head>
 <body>
 <svg class="math-defs" aria-hidden="true" focusable="false"><defs id="mathGlyphDefs"></defs></svg>
 <main>
 <header><div class="brand"><b>MATH VISUAL</b>数学II · P.95 · 例題15</div><h1>「<em>同じ値の直線</em>」で、最大・最小へ</h1><div class="header-actions"><a class="quiet" href="../index.html" aria-label="math-visualの教材一覧に戻る">← 教材一覧</a><button class="quiet" id="full" type="button">全画面</button></div></header>
+<a class="lesson-v2" href="./linear-objective-extrema-v2.html"><span class="lesson-icon" aria-hidden="true">▶</span><strong>グラフを動かして学ぶ</strong><small><i>y</i> 切片から最大・最小へ・約25秒の解説つき</small><span class="lesson-arrow" aria-hidden="true">→</span></a>
 <section class="problem" aria-label="問題の条件"><div class="problem-label"><strong>領域 D</strong>境界も含む</div><div class="constraints"><span id="constraint1"></span><span id="constraint2"></span><span id="constraint3"></span><span id="constraint4"></span></div><div class="objective">調べる値 <span id="objective"></span><b>の最大・最小</b></div></section>
 <nav class="steps" aria-label="説明の順序"><button id="intro" class="step" type="button" aria-pressed="true"><span>01</span>線上は同じ値</button><button id="raise" class="step" type="button" aria-pressed="false"><span>02</span>値を上げる</button><button id="maximum" class="step" type="button" aria-pressed="false"><span>03</span>最後の1点</button><button id="beyond" class="step" type="button" aria-pressed="false"><span>04</span>越えてみる</button></nav>
 <div class="workspace" id="workspace">

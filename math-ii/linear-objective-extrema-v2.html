@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="数学II P.95 例題15。直線と領域の重なりがy 切片が和の値を表すことと、重なりが線分から一点、そして点なしに変わる瞬間を観察する。">
+<title>和が同じ点を一本の直線に。和の値は、y 切片で読める。</title>
+<style>
+:root{color-scheme:light;--paper:#faf9f5;--ink:#182f35;--muted:#4d6569;--edge:#cdd6d1;--sea:#00615b;--stage:#102a32;--gold:#ffcf72;--math:"STIX Two Text","Cambria Math","Times New Roman",serif;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;color:var(--ink);background:var(--paper)}
+*{box-sizing:border-box}body{margin:0}main{width:min(100%,1520px);margin:auto;padding:14px clamp(14px,3.8vw,64px) 32px}a{color:var(--sea);text-underline-offset:4px}button,input,summary{font:inherit}button,summary,input[type=range]{cursor:pointer}button{color:inherit}button:focus-visible,input:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #287bd1;outline-offset:3px}button{touch-action:manipulation}button:disabled{cursor:default}i,.formula{font-family:var(--math)}.formula{font-size:1.13em;font-variant-numeric:lining-nums;white-space:nowrap}.mast,.brand,.head,.plothead,.plotfoot,.ops,.meter-head,.kpresets,.chapter,.readtop,.inspect-top,footer{display:flex;align-items:center}.mast{justify-content:space-between;gap:12px;padding:0 0 11px;border-bottom:1px solid var(--ink)}.brand{text-decoration:none;color:var(--ink);gap:9px;font-weight:760;letter-spacing:.15em;font-size:12px}.brand svg{width:24px;height:24px}.edition{font-size:12px;color:var(--muted)}.back{font-weight:600;font-size:13px}.head{justify-content:space-between;gap:16px;padding:19px 0 14px}.subject,.kicker{font-size:11px;font-weight:720;letter-spacing:.13em;color:var(--sea)}h1{font-size:clamp(29px,3.05vw,45px);letter-spacing:-.04em;line-height:1.28;margin:4px 0 0;font-family:"Hiragino Mincho ProN","Yu Mincho","YuMincho",serif;font-weight:680}h1>span{display:block}.problem{border-left:3px solid #7a9e93;padding:3px 0 3px 15px;color:var(--ink);font-size:clamp(14px,1.3vw,18px);line-height:1.65;text-align:left}.constraints{display:flex;flex-wrap:wrap;column-gap:16px;row-gap:0}
+.lab{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(285px,1fr);grid-template-areas:"plot note" "tools note";align-items:start;gap:0 clamp(18px,2.7vw,42px);border-top:1px solid var(--edge);padding-top:15px}.plot{grid-area:plot;border-radius:13px;background:var(--stage);color:#eff8f5;overflow:hidden}.plothead,.plotfoot{justify-content:space-between;gap:10px;padding:12px 17px}.plothead{border-bottom:1px solid #345058}.plotname{font-size:13px;font-weight:650;letter-spacing:.045em}.plotname small{font-size:10px;letter-spacing:.14em;color:#a9cac6;margin-left:7px}.equ{font:italic 22px var(--math);color:#fff2cd}.equ .equiv{font:normal 14px var(--math);color:#a8ded7;margin:0 4px}.equ b{font-weight:550;font-style:normal}.graph{display:block;width:100%;height:clamp(300px,42vh,460px);min-height:300px}.canvastext{font-family:var(--math);fill:#c3d5d4}.plotfoot{justify-content:flex-start;gap:8px 17px;flex-wrap:wrap;border-top:1px solid #345058;color:#cddfdf;font-size:12px}.axiskey{width:12px;height:12px;border:2px solid #8ee2d8;border-radius:50%}.key{display:inline-flex;gap:6px;align-items:center}.sw{width:16px;height:10px;background:#30645f;border:1px solid #7bb7a3}.dash,.solid{width:20px;border-top:2px dashed #d3dedd}.solid{border:0;height:5px;background:var(--gold);border-radius:3px}.panel{grid-area:note;align-self:stretch;display:flex;flex-direction:column;min-width:0}.readtop{justify-content:space-between;gap:7px;border-bottom:1px solid var(--edge);padding:4px 0 10px}.readtop span:last-child{font-size:12px;color:var(--muted)}.readout{display:flex;align-items:flex-end;gap:16px;margin:13px 0 5px}.livek{font:normal clamp(43px,4.5vw,66px)/1.12 var(--math);font-variant-numeric:tabular-nums;letter-spacing:-.045em}.livek i{font-size:.66em}.tag{font-size:12px;font-weight:650;color:#145c52;background:#e0eee5;border:1px solid #a7cabe;padding:4px 9px;border-radius:5px;margin-bottom:4px}.tag.empty{background:#eee9ee;color:#5d5264;border-color:#cdbfd2}.panel h2{font-size:clamp(20px,2.05vw,30px);margin:8px 0 5px;line-height:1.48;letter-spacing:-.025em}.explain{font-size:clamp(15px,1.25vw,18px);line-height:1.72;margin:0 0 12px;color:#385255;min-height:3.45em}.inspect{border:1px solid var(--edge);border-radius:9px;background:#fffefa;padding:11px 13px;min-width:0}.inspect-top{justify-content:space-between;gap:7px}.inspect h3{font-weight:650;font-size:14px;margin:0}.tiny{font-size:11px;color:var(--muted)}.witness{font:normal clamp(23px,2.2vw,32px)/1.5 var(--math);color:var(--sea);margin:4px 0 0;font-variant-numeric:tabular-nums}.witness-fields{display:flex;align-items:center;gap:8px}.witness-fields input{width:100%;min-width:40px}.witness-fields span{white-space:nowrap}.intercept-check{margin:0 0 10px;padding:7px 9px;background:#eaf4ee;border-left:3px solid #4b8d81;color:#254d48;font-size:13px;line-height:1.5}.intercept-check strong{font-weight:700}.interceptformula{font:normal clamp(20px,2.1vw,29px)/1.5 var(--math);color:var(--sea);margin:2px 0 3px}.plotfoot .key{white-space:nowrap}.help{margin:5px 0 0;color:#435b5e;font-size:13px;line-height:1.55}.lensgroup{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,.9fr);align-items:center;gap:10px}.lensgroup svg{width:100%;background:var(--stage);border-radius:4px;display:block}.lensgroup p{font-size:13px;line-height:1.65;margin:4px 0 0}.caption{color:var(--sea);font-size:11px;font-weight:650;letter-spacing:.09em}.details{margin-top:12px;border-bottom:1px solid var(--edge);border-top:1px solid var(--edge)}summary{padding:11px 0;font-size:13px;font-weight:650;color:var(--sea)}.details p{margin:0 0 9px;font-size:14px;line-height:1.65}.proofeq{font:normal 19px/1.6 var(--math)}
+.tools{grid-area:tools;padding-top:12px}.ops{gap:8px}.timecontrol{display:flex;align-items:center;gap:7px;flex:1;max-width:240px;min-width:75px}.timecontrol input{min-width:30px;width:100%;height:32px}.timecontrol output{white-space:nowrap;font-size:11px;font-variant-numeric:tabular-nums;color:var(--muted)}@media(max-width:850px){.ops .chapter{display:none}}.play,.restart,.kpresets button{border:1px solid var(--edge);border-radius:7px;background:transparent;min-height:40px;padding:6px 12px;font-size:13px;font-weight:650}.play{background:var(--sea);color:white;border-color:var(--sea);min-width:110px}.play:hover{background:#004d49}.restart:hover,.kpresets button:hover{background:#e9efe9}.ops .chapter{margin-left:auto;font-size:12px;color:var(--muted);gap:7px}.chapter b{font:normal 17px var(--math);color:var(--sea)}.meter{display:flex;align-items:center;gap:12px;margin:5px 0 0}.meter label{font-weight:650;font-size:13px;white-space:nowrap}.meter input{width:100%;min-width:30px}.nudge{font-size:20px;line-height:1;background:white;border:1px solid var(--edge);border-radius:6px;width:40px;height:38px;flex-shrink:0}.nudge:disabled{opacity:.4}input[type=range]{accent-color:var(--sea);height:37px;margin:0;touch-action:pan-y}.kpresets{gap:5px;flex-wrap:wrap;margin-top:3px}.kpresets button{font-size:12px;min-height:36px;font-weight:500;padding:5px 9px}.kpresets button[aria-pressed=true]{border-color:var(--sea);color:var(--sea);background:#e5eee6;font-weight:700}.kpresets button span{font:normal 15px var(--math)}.foot{margin-top:18px;border-top:1px solid var(--ink);padding:11px 0;justify-content:space-between;gap:15px;color:var(--muted);font-size:11px}.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}[hidden]{display:none!important}noscript{display:block;padding:12px;border:2px solid var(--sea)}
+@media(min-width:1500px){.graph{height:44vh}}
+@media(max-width:880px){main{padding-inline:14px}.lab{grid-template-columns:minmax(0,1.45fr) minmax(240px,1fr);gap:0 15px}.head{align-items:start}.problem{max-width:36%}.plothead,.plotfoot{padding-inline:12px}.ops{flex-wrap:wrap}.ops .chapter{font-size:11px}.lensgroup{grid-template-columns:1fr}.lensgroup svg{max-height:136px}.readout{gap:10px}.meter{gap:7px}}
+@media(max-width:680px){main{padding-top:10px}.mast{padding-bottom:7px}.head{display:block;padding:12px 0}.subject{font-size:10px}.problem{margin:10px 0 0;max-width:none;padding-left:10px;line-height:1.45}.edition,.plotname small{display:none}h1{font-size:clamp(20px,6.15vw,32px)}.lab{grid-template-areas:"plot" "tools" "note";grid-template-columns:100%;padding-top:10px}.graph{height:clamp(230px,70vw,365px);min-height:0}.plothead,.plotfoot{padding:7px 10px}.plotfoot{font-size:11px;gap:6px 11px}.equ{font-size:19px}.tools{padding-top:8px}.panel{margin-top:13px}.ops .chapter{font-size:11px}.play,.restart{min-height:40px}.kpresets button{min-height:37px}.readout{margin:9px 0 2px}.explain{min-height:0}.lensgroup{grid-template-columns:minmax(0,1fr) minmax(80px,.95fr)}.foot{flex-wrap:wrap}.kpresets{gap:4px}.kpresets button{padding:4px 7px}}
+@media(max-width:365px){main{padding-inline:9px}.ops{gap:5px}.ops .chapter{font-size:10px}.play{min-width:96px}.readtop{gap:3px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+</style>
+</head>
+<body><main>
+<nav class="mast" aria-label="教材ナビゲーション"><a class="brand" href="https://yosu64.github.io/math-visual/"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1" y="1" width="22" height="22" rx="4" fill="#193940"/><path d="M5 18V9l6-4 7 4-3 9z" fill="#78ad9e"/><path d="M4 20 20 4" stroke="#ffe0a0" stroke-width="2.5"/></svg>MATH VISUAL</a><span class="edition">図形と方程式　／　観察室 01</span><a class="back" href="https://yosu64.github.io/math-visual/math-ii/linear-objective-extrema.html">従来版を開く ↗</a></nav>
+<header class="head"><div><div class="subject">数学II　／　P.95　例題15</div><h1><span>和が同じ点を一本の直線に。</span><span>和の値は、<i>y</i> 切片で読める。</span></h1></div>
+<div class="problem"><div class="constraints"><span class="formula"><i>x</i> + 2<i>y</i> ≦ 8</span><span class="formula">3<i>x</i> + <i>y</i> ≦ 9</span></div><div class="constraints"><span class="formula"><i>x</i> ≧ 0,　<i>y</i> ≧ 0</span><span>のもとで <b class="formula"><i>x</i> + <i>y</i></b> の最大・最小は？</span></div></div></header>
+<noscript>操作には JavaScript が必要です。領域の頂点は (0, 0), (3, 0), (2, 3), (0, 4)。最大値は (2, 3) で 5、最小値は (0, 0) で 0 です。</noscript>
+<div class="lab">
+<section class="plot" aria-label="領域と直線のグラフ"><div class="plothead"><span class="plotname">領域と直線 <small>FIG. 01</small></span><span class="equ">x + y = <b id="plotK">1</b><span id="derive" hidden><span class="equiv">⇔</span>y = −x <b id="deriveK">+ 1</b></span></span></div>
+<svg id="graph" class="graph" role="img" aria-labelledby="graphTitle graphDesc"><title id="graphTitle">直線と領域の共通部分</title><desc id="graphDesc">横軸と縦軸を同じ縮尺で表示。金色が領域内の部分。水色の丸が y 軸との交点。そのすぐ左にある和の物差しは、y 軸と同じ高さで値を示す。</desc></svg>
+<div class="plotfoot"><span class="key"><span class="sw"></span>条件を満たす領域</span><span class="key"><span class="dash"></span>和が同じ直線</span><span class="key"><span class="solid"></span>領域との重なり</span><span class="key"><span class="axiskey"></span><span><i>y</i> 軸との交点</span></span></div></section>
+<section class="tools" aria-label="操作"><div class="ops"><button class="play" id="play">▶　解説を再生</button><button class="restart" id="reset">最初に戻す</button><label class="timecontrol"><span class="sr">解説の再生位置（秒）</span><input id="seek" type="range" min="0" max="24.95" step="0.05" value="0"><output id="clock">0 / 25秒</output></label><span class="chapter"><b id="stepNum">01</b><span id="scene">同じ和</span></span></div>
+<div class="meter"><label for="k"><i>k</i> を動かす</label><button id="minus" class="nudge" aria-label="k を 0.1 減らす">−</button><input id="k" type="range" min="-1" max="6" step=".01" value="1" aria-label="k の値"><button id="plus" class="nudge" aria-label="k を 0.1 増やす">＋</button></div>
+<div class="kpresets" aria-label="観察したい値"><button data-k="-0.5">−0.5</button><button data-k="0">0</button><button data-k="1">1</button><button data-k="4.8">4.8</button><button data-k="5">5</button><button data-k="5.2">5.2</button><span class="tiny">値を選んで比較</span></div></section>
+<aside class="panel" aria-label="現在の観察結果"><div class="readtop"><span class="kicker">観察ノート</span><span>直線と領域の共通部分</span></div>
+<div class="readout"><div class="livek"><i>k</i> = <span id="val">1</span></div><div id="badge" class="tag">線分</div></div>
+<h2 id="headline">点を変えても、和は同じ。</h2><p id="explain" class="explain">金色の線分の上を動いてみよう。横に増えた分だけ縦に減るので、和は変わらない。</p>
+<div class="inspect" id="wbox"><div class="inspect-top"><h3>線分上の点 <i>P</i></h3><span class="tiny">● の座標で確かめる</span></div><div id="wsum" class="witness">0.5 + 0.5 = 1</div><div class="witness-fields"><span class="tiny">左端</span><input id="t" type="range" min="0" max="100" value="50" aria-label="点 P の位置：線分の左端から右端まで"><span class="tiny">右端</span></div></div>
+<div class="inspect" id="axislesson" hidden><div class="inspect-top"><h3><i>y</i> 軸上では <i>x</i> = 0</h3></div><div class="interceptformula">0 + <i>y</i> = <i>k</i>　⇒　<i>y</i> = <i>k</i></div><p class="help">交点の座標は (0, <i>k</i>)。その高さ <i>k</i> が <strong><i>y</i> 切片</strong>。直線上のどの点でも、横と縦の座標を足すとこの高さになる。</p></div>
+<p id="axiscompare" class="intercept-check" hidden></p>
+<div class="inspect" id="lensbox" hidden><div class="lensgroup"><svg id="lens" viewBox="0 0 180 120" aria-label="境界付近の局所拡大図" role="img"></svg><div><span class="caption">接点ルーペ</span><h3 id="lensTitle"></h3><p id="lensNote"></p></div></div></div>
+<details class="details"><summary>式でも確かめる</summary><p>条件の一つ目を 2 倍して二つ目を足すと、</p><div class="proofeq">2(<i>x</i> + 2<i>y</i>) + (3<i>x</i> + <i>y</i>) ≦ 16 + 9<br>5(<i>x</i> + <i>y</i>) ≦ 25</div><p>だから和は 5 を超えない。等号になるのは両方の境界が交わる (2, 3) で、実際に 2 + 3 = 5。また <i>x</i>, <i>y</i> はともに 0 以上なので、和は原点で最小の 0 になる。</p></details>
+</aside></div>
+<footer class="foot"><span>数学II　図形と方程式　／　授業用インタラクティブ教材</span><span>制作日 2026.11.20　 ·　© shibasaki / Math Visual</span></footer><p class="sr" id="announce" role="status" aria-live="polite"></p>
+<script>
+"use strict";
+(()=>{
+const $=id=>document.getElementById(id),graph=$("graph"),lens=$("lens"),slide=$("k"),position=$("t");
+const poly=[[0,0],[3,0],[2,3],[0,4]],gold="#ffcf72",pale="#d6e3e2",chalk="#91caba",blue="#8ee2d8";
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),fmt=n=>String(Number(n.toFixed(5))).replace("-","−");
+let K=1,T=50,geom,playing=false,ended=false,elapsed=0,anchor=0,frame=0,scene=0;
+const motion=matchMedia("(prefers-reduced-motion: reduce)");
+const path=(d,stroke,sw,more="")=>'<path d="'+d+'" fill="none" stroke="'+stroke+'" stroke-width="'+sw+'" '+more+'/>';
+const circ=(x,y,r,fill,more="")=>'<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+fill+'" '+more+'/>';
+const txt=(x,y,s,attr="")=>'<text x="'+x+'" y="'+y+'" '+attr+'>'+s+'</text>';
+const move=p=>"M"+p[0]+" "+p[1],to=p=>"L"+p[0]+" "+p[1];
+const bounds=k=>{let a=Math.max(0,2*k-8),b=Math.min(k,(9-k)/2);return a>b+1e-9?null:[a,b]};
+function makePlane(w,h){
+ const xEnd=w,left=37,right=14,top=32,bottom=14;
+ const s=Math.min((xEnd-left-right)/6.2,(h-top-bottom)/7.25);
+ const ox=left+(xEnd-left-right-6.2*s)*.40+.86*s,oy=top+(h-top-bottom-7.25*s)*.5+6.15*s;
+ return {w,h,s,xEnd,xy:(x,y)=>[ox+x*s,oy-y*s],ox,oy};
+}
+function build(){
+ const w=Math.max(240,Math.round(graph.getBoundingClientRect().width)),h=Math.max(200,Math.round(graph.getBoundingClientRect().height));
+ geom=makePlane(w,h);const {xy,s,ox,oy,xEnd}=geom;
+ graph.setAttribute("viewBox","0 0 "+w+" "+h);let str='';
+ const xLeft=(8-ox)/s,xRight=(xEnd-12-ox)/s,yLo=(oy-h+7)/s,yHi=(oy-8)/s,fs=w<450?13:15;
+ for(let x=Math.ceil(xLeft);x<=xRight;x++){str+=path(move(xy(x,yLo))+to(xy(x,yHi)),"#28434a",1);if(x>0&&x<=5)str+=txt(xy(x,0)[0],oy+18,x,'text-anchor="middle" class="canvastext" font-size="'+fs+'"')}
+ for(let y=Math.ceil(yLo);y<=yHi;y++){str+=path(move(xy(xLeft,y))+to(xy(xRight,y)),"#28434a",1)}
+
+ str+='<polygon points="'+poly.map(p=>xy(...p).join(",")).join(" ")+'" fill="#285450" stroke="'+chalk+'" stroke-width="2"/>';
+ str+=path(move(xy(xLeft,0))+to(xy(xRight,0))+move(xy(0,yLo))+to(xy(0,yHi)),"#adc1c2",1.3);
+ str+=path("M"+(xEnd-18)+" "+(oy-3)+"l6 3-6 3M"+(ox-3)+" 14l3-6 3 6","#adc1c2",1.5);
+ str+=txt(xEnd-14,oy-9,"x",'text-anchor="end" class="canvastext" font-size="17" font-style="italic"')+txt(ox+9,19,"y",'class="canvastext" font-size="17" font-style="italic"')+txt(ox-8,oy+16,"O",'text-anchor="end" class="canvastext" font-size="16" font-style="italic"');
+ // Label the two active boundaries, not merely their green outline.
+ for(const [at,loc,label] of [[[.82,3.59],[-.13,4.57],"x + 2y = 8"],[[2.55,1.35],[3.45,1.74],"3x + y = 9"]]){
+ const a=xy(...at),b=xy(...loc),end=[b[0]+4,b[1]+4];
+ str+=path(move(a)+to(end),"#83b6aa",1)+txt(b[0]+3,b[1],label,'fill="#c2dcd1" font-style="italic" font-family="var(--math)" font-size="'+(w<420?12:15)+'" style="paint-order:stroke;stroke:#102a32;stroke-width:4px"');
+ }
+ // Linear ruler, offset horizontally but using the graph's very same y-coordinate transform.
+ const rx=ox-31,topY=xy(0,6)[1],bottomY=xy(0,-1)[1];
+ str+=txt(Math.max(5,rx-33),topY-13,"和の物差し",'fill="#b7dcd6" font-size="'+(w<410?10:12)+'" font-weight="600"');
+ str+=path(move([rx,topY])+to([rx,bottomY]),"#729298",1.5);
+ for(let v=-1;v<=6;v++){const yy=xy(0,v)[1];str+=path(move([rx-3,yy])+to([rx+4,yy])+move([ox-3,yy])+to([ox+3,yy]),"#92b3b4",1)}
+ for(const p of poly)str+=circ(...xy(...p),3.2,"#d6e7df");
+ let base=$("base");if(!base){graph.insertAdjacentHTML("beforeend",'<g id="base"></g><g id="moving"></g>');base=$("base")}
+ base.innerHTML=str;draw();
+}
+function showLine(xy,k,a,b,dotsize=3.5){
+ let s=path(move(xy(-20,k+20))+to(xy(20,k-20)),pale,1.8,'stroke-dasharray="7 6"');
+ if(a==null)return s;
+ let p=xy(a,k-a),q=xy(b,k-b);
+ if(Math.abs(a-b)<1e-8)return s+circ(...p,11,"none",'stroke="'+gold+'" stroke-width="1.3"')+circ(...p,5.5,gold);
+ return s+path(move(p)+to(q),gold,5,'stroke-linecap="round"')+circ(...p,dotsize,gold)+circ(...q,dotsize,gold);
+}
+function localView(kind){
+ const max=kind==="upper",cx=max?2:0,cy=max?3:0,delta=K-(max?5:0),s=Math.min(104,70/(Math.abs(delta)+.1));
+ const xy=(x,y)=>[86+(x-cx)*s,61-(y-cy)*s],p=xy(cx,cy);
+ let html='<polygon points="'+poly.map(v=>xy(...v).join(",")).join(" ")+'" fill="#285450" stroke="'+chalk+'" stroke-width="2"/>';
+ const lim=bounds(K);html+=showLine(xy,K,lim?lim[0]:null,lim?lim[1]:null,3);
+ if(!lim || Math.abs(delta)>.001)html+=circ(...p,2.8,"#e9f2ed");
+ if(!lim){let q=xy(cx+delta/2,cy+delta/2);html+=path(move(p)+to(q),"#d8c4ea",1.6,'stroke-dasharray="2 2"')+path(move([q[0]-2.5,q[1]-2.5])+to([q[0]+2.5,q[1]+2.5]),"#d8c4ea",1.5)}
+ lens.innerHTML=html;lens.setAttribute("aria-label",(max?"(2, 3)":"原点")+" 付近の拡大図。"+(lim?(Math.abs(lim[1]-lim[0])<1e-8?"直線が一点で接する。":"金色の線分が残る。"):"直線と頂点の間にすき間がある。"));
+}
+function compareText(){
+ if(scene===1 && K===1)return ["線分","和は、y 切片で読める。","たとえば (1, 0) でも (0.5, 0.5) でも和は 1。y 軸との交点 (0, 1) でも和は 1 だから、切片の高さを読むだけでいい。"];
+ if(K<0)return ["点なし","原点より下には、点がない。","直線は領域から離れた。領域内では x と y がともに 0 以上なので、負の和はつくれない。","lower","原点とのすき間","破線が原点の下を通る。金色の点も線分もない。"];
+ if(K===0)return ["1 点","最初に触れるのは、原点。","直線と領域が重なるのは (0, 0) だけ。0 + 0 = 0 が、この領域でつくれる最小の和だ。","lower","原点だけが残る","ここから k を少し減らすと、重なりはなくなる。"];
+ if(K>5)return ["点なし","直線はある。重なりはない。","直線上ならどの点も和は "+fmt(K)+"。でも領域内にはそのような点が一つもない。","upper","頂点とのすき間","金色の線分は消えた。薄紫の点線が、頂点と直線の距離を示す。"];
+ if(K===5)return ["1 点","最後の一点が、最大を決める。","金色の重なりを残せる、いちばん高い y 切片は 5。(2, 3) が残り、実際に 2 + 3 = 5。","upper","二つの端が一致","二つの境界の交点だけが残る。k = 5.2 と見比べよう。"];
+ if(K>=4.5)return ["線分","二つの端が、同じ頂点へ。","水色の切片を上げると、金色の線分の両端が別々の辺をたどって (2, 3) に近づく。","upper","細い線分が残る","二つの端に注目。直線が頂点へ近づくほど、端と端の間は短くなる。"];
+ if(K===1)return ["線分","点を変えても、和は同じ。","点 P を動かしても和は 1。水色の丸は x = 0。ここでは 0 + y = 1 だから、y 切片を読んでも同じ 1。"];
+ return ["線分","この和をつくる点は、一つではない。","直線上の点のうち、条件を満たすのは金色の線分だけ。点 P を動かしても、和は "+fmt(K)+" のままだ。"];
+}
+const numbers=["01","02","03","04","05"],names=["同じ和","y 切片を読む","平行に動かす","最後の一点","境界の外"];
+function draw(){
+ const [status,title,body,zoom,ztitle,zbody]=compareText(),v=fmt(K),lim=bounds(K);
+ $("plotK").textContent=$("val").textContent=v;slide.value=String(K);slide.setAttribute("aria-valuetext",v);position.value=String(T);
+ const intro=scene===1&&K===1,axisOutside=K<0||K>4;
+ $("derive").hidden=!intro;$("deriveK").textContent=K<0?"− "+fmt(-K):"+ "+v;
+ $("axislesson").hidden=!intro;$("axiscompare").hidden=!axisOutside;
+ if(axisOutside)$("axiscompare").textContent=(K===5?"(0, 5) は領域の外。でも「和が 5」と読む目印にはなる。":"水色の (0, "+v+") は領域の外。和が "+v+" と読めても、条件を満たすかどうかは金色の重なりで確かめる。");
+ $("headline").textContent=title;$("explain").textContent=body;$("badge").textContent=status;$("badge").classList.toggle("empty",!lim);
+ $("wbox").hidden=!!zoom||intro;$("lensbox").hidden=!zoom;$("plus").disabled=K>=6;$("minus").disabled=K<=-1;
+ document.querySelectorAll("[data-k]").forEach(btn=>btn.setAttribute("aria-pressed",String(+btn.dataset.k===K)));
+ $("stepNum").textContent=scene<0?"◇":numbers[scene];$("scene").textContent=scene<0?"自由に観察":names[scene];
+ const {xy}=geom;let s='<svg x="0" y="0" width="'+geom.xEnd+'" height="'+geom.h+'" overflow="hidden">'+showLine(xy,K,lim?lim[0]:null,lim?lim[1]:null);let extra="";
+ if(zoom){$("lensTitle").textContent=ztitle;$("lensNote").textContent=zbody;localView(zoom);const max=zoom==="upper",p=xy(max?2:0,max?3:0);
+ const lx=p[0]+19,ly=p[1]+(max?-22:-17);s+=path(move([p[0]+4,p[1]-4])+to([lx-1,ly+5]),"#d6e3e2",1)+txt(lx+1,ly+4,max?"(2, 3)":"(0, 0)",'fill="#fbf7e8" font-family="var(--math)" font-size="16" style="paint-order:stroke;stroke:#102a32;stroke-width:4px"');
+ }else if(lim){const x=lim[0]+(lim[1]-lim[0])*T/100,y=K-x,p=xy(x,y);
+ s+=circ(...p,6.5,"#fff6db",'stroke="#17343a" stroke-width="2"')+txt(p[0]+10,p[1]-8,"P",'fill="#fff6db" font-family="var(--math)" font-style="italic" font-size="18" style="paint-order:stroke;stroke:#102a32;stroke-width:4px"');
+ $("wsum").textContent=fmt(x)+" + "+fmt(y)+" = "+v;extra=" 点 P は ("+fmt(x)+", "+fmt(y)+")。";position.setAttribute("aria-valuetext","左端から "+T+" パーセント。"+extra);
+ }
+ // The intercept is a ruler mark, not a witness of feasibility.
+ const a=xy(0,K),o=xy(0,0),rx=a[0]-31,fs=geom.w<420?11:14;
+ for(let v=-1;v<=6;v++){const yy=xy(0,v)[1];if(Math.abs(yy-a[1])>14)s+=txt(rx-8,yy+4,fmt(v),'class="canvastext" text-anchor="end" font-size="'+fs+'"')}
+ if(intro)s+=path(move(o)+to(a),blue,5,'opacity=".34" stroke-linecap="round"');
+ if(K>=5 || K<=0)s+=path(move([rx,xy(0,0)[1]])+to([rx,xy(0,5)[1]]),"#79b3a3",3,'stroke-linecap="round"');
+ s+=path(move([rx+1,a[1]])+to([a[0]-8,a[1]]),blue,1.4,'stroke-dasharray="2 2"');
+ s+=path("M"+(rx+2)+" "+a[1]+"l-6 -4v8z",blue,1,'style="fill:'+blue+'"');
+ s+=circ(...a,intro?8.5:7,"none",'stroke="'+blue+'" stroke-width="2"');
+ if(axisOutside)s+=circ(...a,2.5,blue);
+ s+=txt(rx-8,a[1]+4,"k = "+v,'fill="'+blue+'" text-anchor="end" font-family="var(--math)" font-size="'+fs+'" style="paint-order:stroke;stroke:#102a32;stroke-width:4px"');
+ s+="</svg>";
+ $("moving").innerHTML=s;$("graphDesc").textContent="k = "+v+"。共通部分は"+status+"。"+body+extra+" y 軸との交点は (0, "+v+")。y 切片は "+v+"。y 軸のすぐ左の物差しにも、同じ高さで表示。"+(axisOutside?"y 軸との交点は領域外。":"");
+}
+const cues=[
+ // millis, initial k, final k, initial witness %, final %, narrative chapter
+ [850,1,1,0,0,0],[1000,1,1,0,50,0],[650,1,1,50,50,0],[1100,1,1,50,100,0],[300,1,1,100,100,0],
+ [600,1,1,100,100,1],[1800,1,1,100,0,1],[2400,1,1,0,0,1],
+ [3900,1,4.8,0,50,2],[1600,4.8,4.8,50,50,2],[2300,4.8,5,50,50,2],[2800,5,5,50,50,3],
+ [1200,5,5.5,50,50,4],[2200,5.5,5.5,50,50,4],[950,5.5,5,50,50,4],[1300,5,5,50,50,3]
+],duration=cues.reduce((n,c)=>n+c[0],0);
+function stateAt(time){
+ let left=Math.max(0,time);
+ for(let i=0;i<cues.length;i++){let [d,a,b,t1,t2,ch]=cues[i];if(left<d||i===cues.length-1){let f=clamp(left/d,0,1);f=motion.matches?0:f*f*(3-2*f);let k=Math.round((a+(b-a)*f)*100)/100,t=Math.round(t1+(t2-t1)*f);
+ if(k!==K||t!==T||scene!==ch){K=k;T=t;scene=ch;draw()}return}left-=d}
+}
+function timeLabel(){const secs=Math.min(Math.round(duration/1000),Math.floor(elapsed/1000));$("seek").max=String(duration/1000);$("seek").value=String(elapsed/1000);$("clock").textContent=secs+" / "+Math.round(duration/1000)+"秒"}
+function playLabel(){timeLabel();$("play").textContent=playing?"Ⅱ　一時停止":ended?"▶　もう一度再生":elapsed>0?"▶　続きから再生":"▶　解説を再生"}
+function say(){const a=compareText();$("announce").textContent="k = "+fmt(K)+"。"+a[1]}
+function tick(now){if(!playing)return;elapsed=clamp(now-anchor,0,duration);stateAt(elapsed);timeLabel();
+ if(elapsed>=duration){playing=false;ended=true;playLabel();say();return}frame=requestAnimationFrame(tick)}
+function pause(){if(playing){elapsed=clamp(performance.now()-anchor,0,duration);cancelAnimationFrame(frame);playing=false;playLabel()}}
+function toggle(){if(playing){pause();say();return}if(ended||scene<0)elapsed=0;ended=false;playing=true;anchor=performance.now()-elapsed;stateAt(elapsed);playLabel();frame=requestAnimationFrame(tick)}
+function manual(k){pause();elapsed=0;ended=false;scene=-1;K=Math.round(clamp(k,-1,6)*100)/100;draw();playLabel()}
+function reset(){pause();elapsed=0;ended=false;scene=0;K=1;T=50;draw();playLabel();say()}
+$("play").addEventListener("click",toggle);$("reset").addEventListener("click",reset);
+$("seek").addEventListener("input",()=>{const target=+$("seek").value*1000;pause();elapsed=clamp(target,0,duration);ended=elapsed>=duration;stateAt(elapsed);playLabel()});$("seek").addEventListener("change",say);
+slide.addEventListener("input",()=>manual(+slide.value));slide.addEventListener("change",say);
+position.addEventListener("input",()=>{T=+position.value;manual(K)});position.addEventListener("change",()=>{$("announce").textContent=$("wsum").textContent});
+$("plus").addEventListener("click",()=>{manual(K+.1);say()});$("minus").addEventListener("click",()=>{manual(K-.1);say()});
+document.querySelectorAll("[data-k]").forEach(btn=>btn.addEventListener("click",()=>{T=50;manual(+btn.dataset.k);say()}));
+document.addEventListener("visibilitychange",()=>{if(document.hidden)pause()});
+window.addEventListener("pagehide",pause);window.addEventListener("resize",build);
+build();timeLabel();if(typeof ResizeObserver!=="undefined")new ResizeObserver(build).observe(graph);
+})();
+</script></main></body></html>
