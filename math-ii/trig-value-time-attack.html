@@ -94,7 +94,7 @@ math{font-family:"STIX Two Math","Cambria Math",math;math-style:normal}.ratio-la
 <section id="result" hidden>
 <div class="podium"><div id="sparks" aria-hidden="true"></div><div id="medal"><small>RANK</small><span id="rank"></span></div>
 <h2 tabindex="-1" id="summary"></h2><div id="finalScore"></div></div>
-<div class="receipt"><p id="stats"></p><p>Sランクは10問全問正解・解答時間30秒以内</p><strong>各問の結果</strong><span id="reviewHint">（×を選ぶと解説）</span><ol id="track"></ol><div id="breakdown"></div>
+<div class="receipt"><p id="stats"></p><p><strong>プレイ条件</strong>　<span id="roundConditions"></span></p><p>Sランクは10問全問正解・解答時間30秒以内</p><strong>各問の結果</strong><span id="reviewHint">（×を選ぶと解説）</span><ol id="track"></ol><div id="breakdown"></div>
 <div class="result-actions"><button class="primary" id="again">もう一度10問に挑戦</button><button id="retry">間違えた問題に再挑戦</button><button id="reset">設定に戻る</button></div></div></section>
 </article><figure id="panel"><figcaption class="row"><strong>単位円と辺の比</strong><span id="angle"></span></figcaption><p id="previewNotice" hidden>解答中は単位円と数値を表示しません。</p><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
 <dialog id="review" aria-labelledby="reviewTitle"><h2 id="reviewTitle"></h2><p id="reviewAnswers"></p><svg id="reviewCircle" viewBox="-150 -150 300 300" role="img"></svg><p id="reviewWhy"></p><form method="dialog"><button autofocus>結果に戻る</button></form></dialog>
@@ -184,7 +184,13 @@ function updateClock(){
   $('clock').textContent=(ms/1000).toFixed(1)+' 秒';
 }
 const mistakes=new Map();
+function describeConditions(mode,hint,ratios){
+  const units={deg:'度数法',rad:'弧度法（ラジアン）',mix:'ランダム（度数法・弧度法）'};
+  const hints=hint?'ヒントあり（単位円・辺の数値'+(ratios?'あり':'なし')+'）':'ヒントなし';
+  return units[mode]+' ／ '+hints;
+}
 function begin(items){
+  $('roundConditions').textContent=describeConditions(document.querySelector('[name=mode]:checked').value,$('hint').checked,$('ratios').checked);
   mistakes.clear();
   streak=0;best=0;$('reward').textContent='';
   clearInterval(clockTimer);clockTimer=setInterval(updateClock,100);
