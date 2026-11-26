@@ -42,6 +42,25 @@ svg .ratio{font:bold 18px Georgia;fill:#ffdd95;paint-order:stroke;stroke:#15323b
 #choices button{position:relative;padding-inline:26px}
 #choices kbd{position:absolute;top:5px;left:7px;color:#48605a;font:600 12px/1.5 system-ui}
 #clock{font-variant-numeric:tabular-nums}
+
+article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;background:#102b35;color:#f2f7ef}
+.podium{text-align:center;position:relative;isolation:isolate;overflow:hidden;padding:28px 16px 20px;background:radial-gradient(ellipse at 50% 30%,#3e625b,transparent 64%),#17353e;border-bottom:1px solid #496369}
+#medal{margin:0 auto 10px;display:grid;place-content:center;width:88px;height:88px;border:4px double #ffe29c;outline:1px solid #cbac6f;outline-offset:4px;border-radius:50%;background:#253e40;color:#ffdd91;font:bold 46px/1 Georgia}
+#medal small{font:700 10px system-ui;letter-spacing:.2em}
+#summary{margin:8px 0 0;font-size:clamp(22px,4vw,34px)}
+#finalScore{font:700 clamp(42px,8vw,72px)/1.2 Georgia;color:#ffdf96;font-variant-numeric:tabular-nums}
+#finalScore small{font:600 16px system-ui}
+.receipt{max-width:650px;margin:auto;padding:20px}
+#stats{font-variant-numeric:tabular-nums}
+#track{display:flex;gap:4px;list-style:none;padding:0;margin:8px 0 14px}
+#track li{flex:1;text-align:center;border-radius:5px;background:#204a46;color:#b6f0cf;font-weight:bold}
+#track li.miss{background:#51383b;color:#ffd1be}
+#track small{display:block;font:11px/1.6 system-ui}
+.result-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.result-actions .primary{width:auto;margin:0;background:#ffda88;color:#213036}
+.spark{position:absolute;top:-10px;width:6px;height:12px;z-index:-1;animation:fall 1.5s ease-in both}
+@keyframes fall{to{transform:translate(20px,340px) rotate(220deg);opacity:0}}
+@media(prefers-reduced-motion:no-preference){#result:not([hidden]) #medal{animation:award .42s ease-out}@keyframes award{from{transform:scale(.6) rotate(-12deg);opacity:0}}}
 </style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
 <main><h1>三角関数タイムアタック</h1>
@@ -53,7 +72,11 @@ svg .ratio{font:bold 18px Georgia;fill:#ffdd95;paint-order:stroke;stroke:#15323b
 <button class="primary" id="start">10問に挑戦 →</button></section>
 <section id="play" hidden><div class="row status"><span id="step"></span><span id="clock"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
 <h2 id="formula" tabindex="-1"></h2><p class="status">数字キー・テンキーの 1〜4 でも解答できます。</p><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ →</button></section>
-<section id="result" hidden><h2 tabindex="-1" id="summary"></h2><p id="stats"></p><div id="breakdown"></div><button class="primary" id="retry">間違えた問題に再挑戦</button><button class="primary" id="reset">設定に戻る</button></section>
+<section id="result" hidden>
+<div class="podium"><div id="sparks" aria-hidden="true"></div><div id="medal"><small>RANK</small><span id="rank"></span></div>
+<h2 tabindex="-1" id="summary"></h2><div id="finalScore"></div></div>
+<div class="receipt"><p id="stats"></p><strong>各問の結果</strong><ol id="track"></ol><div id="breakdown"></div>
+<div class="result-actions"><button class="primary" id="again">もう一度10問に挑戦</button><button id="retry">間違えた問題に再挑戦</button><button id="reset">設定に戻る</button></div></div></section>
 </article><figure id="panel"><figcaption class="row"><strong>単位円と辺の比</strong><span id="angle"></span></figcaption><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
 <footer><a href="https://github.com/yosu64/math-visual">© 2026 shibasaki / Math Visual</a></footer>
 <script>
@@ -188,11 +211,38 @@ function advance(){
   if(++index<deck.length){show();return}
   clearInterval(clockTimer);
   $('play').hidden=true;$('result').hidden=false;$('panel').hidden=true;
-  $('summary').textContent=(deck.length-misses.length)+' / '+deck.length+' 問正解';
-  $('stats').textContent=score+' pt　解答時間 '+(totalMs/1000).toFixed(1)+' 秒　最高 '+best+' 連続正解';
+  $('reward').textContent='';
+  const correct=deck.length-misses.length;
+  const rate=correct/deck.length;
+  $('rank').textContent=rate===1?'S':rate>=0.8?'A':rate>=0.6?'B':'C';
+  $('summary').textContent=rate===1?'全問正解！':deck.length+'問完走！';
+  $('finalScore').innerHTML=score+' <small>pt</small>';
+  $('stats').textContent=correct+' / '+deck.length+' 問正解　解答 '+(totalMs/1000).toFixed(1)+' 秒　最高 '+best+' 連続';
+  $('track').replaceChildren();
+  deck.forEach((q,i)=>{
+    const item=document.createElement('li');
+    const missed=misses.includes(q);
+    if(missed)item.className='miss';
+    item.innerHTML='<small>'+(i+1)+'</small>'+(missed?'×':'○');
+    item.setAttribute('aria-label','第'+(i+1)+'問 '+(missed?'不正解':'正解'));
+    $('track').append(item);
+  });
+  $('sparks').replaceChildren();
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const colors=['#f5ca74','#70d5bb','#f0a78f'];
+    for(let i=0;i<30;i++){
+      const spark=document.createElement('i');
+      spark.className='spark';
+      spark.style.left=Math.random()*100+'%';
+      spark.style.background=colors[i%colors.length];
+      spark.style.animationDelay=Math.random()*.6+'s';
+      $('sparks').append(spark);
+    }
+  }
   $('breakdown').textContent=funcs.filter(f=>deck.some(q=>q.fn===f)).map(f=>{const count=deck.filter(q=>q.fn===f).length;return f+' '+(count-misses.filter(q=>q.fn===f).length)+'/'+count}).join('　');
   $('retry').hidden=!misses.length;$('summary').focus();
 };
+$('again').onclick=()=>$('start').click();
 $('next').onclick=advance;
 $('retry').onclick=()=>begin(shuffle(misses));
 function setup(){ $('reward').textContent='';$('result').hidden=true;$('setup').hidden=false;$('panel').hidden=false;draw({a:60,fn:'sin',label:'60°'}) }
