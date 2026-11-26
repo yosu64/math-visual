@@ -7,12 +7,12 @@
 <main><h1>円を描いて、三角比を求めよう</h1><p>0°から360°までの値の表を、丸ごと覚える必要はありません。まずは150°。頭の中で半径を回し、見覚えのある直角三角形を探そう。</p>
 <div class="studio"><figure><figcaption><strong>原点 O を中心とする円</strong><span id="reading"></span></figcaption><svg id="board" viewBox="-185 -155 370 310" role="img"></svg></figure>
 <section class="notes"><nav class="steps" aria-label="解説の段階"></nav><h2 id="title"></h2><div id="body"></div><div class="controls"><button id="play">▶ 自動再生</button><button id="back">← 戻る</button><button id="next">次へ →</button></div></section></div>
-<section class="work"><h2>別の角でも試そう</h2><div class="angles"></div><a class="cta" href="trig-value-time-attack.html">ゲームへ進む　10問に挑戦 →</a></section></main><footer>© 2026 shibasaki / Math Visual</footer>
+<section class="work"><h2>別の角でも試そう</h2><button id="tour">▶ 0°から360°まで通し再生</button><div class="angles"></div><a class="cta" href="trig-value-time-attack.html">ゲームへ進む　10問に挑戦 →</a></section></main><footer>© 2026 shibasaki / Math Visual</footer>
 <script>
 const $=id=>document.getElementById(id);
 const angles=[0,30,45,60,90,120,135,150,180,210,225,240,270,300,315,330,360];
 const labels=['始線','回転','辺の比','三角比'];
-let a=150,step=0,auto=false,timer,frame;
+let a=150,step=0,auto=false,tour=false,shown=0,timer,frame;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const frac=(n,d)=>'<span class="frac"><span>'+n+'</span><span>'+d+'</span></span>';
 function geometry(){
@@ -23,6 +23,7 @@ function geometry(){
   return {ref,w,h,r,x,y};
 }
 function diagram(deg){
+  shown=deg;
   const rad=deg*Math.PI/180,c=Math.cos(rad),s=-Math.sin(rad),x=112*c,y=112*s;
   const {x:horizontal,y:vertical,r}=geometry();
   const line=(u,v,i,j,color,width=2)=>'<line x1="'+u+'" y1="'+v+'" x2="'+i+'" y2="'+j+'" stroke="'+color+'" stroke-width="'+width+'"/>';
@@ -39,6 +40,7 @@ function diagram(deg){
     svg+=tag(x/2,s<0?21:-9,horizontal)+tag(x+Math.sign(c)*19,y/2+4,vertical)+tag(x/2-Math.sign(c)*16,y/2+Math.sign(s)*9,r);
   }
   svg+=line(0,0,x,y,'#ffd079',3)+'<circle cx="'+x+'" cy="'+y+'" r="5" fill="#fff4cf"/>';
+  if(step>=2&&a%90===0)svg+=tag(x*.88+(x===0?48:0),y*.94+(y>0?22:-13),'P ('+horizontal+', '+vertical+')');
   $('board').innerHTML=svg;$('reading').textContent=Math.round(deg)+'°';
   $('board').setAttribute('aria-label','右向きの始線から反時計回りに'+Math.round(deg)+'度');
 }
@@ -49,36 +51,64 @@ function quotient(n,d){
   const u=n.replace('−',''),v=d.replace('−','');
   return sign+(u===v?'1':v==='1'?u:frac(u,v));
 }
-function render(){
+function render(from=0){
   clearTimeout(timer);cancelAnimationFrame(frame);
   const {ref,x,y,r}=geometry(),axis=a%90===0;
-  const titles=['右向きが 0°',a+'° まで反時計回りに回す',axis?'終点は軸の上':'基準角は '+ref+'°','横・縦・斜辺から値を出す'];
+  const titles=['右向きが 0°',a+'° まで反時計回りに回す',axis?'終点は軸の上':'基準角は '+ref+'°',axis?'終点の座標から値を読む':'横・縦・斜辺から値を出す'];
   const explanations=['原点 O から右へ伸びる x 軸の正の部分が始線。ここに半径を重ねて出発しよう。',
     a===360?'ちょうど一周。360° の終点は 0° と同じ右端です。':a===0?'回転はゼロ。半径は右を向いたままです。':'始線から '+a+'° 回したところで止めます。半径の先は、円のどこに来るでしょう？',
-    axis?'半径を1とすると、横の成分は '+x+'、縦の成分は '+y+'。軸の上では、一方の成分がちょうど0になります。':'終点から x 軸に垂線を下ろそう。半径と x 軸が作る小さい角は '+ref+'°。辺の長さの比は '+(ref===45?'1：1：√2':'1：√3：2')+' です。図では横・縦の向きを符号で示します。左向き・下向きには − が付きます。',
-    '半径を同じ倍率で伸び縮みさせても、割り算の結果は同じです。'];
+    axis?'半径を1にすると、'+({0:'出発点は円の右端',90:'4分の1周した終点は真上',180:'半周した終点は左端',270:'4分の3周した終点は真下',360:'一周すると0°と同じ右端'})[a]+'。終点は P = ('+x+', '+y+')。軸の上にあるので、垂線を下ろしても直角三角形はできません。':'終点から x 軸に垂線を下ろそう。半径と x 軸が作る小さい角は '+ref+'°。辺の長さの比は '+(ref===45?'1：1：√2':'1：√3：2')+' です。図では横・縦の向きを符号で示します。左向き・下向きには − が付きます。',
+    axis?'単位円の終点を P = (x, y) とすると、cos は x 座標、sin は y 座標。tan は y ÷ x で求めます。':'半径を同じ倍率で伸び縮みさせても、割り算の結果は同じです。'];
   $('title').textContent=titles[step];$('body').innerHTML='<p>'+explanations[step]+'</p>';
   if(step===3){
     for(const [fn,name,n,d] of [['sin','縦 ÷ 斜辺',y,r],['cos','横 ÷ 斜辺',x,r],['tan','縦 ÷ 横',y,x]]){
       const result=quotient(n,d);
-      $('body').innerHTML+='<div class="eq"><small>'+name+'</small>　<span class="math">'+fn+' '+a+'° '+(d==='0'?'は定義されない':'= '+n+' ÷ '+(d.startsWith('−')?'('+d+')':d)+' = '+result)+'</span></div>';
+      $('body').innerHTML+='<div class="eq"><small>'+(axis?({sin:'y 座標',cos:'x 座標',tan:'y ÷ x'})[fn]:name)+'</small>　<span class="math">'+fn+' '+a+'° '+(axis&&fn!=='tan'?'= '+n:d==='0'?'は定義されない':'= '+n+' ÷ '+(d.startsWith('−')?'('+d+')':d)+' = '+result)+'</span></div>';
     }
     if(x==='0')$('body').innerHTML+='<p>横の成分が0なので、tan は0で割ることになります。</p>';
   }
   [...document.querySelector('.steps').children].forEach((b,i)=>b.setAttribute('aria-current',i===step?'step':'false'));
   [...document.querySelector('.angles').children].forEach((b,i)=>b.setAttribute('aria-pressed',angles[i]===a));
+  document.querySelector('.steps').children[2].textContent=axis?'座標':'辺の比';
   $('back').disabled=step===0;$('next').disabled=step===3;
-  $('play').textContent=auto?'Ⅱ 一時停止':step===3?'↺ もう一度再生':'▶ 自動再生';
-  if(step===1&&!reduced.matches){
-    const start=performance.now();
-    function rotate(now){const t=Math.min(1,(now-start)/1500);diagram(a*t*(2-t));if(t<1)frame=requestAnimationFrame(rotate)}
-    frame=requestAnimationFrame(rotate);
-  }else diagram(step===0?0:a);
-  if(auto&&step<3)timer=setTimeout(()=>{step++;if(step===3)auto=false;render()},step===1?3400:2600);
+  playbackLabels();
+  if(step===1&&!reduced.matches&&from!==a){
+    const start=performance.now(),duration=tour?850:1500*Math.abs(a-from)/Math.max(a,1);
+    function rotate(now){
+      const t=Math.min(1,(now-start)/duration);
+      diagram(from+(a-from)*t*(2-t));
+      if(t<1)frame=requestAnimationFrame(rotate);
+      else schedule();
+    }
+    diagram(from);frame=requestAnimationFrame(rotate);
+  }else{diagram(step===0?0:a);schedule()}
 }
-function go(i){auto=false;step=i;render()}
+function playbackLabels(){
+  $('play').textContent=auto?'Ⅱ 一時停止':tour?'▶ 通し再生を再開':step===3?'↺ もう一度再生':'▶ 自動再生';
+  $('tour').textContent=tour?'↺ 0°から通し再生し直す':'▶ 0°から360°まで通し再生';
+}
+function schedule(){
+  if(!auto)return;
+  timer=setTimeout(()=>{
+    if(tour&&step===3){
+      const previous=a;
+      a=angles[angles.indexOf(a)+1];step=1;render(previous);return;
+    }
+    step=tour?3:step+1;
+    if(step===3&&(!tour||a===360)){auto=false;tour=false}
+    render();
+  },step===1?350:tour?3000:2400);
+}
+function go(i){auto=false;tour=false;step=i;render()}
 labels.forEach((label,i)=>{const b=document.createElement('button');b.textContent=label;b.onclick=()=>go(i);document.querySelector('.steps').append(b)});
 angles.forEach(angle=>{const b=document.createElement('button');b.textContent=angle+'°';b.onclick=()=>{a=angle;go(1)};document.querySelector('.angles').append(b)});
-$('play').onclick=()=>{if(auto){clearTimeout(timer);auto=false;$('play').textContent='▶ 自動再生';return}if(step===3)step=0;auto=true;render()};
+$('play').onclick=()=>{
+  if(auto){auto=false;clearTimeout(timer);cancelAnimationFrame(frame);playbackLabels();return}
+  auto=true;
+  if(step===3&&!tour){step=0;render();return}
+  if(step===1&&shown!==a){render(shown);return}
+  playbackLabels();schedule();
+};
+$('tour').onclick=()=>{tour=true;auto=true;a=0;step=3;render()};
 $('back').onclick=()=>go(step-1);$('next').onclick=()=>go(step+1);render();
 </script></html>
