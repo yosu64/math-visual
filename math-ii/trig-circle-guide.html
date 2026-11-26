@@ -22,9 +22,9 @@ main mfrac > mrow{font-size:1em;math-depth:0}
 #title math:has(mfrac){font-size:30px}
 .equations td math:has(mfrac){font-size:clamp(22px,2.2vw,28px)}
 .notes{min-width:0}#body{overflow-x:auto}
-</style>
+.unit-links{margin:8px 0 12px}.unit-links a{display:inline-block;padding:3px 5px;text-underline-offset:3px}.unit-links [aria-current="true"]{font-weight:700}</style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
-<main><h1>円を描いて、三角比を求めよう</h1><p id="intro">0°から360°までの値の表を、丸ごと覚える必要はありません。まずは150°。頭の中で半径を回し、見覚えのある直角三角形を探そう。</p>
+<main><h1>円を描いて、三角比を求めよう</h1><nav class="unit-links" aria-label="角度表示"><a id="degreeLink" href="?unit=deg">度数法で見る</a> ／ <a id="radianLink" href="?unit=rad">弧度法で見る</a></nav><p id="intro">0°から360°までの値の表を、丸ごと覚える必要はありません。まずは150°。頭の中で半径を回し、見覚えのある直角三角形を探そう。</p>
 <div class="studio"><figure><figcaption><strong>原点 O を中心とする円</strong><span id="reading"></span></figcaption><div id="units" role="group" aria-label="角度の表示単位"><button id="degUnit">度数法（°）</button><button id="radUnit">弧度法（rad）</button></div><svg id="board" viewBox="-185 -155 370 310" role="img"></svg></figure>
 <section class="notes"><nav class="steps" aria-label="解説の段階"></nav><h2 id="title"></h2><div id="body"></div><div class="controls"><button id="play">▶ 自動再生</button><button id="back">← 戻る</button><button id="next">次へ →</button></div></section></div>
 <section class="work"><h2>別の角でも試そう</h2><button id="tour">▶ 0°から360°まで通し再生</button><div class="angles"></div><a class="cta" href="trig-value-time-attack.html">ゲームへ進む　10問に挑戦 →</a></section></main><footer>© 2026 shibasaki / Math Visual</footer>
@@ -60,6 +60,8 @@ function angleText(text){return text.replace(/(\d+)°/g,(_,n)=>angleMarkup(Numbe
 
 const introText=$('intro').textContent;
 function updateUnits(){
+  $('degreeLink').setAttribute('aria-current',!radMode);
+  $('radianLink').setAttribute('aria-current',radMode);
   $('intro').innerHTML=angleText(introText);
   $('degUnit').setAttribute('aria-pressed',!radMode);
   $('radUnit').setAttribute('aria-pressed',radMode);
@@ -74,6 +76,13 @@ function switchUnits(useRadians){
   history.replaceState(null,'',url);
   updateUnits();
   render(shown,rotationPaused);
+}
+for(const [id,radians] of [['degreeLink',false],['radianLink',true]]){
+  $(id).onclick=event=>{
+    if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
+    event.preventDefault();
+    switchUnits(radians);
+  };
 }
 $('degUnit').onclick=()=>switchUnits(false);
 $('radUnit').onclick=()=>switchUnits(true);
