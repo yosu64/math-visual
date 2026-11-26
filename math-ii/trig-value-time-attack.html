@@ -39,6 +39,8 @@ article{position:relative}
 #reward:not(:empty){padding:3px 14px}
 
 svg .ratio{font:bold 18px Georgia;fill:#ffdd95;paint-order:stroke;stroke:#15323b;stroke-width:4px}
+#choices button{position:relative;padding-inline:26px}
+#choices kbd{position:absolute;top:5px;left:7px;color:#48605a;font:600 12px/1.5 system-ui}
 #clock{font-variant-numeric:tabular-nums}
 </style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
@@ -46,7 +48,8 @@ svg .ratio{font:bold 18px Georgia;fill:#ffdd95;paint-order:stroke;stroke:#15323b
 <div class="layout"><article><output id="reward" aria-live="polite"></output>
 <section id="setup"><h2>単位円に挑む10問</h2><p>30°・45°・60°の直角三角形を見つけよう。辺の比で大きさを決めたら、象限で符号をつける。正解すると、すぐ次の問題へ！</p>
 <fieldset><legend>角度の表示</legend><label><input type="radio" name="mode" value="deg" checked>度数法</label><label><input type="radio" name="mode" value="rad">弧度法</label><label><input type="radio" name="mode" value="mix">ランダム</label></fieldset>
-<label><input type="checkbox" id="hint" checked>解答中も辺の比を見る</label>
+<label><input type="checkbox" id="hint" checked>解答中も単位円を見る</label><br>
+<label><input type="checkbox" id="ratios" checked>図に辺の比を表示する</label>
 <button class="primary" id="start">10問に挑戦 →</button></section>
 <section id="play" hidden><div class="row status"><span id="step"></span><span id="clock"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
 <h2 id="formula" tabindex="-1"></h2><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ →</button></section>
@@ -102,11 +105,11 @@ function draw(q){
     triangle='<polygon points="0,0 '+x+',0 '+x+','+y+'" fill="#42c4b3" fill-opacity=".16"/>'+triangle+
       line(0,0,x,0,leg)+line(x,0,x,y,leg)+
       '<path d="M '+(x-sx*8)+' 0 v '+(sy*8)+' h '+(sx*8)+'" stroke="#98c7bd" fill="none"/>'+
-      tag(x/2,sy<0?19:-8,adj)+tag(x+sx*16,y/2+5,opp)+tag(x/2-sx*14,y/2+sy*8,h);
-    tip='基準角 '+ref+'°。図の数は辺の長さの比。'+fn+' は '+guides[fn]+'。';
+      ($('ratios').checked ? tag(x/2,sy<0?19:-8,adj)+tag(x+sx*16,y/2+5,opp)+tag(x/2-sx*14,y/2+sy*8,h) : '');
+    tip='基準角 '+ref+'°。'+($('ratios').checked?'図の数は辺の長さの比。':'')+fn+' は '+guides[fn]+'。';
   }
   $('circle').innerHTML='<g stroke="#31505a" stroke-width=".7">'+grid+'</g><circle r="110" fill="none" stroke="#87acae" stroke-width="2"/><g stroke="#a6c0c5">'+line(-126,0,126,0,'')+line(0,-126,0,126,'')+'</g><text x="132" y="6">x</text><text x="-4" y="-131">y</text>'+triangle+'<circle cx="'+x+'" cy="'+y+'" r="4" fill="#fff4cc"/>';
-  $('circle').setAttribute('aria-label',a+'度。'+tip+(axis?'':' 隣辺、対辺、斜辺の比は '+sides(a).join('対')));
+  $('circle').setAttribute('aria-label',a+'度。'+tip+(axis || !$('ratios').checked?'':' 隣辺、対辺、斜辺の比は '+sides(a).join('対')));
   $('angle').innerHTML=math(label);
   $('guide').textContent=tip;
 
@@ -134,7 +137,15 @@ function show(){
   const pool=shuffle([...new Set(angles.map(a=>value(q.fn,a)))]);
   const choices=[...new Set([answer,...(pool.includes(opposite)?[opposite]:[]),...pool])].slice(0,4);
   $('choices').replaceChildren();
-  shuffle(choices).forEach(v=>{const b=document.createElement('button');b.innerHTML=math(v);b.dataset.value=v;b.onclick=()=>respond(v);$('choices').append(b)});
+  shuffle(choices).forEach((v,i)=>{
+    const button=document.createElement('button');
+    const key=String(i+1);
+    button.innerHTML='<kbd>'+key+'</kbd>'+math(v);
+    button.setAttribute('aria-keyshortcuts',key);
+    button.dataset.value=v;
+    button.onclick=()=>respond(v);
+    $('choices').append(button);
+  });
   started=performance.now();
 }
 function respond(v){
@@ -185,6 +196,14 @@ function advance(){
 $('next').onclick=advance;
 $('retry').onclick=()=>begin(shuffle(misses));
 function setup(){ $('reward').textContent='';$('result').hidden=true;$('setup').hidden=false;$('panel').hidden=false;draw({a:60,fn:'sin',label:'60°'}) }
+$('ratios').onchange=()=>draw({a:60,fn:'sin',label:'60°'});
+document.addEventListener('keydown',event=>{
+  if($('play').hidden || locked || event.repeat || event.isComposing ||
+     event.ctrlKey || event.metaKey || event.altKey || event.shiftKey)return;
+  if(!/^[1-4]$/.test(event.key))return;
+  event.preventDefault();
+  $('choices').children[Number(event.key)-1].click();
+});
 $('reset').onclick=()=>{setup();$('start').focus()};setup();
 </script>
 </html>
