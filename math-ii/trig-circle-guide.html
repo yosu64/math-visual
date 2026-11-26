@@ -13,6 +13,15 @@ math,#reading,.angles button{font-family:"STIX Two Math","Cambria Math","Latin M
 #units{display:inline-flex;gap:3px;margin-top:8px;padding:3px;background:#10252c;border:1px solid #688583;border-radius:10px}#units button{background:transparent;color:#ebf5ee;border:0;padding:5px 11px;font-size:15px}#units button[aria-pressed=true]{background:#ffda89;color:#172d32;font-weight:bold}
 #reading{display:grid;place-items:center;min-height:2.7em;font-size:24px}
 main math{math-style:normal}#intro math,#body p math{font-size:1.2em}.angles button math{font-size:clamp(22px,2vw,28px)}.angles button{min-height:64px}.equations td math{font-size:1.1em}
+/* Keep numerator and denominator at the reading size, including on WebKit. */
+main mfrac > mrow{font-size:1em;math-depth:0}
+.angles{gap:10px}
+.angles button:has(mfrac){min-width:78px;min-height:86px;padding:9px 16px}
+.angles button math:has(mfrac),#reading math:has(mfrac){font-size:36px}
+#intro math:has(mfrac),#body p math:has(mfrac),#tour math:has(mfrac){font-size:28px}
+#title math:has(mfrac){font-size:36px}
+.equations td math:has(mfrac){font-size:clamp(24px,2.4vw,32px)}
+.notes{min-width:0}#body{overflow-x:auto}
 </style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
 <main><h1>円を描いて、三角比を求めよう</h1><p id="intro">0°から360°までの値の表を、丸ごと覚える必要はありません。まずは150°。頭の中で半径を回し、見覚えのある直角三角形を探そう。</p>
