@@ -65,6 +65,8 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 #review{width:min(92vw,470px);max-height:90dvh;overflow:auto;background:#14313b;color:#fff;border:1px solid #719294;border-radius:16px;padding:22px}
 #review::backdrop{background:#061218cc}
 #review svg{max-width:245px}
+#ratioOption{margin-left:1.3em}#ratioOption:has(:disabled){color:#636a68;cursor:default}
+#previewNotice{text-align:center;padding:32px 12px}
 </style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
 <main><h1>三角関数タイムアタック</h1>
@@ -72,7 +74,7 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 <section id="setup"><h2>単位円に挑む10問</h2><p>30°・45°・60°の直角三角形を見つけよう。辺の比で大きさを決めたら、象限で符号をつける。正解すると、すぐ次の問題へ！</p>
 <fieldset><legend>角度の表示</legend><label><input type="radio" name="mode" value="deg" checked>度数法</label><label><input type="radio" name="mode" value="rad">弧度法</label><label><input type="radio" name="mode" value="mix">ランダム</label></fieldset>
 <label><input type="checkbox" id="hint" checked>解答中も単位円を見る</label><br>
-<label><input type="checkbox" id="ratios" checked>図に数値を表示する（横・縦は向きも表示）</label>
+<label id="ratioOption"><input type="checkbox" id="ratios" checked>図に数値を表示する（横・縦は向きも表示）</label>
 <button class="primary" id="start">10問に挑戦 →</button></section>
 <section id="play" hidden><div class="row status"><span id="step"></span><span id="clock"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
 <h2 id="formula" tabindex="-1"></h2><p class="status">数字キー・テンキーの 1〜4 でも解答できます。</p><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ →</button></section>
@@ -81,7 +83,7 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 <h2 tabindex="-1" id="summary"></h2><div id="finalScore"></div></div>
 <div class="receipt"><p id="stats"></p><p>Sランクは10問全問正解・解答時間30秒以内</p><strong>各問の結果</strong><span id="reviewHint">（×を選ぶと解説）</span><ol id="track"></ol><div id="breakdown"></div>
 <div class="result-actions"><button class="primary" id="again">もう一度10問に挑戦</button><button id="retry">間違えた問題に再挑戦</button><button id="reset">設定に戻る</button></div></div></section>
-</article><figure id="panel"><figcaption class="row"><strong>単位円と辺の比</strong><span id="angle"></span></figcaption><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
+</article><figure id="panel"><figcaption class="row"><strong>単位円と辺の比</strong><span id="angle"></span></figcaption><p id="previewNotice" hidden>解答中は単位円と数値を表示しません。</p><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
 <dialog id="review" aria-labelledby="reviewTitle"><h2 id="reviewTitle"></h2><p id="reviewAnswers"></p><svg id="reviewCircle" viewBox="-150 -150 300 300" role="img"></svg><p id="reviewWhy"></p><form method="dialog"><button autofocus>結果に戻る</button></form></dialog>
 <footer><a href="https://github.com/yosu64/math-visual">© 2026 shibasaki / Math Visual</a></footer>
 <script>
@@ -162,6 +164,7 @@ function begin(items){
   $('setup').hidden=true;$('result').hidden=true;$('play').hidden=false;show();
 }
 function show(){
+  $('previewNotice').hidden=true;$('circle').removeAttribute('hidden');$('guide').hidden=false;
   const q=deck[index], answer=value(q.fn,q.a);
   locked=false;$('next').hidden=true;$('feedback').textContent='';
   $('step').textContent='第 '+(index+1)+' 問 ／ '+deck.length;$('points').textContent=score+' pt';
@@ -278,8 +281,21 @@ function openReview(q,i){
 $('again').onclick=()=>$('start').click();
 $('next').onclick=advance;
 $('retry').onclick=()=>begin(shuffle(misses));
-function setup(){ $('reward').textContent='';$('result').hidden=true;$('setup').hidden=false;$('panel').hidden=false;draw({a:60,fn:'sin',label:'60°'}) }
-$('ratios').onchange=()=>draw({a:60,fn:'sin',label:'60°'});
+function updatePreview(){
+  const visible=$('hint').checked;
+  $('ratios').disabled=!visible;
+  $('previewNotice').hidden=visible;
+  $('circle').toggleAttribute('hidden',!visible);
+  $('guide').hidden=!visible;
+  const mode=document.querySelector('[name=mode]:checked').value;
+  const label=mode==='rad'?radians[angles.indexOf(60)]:'60°';
+  draw({a:60,fn:'sin',label});
+}
+function setup(){
+  $('reward').textContent='';$('result').hidden=true;$('setup').hidden=false;$('panel').hidden=false;
+  updatePreview();
+}
+$('setup').addEventListener('change',updatePreview);
 document.addEventListener('keydown',event=>{
   if($('play').hidden || locked || event.repeat || event.isComposing ||
      event.ctrlKey || event.metaKey || event.altKey || event.shiftKey)return;
