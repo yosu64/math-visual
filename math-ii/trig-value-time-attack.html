@@ -89,7 +89,7 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 <label id="ratioOption"><input type="checkbox" id="ratios" checked>図に数値を表示する（横・縦は向きも表示）</label>
 <button class="primary" id="start">10問に挑戦 →</button></section>
 <section id="play" hidden><div class="row status"><span id="step"></span><span id="clock"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
-<h2 id="formula" tabindex="-1"></h2><p class="status">数字キー・テンキーの 1〜4 でも解答できます。</p><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ →</button></section>
+<h2 id="formula" tabindex="-1"></h2><p class="status">数字キー・テンキーの 1〜4 でも解答できます。</p><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ（Enter）</button></section>
 <section id="result" hidden>
 <div class="podium"><div id="sparks" aria-hidden="true"></div><div id="medal"><small>RANK</small><span id="rank"></span></div>
 <h2 tabindex="-1" id="summary"></h2><div id="finalScore"></div></div>
@@ -228,7 +228,7 @@ function respond(v){
   }
   mistakes.set(q,{selected:v,why});
   $('feedback').innerHTML='<strong>正解は '+math(answer)+'</strong><br>'+why;
-  $('next').textContent=index+1===deck.length?'結果を見る →':'次の問題へ →';$('next').hidden=false;$('next').focus();
+  $('next').textContent=index+1===deck.length?'結果を見る（Enter）':'次の問題へ（Enter）';$('next').hidden=false;$('next').focus();
 }
 $('start').onclick=()=>{
   const mode=document.querySelector('[name=mode]:checked').value;
