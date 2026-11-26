@@ -144,8 +144,9 @@ function render(from=0,paused=false){
       if(d==='0')cells='<td colspan="4">は定義されない</td>';
       else if(axis&&fn!=='tan')cells='<td>'+expr('=')+'</td><td>'+expr(n)+'</td><td></td><td></td>';
       else{
-        const calculation=math(frac(n,d));
-        cells='<td>'+expr('=')+'</td><td>'+calculation+'</td><td>'+expr('=')+'</td><td>'+math(result)+'</td>';
+        const substitution=frac(n,d);
+        cells='<td>'+expr('=')+'</td><td>'+math(substitution)+'</td>';
+        if(substitution!==result)cells+='<td>'+expr('=')+'</td><td>'+math(result)+'</td>';
       }
       rows+='<tr><th scope="row">'+label+'</th>'+left+cells+'</tr>';
     }
