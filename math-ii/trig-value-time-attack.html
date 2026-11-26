@@ -61,6 +61,10 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 .spark{position:absolute;top:-10px;width:6px;height:12px;z-index:-1;animation:fall 1.5s ease-in both}
 @keyframes fall{to{transform:translate(20px,340px) rotate(220deg);opacity:0}}
 @media(prefers-reduced-motion:no-preference){#result:not([hidden]) #medal{animation:award .42s ease-out}@keyframes award{from{transform:scale(.6) rotate(-12deg);opacity:0}}}
+#track button{width:100%;padding:0;border:1px solid currentColor;color:inherit;text-decoration:underline}
+#review{width:min(92vw,470px);max-height:90dvh;overflow:auto;background:#14313b;color:#fff;border:1px solid #719294;border-radius:16px;padding:22px}
+#review::backdrop{background:#061218cc}
+#review svg{max-width:245px}
 </style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
 <main><h1>三角関数タイムアタック</h1>
@@ -75,9 +79,10 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 <section id="result" hidden>
 <div class="podium"><div id="sparks" aria-hidden="true"></div><div id="medal"><small>RANK</small><span id="rank"></span></div>
 <h2 tabindex="-1" id="summary"></h2><div id="finalScore"></div></div>
-<div class="receipt"><p id="stats"></p><strong>各問の結果</strong><ol id="track"></ol><div id="breakdown"></div>
+<div class="receipt"><p id="stats"></p><p>Sランクは10問全問正解・解答時間30秒以内</p><strong>各問の結果</strong><span id="reviewHint">（×を選ぶと解説）</span><ol id="track"></ol><div id="breakdown"></div>
 <div class="result-actions"><button class="primary" id="again">もう一度10問に挑戦</button><button id="retry">間違えた問題に再挑戦</button><button id="reset">設定に戻る</button></div></div></section>
 </article><figure id="panel"><figcaption class="row"><strong>単位円と辺の比</strong><span id="angle"></span></figcaption><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
+<dialog id="review" aria-labelledby="reviewTitle"><h2 id="reviewTitle"></h2><p id="reviewAnswers"></p><svg id="reviewCircle" viewBox="-150 -150 300 300" role="img"></svg><p id="reviewWhy"></p><form method="dialog"><button autofocus>結果に戻る</button></form></dialog>
 <footer><a href="https://github.com/yosu64/math-visual">© 2026 shibasaki / Math Visual</a></footer>
 <script>
 const $ = id => document.getElementById(id);
@@ -148,7 +153,9 @@ function updateClock(){
   const ms=totalMs+(locked?0:performance.now()-started);
   $('clock').textContent=(ms/1000).toFixed(1)+' 秒';
 }
+const mistakes=new Map();
 function begin(items){
+  mistakes.clear();
   streak=0;best=0;$('reward').textContent='';
   clearInterval(clockTimer);clockTimer=setInterval(updateClock,100);
   deck=items;index=0;score=0;misses=[];totalMs=0;
@@ -204,6 +211,7 @@ function respond(v){
     const quadrant=Math.floor(q.a/90)+1;
     why='基準角 '+reference(q.a)+'°。'+q.fn+' は '+guides[q.fn]+' = '+quotient+'。第'+quadrant+'象限では '+q.fn+' は'+(answer.startsWith('−')?'負':'正')+'。';
   }
+  mistakes.set(q,{selected:v,why});
   $('feedback').innerHTML='<strong>正解は '+math(answer)+'</strong><br>'+why;
   $('next').textContent=index+1===deck.length?'結果を見る →':'次の問題へ →';$('next').hidden=false;$('next').focus();
 }
@@ -219,17 +227,27 @@ function advance(){
   $('reward').textContent='';
   const correct=deck.length-misses.length;
   const rate=correct/deck.length;
-  $('rank').textContent=rate===1?'S':rate>=0.8?'A':rate>=0.6?'B':'C';
+  $('rank').textContent=correct===10 && totalMs<=30000?'S':rate>=0.8?'A':rate>=0.6?'B':'C';
   $('summary').textContent=rate===1?'全問正解！':deck.length+'問完走！';
   $('finalScore').innerHTML=score+' <small>pt</small>';
   $('stats').textContent=correct+' / '+deck.length+' 問正解　解答 '+(totalMs/1000).toFixed(1)+' 秒　最高 '+best+' 連続';
+  $('reviewHint').hidden=!misses.length;
   $('track').replaceChildren();
   deck.forEach((q,i)=>{
     const item=document.createElement('li');
     const missed=misses.includes(q);
-    if(missed)item.className='miss';
-    item.innerHTML='<small>'+(i+1)+'</small>'+(missed?'×':'○');
-    item.setAttribute('aria-label','第'+(i+1)+'問 '+(missed?'不正解':'正解'));
+    const mark='<small>'+(i+1)+'</small>'+(missed?'×':'○');
+    if(missed){
+      item.className='miss';
+      const button=document.createElement('button');
+      button.innerHTML=mark;
+      button.setAttribute('aria-label','第'+(i+1)+'問の誤答と解説を見る');
+      button.onclick=()=>openReview(q,i);
+      item.append(button);
+    }else{
+      item.innerHTML=mark;
+      item.setAttribute('aria-label','第'+(i+1)+'問 正解');
+    }
     $('track').append(item);
   });
   $('sparks').replaceChildren();
@@ -247,6 +265,16 @@ function advance(){
   $('breakdown').textContent=funcs.filter(f=>deck.some(q=>q.fn===f)).map(f=>{const count=deck.filter(q=>q.fn===f).length;return f+' '+(count-misses.filter(q=>q.fn===f).length)+'/'+count}).join('　');
   $('retry').hidden=!misses.length;$('summary').focus();
 };
+function openReview(q,i){
+  const mistake=mistakes.get(q);
+  $('reviewTitle').innerHTML='第'+(i+1)+'問　'+q.fn+' '+math(q.label);
+  $('reviewAnswers').innerHTML='選んだ答え　'+math(mistake.selected)+'<br>正解　'+math(value(q.fn,q.a));
+  draw(q);
+  $('reviewCircle').innerHTML=$('circle').innerHTML;
+  $('reviewCircle').setAttribute('aria-label',$('circle').getAttribute('aria-label'));
+  $('reviewWhy').textContent=mistake.why;
+  $('review').showModal();
+}
 $('again').onclick=()=>$('start').click();
 $('next').onclick=advance;
 $('retry').onclick=()=>begin(shuffle(misses));
