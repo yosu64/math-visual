@@ -87,6 +87,7 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 <fieldset><legend>角度の表示</legend><label><input type="radio" name="mode" value="deg" checked>度数法</label><label><input type="radio" name="mode" value="rad">弧度法</label><label><input type="radio" name="mode" value="mix">ランダム</label></fieldset>
 <label><input type="checkbox" id="hint" checked>解答中も単位円を見る</label><br>
 <label id="ratioOption"><input type="checkbox" id="ratios" checked>図に数値を表示する（横・縦は向きも表示）</label>
+<p style="margin:16px 0 0"><a href="trig-circle-guide.html">まずは図で理解する → 円と辺の比のアニメ解説</a></p>
 <button class="primary" id="start">10問に挑戦 →</button></section>
 <section id="play" hidden><div class="row status"><span id="step"></span><span id="clock"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
 <h2 id="formula" tabindex="-1"></h2><p class="status">数字キー・テンキーの 1〜4 でも解答できます。</p><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ（Enter）</button></section>
