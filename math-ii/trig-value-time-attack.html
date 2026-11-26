@@ -34,25 +34,37 @@ progress{width:100%;accent-color:#117968;height:8px}#feedback{margin-top:16px}
 footer{padding:22px 0;color:#b4c8cc;font-size:13px}
 [hidden]{display:none!important}
 @media(max-width:660px){.layout{grid-template-columns:1fr}figure svg{width:min(100%,255px)}h1{margin:18px 0}fieldset{margin:12px 0}}
+article{position:relative}
+#reward{position:absolute;top:-15px;right:16px;z-index:2;pointer-events:none;border-radius:20px;color:#102c30;background:#ffd571;font-weight:800;box-shadow:0 3px 12px #081e2833}
+#reward:not(:empty){padding:3px 14px}
+
+svg .ratio{font:bold 18px Georgia;fill:#ffdd95;paint-order:stroke;stroke:#15323b;stroke-width:4px}
+#clock{font-variant-numeric:tabular-nums}
 </style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
 <main><h1>三角関数タイムアタック</h1>
-<div class="layout"><article>
-<section id="setup"><h2>単位円に挑む10問</h2><p>sin は高さ、cos は横の位置、tan は傾き。円周上の点を手がかりに、値を選ぼう。</p>
+<div class="layout"><article><output id="reward" aria-live="polite"></output>
+<section id="setup"><h2>単位円に挑む10問</h2><p>30°・45°・60°の直角三角形を見つけよう。辺の比で大きさを決めたら、象限で符号をつける。正解すると、すぐ次の問題へ！</p>
 <fieldset><legend>角度の表示</legend><label><input type="radio" name="mode" value="deg" checked>度数法</label><label><input type="radio" name="mode" value="rad">弧度法</label><label><input type="radio" name="mode" value="mix">ランダム</label></fieldset>
-<label><input type="checkbox" id="hint" checked>解答中も単位円を見る</label>
+<label><input type="checkbox" id="hint" checked>解答中も辺の比を見る</label>
 <button class="primary" id="start">10問に挑戦 →</button></section>
-<section id="play" hidden><div class="row status"><span id="step"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
+<section id="play" hidden><div class="row status"><span id="step"></span><span id="clock"></span><span id="points"></span></div><progress id="meter" value="0" max="10"></progress>
 <h2 id="formula" tabindex="-1"></h2><div id="choices"></div><div id="feedback" aria-live="polite"></div><button class="primary" id="next" hidden>次の問題へ →</button></section>
 <section id="result" hidden><h2 tabindex="-1" id="summary"></h2><p id="stats"></p><div id="breakdown"></div><button class="primary" id="retry">間違えた問題に再挑戦</button><button class="primary" id="reset">設定に戻る</button></section>
-</article><figure id="panel"><figcaption class="row"><strong>単位円</strong><span id="angle"></span></figcaption><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
+</article><figure id="panel"><figcaption class="row"><strong>単位円と辺の比</strong><span id="angle"></span></figcaption><svg id="circle" viewBox="-150 -150 300 300" role="img"></svg><div id="guide"></div></figure></div></main>
 <footer><a href="https://github.com/yosu64/math-visual">© 2026 shibasaki / Math Visual</a></footer>
 <script>
 const $ = id => document.getElementById(id);
 const angles = [0,30,45,60,90,120,135,150,180,210,225,240,270,300,315,330,360];
 const radians = ['0','π/6','π/4','π/3','π/2','2π/3','3π/4','5π/6','π','7π/6','5π/4','4π/3','3π/2','5π/3','7π/4','11π/6','2π'];
 const funcs = ['sin','cos','tan'];
-const guides = {sin:'点 P の高さ（y 座標）を読む。',cos:'点 P の横の位置（x 座標）を読む。',tan:'原点から点 P への直線の傾き y/x を読む。'};
+const guides = {sin:'対辺 ÷ 斜辺',cos:'隣辺 ÷ 斜辺',tan:'対辺 ÷ 隣辺'};
+function reference(a){return Math.min(a%180,180-a%180)}
+function sides(a){
+  const ref=reference(a);
+  if(ref===45)return ['1','1','√2'];
+  return ref===30?['√3','1','2']:['1','√3','2'];
+}
 const base = {sin:['0','1/2','1/√2','√3/2','1'],cos:['1','√3/2','1/√2','1/2','0'],tan:['0','1/√3','1','√3','定義されない']};
 function value(fn,a){
   const half = a%180, ref = Math.min(half,180-half);
@@ -76,17 +88,38 @@ function draw(q){
   const line=(x1,y1,x2,y2,style)=>'<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" '+style+'/>';
   let grid='';
   for(let i=-110;i<=110;i+=27.5) grid+=line(i,-110,i,110,'')+line(-110,i,110,i,'');
-  const accent='stroke="#ffcd77" stroke-width="5" stroke-linecap="round"';
-  const dash='stroke="#d0e9e6" stroke-dasharray="4 4"';
-  let projection=fn==='sin'?line(x,y,0,y,dash)+line(0,0,0,y,accent):line(x,y,x,0,dash)+line(0,0,x,0,accent);
-  if(fn==='tan') projection=line(0,0,x,0,dash)+line(x,0,x,y,dash)+line(0,0,x,y,accent);
-  $('circle').innerHTML='<g stroke="#31505a" stroke-width=".7">'+grid+'</g><circle r="110" fill="none" stroke="#87acae" stroke-width="2"/><g stroke="#a6c0c5">'+line(-126,0,126,0,'')+line(0,-126,0,126,'')+'</g><text x="132" y="6">x</text><text x="-4" y="-131">y</text><text x="-16" y="18">O</text><text x="108" y="18">1</text>'+line(0,0,x,y,'stroke="#62deca" stroke-width="3"')+projection+'<circle cx="'+x+'" cy="'+y+'" r="6" fill="#fff4cc"/><text x="'+(x+(x>=0?6:-18))+'" y="'+(y+(y< -100?18:-9))+'">P</text>';
-  $('circle').setAttribute('aria-label',a+'度の点 P。'+guides[fn]);
+  const ref=reference(a), axis=a%90===0;
+  const leg='stroke="#63decc" stroke-width="3"', hyp='stroke="#ffcd77" stroke-width="3"';
+  const tag=(x,y,t)=>'<text class="ratio" text-anchor="middle" x="'+x+'" y="'+y+'">'+t+'</text>';
+  let triangle=line(0,0,x,y,hyp);
+  let tip;
+  if(axis){
+    const horizontal=a%180===0;
+    const direction=horizontal?(x>0?'右':'左'):(y<0?'上':'下');
+    tip='半径を1とすると、'+direction+'向きに1。'+(horizontal?'縦':'横')+'の成分は0。';
+  }else{
+    const [adj,opp,h]=sides(a), sx=Math.sign(x), sy=Math.sign(y);
+    triangle='<polygon points="0,0 '+x+',0 '+x+','+y+'" fill="#42c4b3" fill-opacity=".16"/>'+triangle+
+      line(0,0,x,0,leg)+line(x,0,x,y,leg)+
+      '<path d="M '+(x-sx*8)+' 0 v '+(sy*8)+' h '+(sx*8)+'" stroke="#98c7bd" fill="none"/>'+
+      tag(x/2,sy<0?19:-8,adj)+tag(x+sx*16,y/2+5,opp)+tag(x/2-sx*14,y/2+sy*8,h);
+    tip='基準角 '+ref+'°。図の数は辺の長さの比。'+fn+' は '+guides[fn]+'。';
+  }
+  $('circle').innerHTML='<g stroke="#31505a" stroke-width=".7">'+grid+'</g><circle r="110" fill="none" stroke="#87acae" stroke-width="2"/><g stroke="#a6c0c5">'+line(-126,0,126,0,'')+line(0,-126,0,126,'')+'</g><text x="132" y="6">x</text><text x="-4" y="-131">y</text>'+triangle+'<circle cx="'+x+'" cy="'+y+'" r="4" fill="#fff4cc"/>';
+  $('circle').setAttribute('aria-label',a+'度。'+tip+(axis?'':' 隣辺、対辺、斜辺の比は '+sides(a).join('対')));
   $('angle').innerHTML=math(label);
-  $('guide').textContent=guides[fn];
+  $('guide').textContent=tip;
+
 }
 let deck=[],index=0,score=0,misses=[],started=0,totalMs=0,locked=false;
+let streak=0,best=0,clockTimer;
+function updateClock(){
+  const ms=totalMs+(locked?0:performance.now()-started);
+  $('clock').textContent=(ms/1000).toFixed(1)+' 秒';
+}
 function begin(items){
+  streak=0;best=0;$('reward').textContent='';
+  clearInterval(clockTimer);clockTimer=setInterval(updateClock,100);
   deck=items;index=0;score=0;misses=[];totalMs=0;
   $('setup').hidden=true;$('result').hidden=true;$('play').hidden=false;show();
 }
@@ -108,12 +141,31 @@ function respond(v){
   if(locked)return;locked=true;
   const duration=performance.now()-started;totalMs+=duration;
   const q=deck[index], answer=value(q.fn,q.a), ok=v===answer;
+  updateClock();
   if(ok)score+=Math.max(60,120-6*Math.floor(duration/1000));else{score-=100;misses.push(q)}
   for(const b of $('choices').children){b.disabled=true;if(b.dataset.value===answer)b.className='right';else if(b.dataset.value===v)b.className='wrong'}
-  $('points').textContent=score+' pt';$('meter').value=index+1;$('panel').hidden=false;
-  const x=value('cos',q.a),y=value('sin',q.a);
-  const why=q.fn==='tan'?(x==='0'?'x = 0 のため、傾きは定義されない。':'y を x で割ると '+math(answer)+'。'):guides[q.fn];
-  $('feedback').innerHTML='<strong>'+(ok?'正解':'正解は '+math(answer))+'</strong><br>P = ('+math(x)+', '+math(y)+')。'+why;
+  $('points').textContent=score+' pt';$('meter').value=index+1;
+  if(ok){
+    streak++;best=Math.max(best,streak);
+    const gain=Math.max(60,120-6*Math.floor(duration/1000));
+    $('reward').textContent=(streak===1?'✦ 正解！':'★ '+streak+'連続！')+'　+'+gain;
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      $('reward').animate([{transform:'scale(.8)'},{transform:'scale(1.12)'},{transform:'scale(1)'}],{duration:320});
+    }
+    setTimeout(advance,220);
+    return;
+  }
+  streak=0;$('reward').textContent='';$('panel').hidden=false;
+  let why;
+  if(q.a%90===0){
+    const x=value('cos',q.a),y=value('sin',q.a);
+    why=q.fn==='tan'?(x==='0'?'横の成分が0。0で割れないので定義されない。':'縦の成分が0なので、傾きは0。'):'半径1の終点は ('+x+', '+y+')。'+(q.fn==='sin'?'縦':'横')+'の成分は '+answer+'。';
+  }else{
+    const [adj,opp,h]=sides(q.a), magnitude=q.fn==='sin'?opp+' ÷ '+h:q.fn==='cos'?adj+' ÷ '+h:opp+' ÷ '+adj;
+    const quadrant=Math.floor(q.a/90)+1;
+    why='基準角 '+reference(q.a)+'° で '+guides[q.fn]+' = '+magnitude+'。第'+quadrant+'象限では '+q.fn+' は'+(answer.startsWith('−')?'負':'正')+'。';
+  }
+  $('feedback').innerHTML='<strong>正解は '+math(answer)+'</strong><br>'+why;
   $('next').textContent=index+1===deck.length?'結果を見る →':'次の問題へ →';$('next').hidden=false;$('next').focus();
 }
 $('start').onclick=()=>{
@@ -121,16 +173,18 @@ $('start').onclick=()=>{
   const order=[...shuffle(funcs),...shuffle(funcs),...shuffle(funcs),shuffle(funcs)[0]];
   begin(shuffle(angles).slice(0,10).map((a,i)=>({a,fn:order[i],label:mode==='deg'||mode==='mix'&&Math.random()<.5?a+'°':radians[angles.indexOf(a)]})));
 };
-$('next').onclick=()=>{
+function advance(){
   if(++index<deck.length){show();return}
+  clearInterval(clockTimer);
   $('play').hidden=true;$('result').hidden=false;$('panel').hidden=true;
   $('summary').textContent=(deck.length-misses.length)+' / '+deck.length+' 問正解';
-  $('stats').textContent=score+' pt　解答時間 '+(totalMs/1000).toFixed(1)+' 秒';
+  $('stats').textContent=score+' pt　解答時間 '+(totalMs/1000).toFixed(1)+' 秒　最高 '+best+' 連続正解';
   $('breakdown').textContent=funcs.filter(f=>deck.some(q=>q.fn===f)).map(f=>{const count=deck.filter(q=>q.fn===f).length;return f+' '+(count-misses.filter(q=>q.fn===f).length)+'/'+count}).join('　');
   $('retry').hidden=!misses.length;$('summary').focus();
 };
+$('next').onclick=advance;
 $('retry').onclick=()=>begin(shuffle(misses));
-function setup(){ $('result').hidden=true;$('setup').hidden=false;$('panel').hidden=false;draw({a:60,fn:'sin',label:'60°'}) }
+function setup(){ $('reward').textContent='';$('result').hidden=true;$('setup').hidden=false;$('panel').hidden=false;draw({a:60,fn:'sin',label:'60°'}) }
 $('reset').onclick=()=>{setup();$('start').focus()};setup();
 </script>
 </html>
