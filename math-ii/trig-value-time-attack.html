@@ -79,7 +79,7 @@ article:has(#result:not([hidden])){grid-column:1/-1;padding:0;overflow:hidden;ba
 #review svg{max-width:245px}
 #ratioOption{margin-left:1.3em}#ratioOption:has(:disabled){color:#636a68;cursor:default}
 #previewNotice{text-align:center;padding:32px 12px}
-</style>
+math{font-family:"STIX Two Math","Cambria Math",math;math-style:normal}.ratio-label{text-align:center;color:#ffdd95;font-size:18px}</style>
 <header><a href="../index.html">← Math Visual</a><span>数学Ⅱ ／ 三角関数</span></header>
 <main><h1>三角関数タイムアタック</h1>
 <div class="layout"><article><output id="reward" aria-live="polite"></output>
@@ -123,12 +123,27 @@ function value(fn,a){
   const negative = fn==='sin' ? a>180 : fn==='cos' ? a>90 && a<270 : half>90;
   return negative && magnitude!=='0' && magnitude!=='定義されない' ? '−'+magnitude : magnitude;
 }
-function math(s){
-  if(!s.includes('/')) return s;
-  const sign=s.startsWith('−')?'−':'';
-  const [n,d]=s.slice(sign.length).split('/');
-  return sign+'<span class="frac" aria-label="'+n+' 割る '+d+'"><span>'+n+'</span><span>'+d+'</span></span>';
+function tokens(expression){
+  return String(expression).match(/√[23]|[0-9]+|sin|cos|tan|[A-Za-z]|[^ ]/g).map(t=>{
+    if(t.startsWith('√'))return '<msqrt><mn>'+t.slice(1)+'</mn></msqrt>';
+    if(/^\d/.test(t))return '<mn>'+t+'</mn>';
+    if(/^(sin|cos|tan)$/.test(t))return '<mi mathvariant="normal">'+t+'</mi>';
+    if(/^[A-Za-zπ]$/.test(t))return '<mi>'+t+'</mi>';
+    return '<mo>'+t+'</mo>';
+  }).join('');
 }
+const wrapMath=content=>'<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow>'+content+'</mrow></math>';
+const expr=text=>wrapMath(tokens(text));
+const frac=(n,d)=>'<mfrac><mrow>'+tokens(n)+'</mrow><mrow>'+tokens(d)+'</mrow></mfrac>';
+function math(s){
+  if(s==='定義されない')return s;
+  if(!s.includes('/'))return expr(s);
+  const negative=s.startsWith('−');
+  const [n,d]=(negative?s.slice(1):s).split('/');
+  return wrapMath((negative?tokens('−'):'')+frac(n,d));
+}
+function prose(s){return s.replace(/(?:\d*π(?:\/\d+)?|−?√[23]|\d+°|sin|cos|tan)/g,math)}
+function refLabel(q){const r=reference(q.a);return q.label.endsWith('°')?r+'°':radians[angles.indexOf(r)]}
 function shuffle(items){
   const copy=[...items];
   for(let i=copy.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[copy[i],copy[j]]=[copy[j],copy[i]]}
@@ -141,7 +156,7 @@ function draw(q){
   for(let i=-110;i<=110;i+=27.5) grid+=line(i,-110,i,110,'')+line(-110,i,110,i,'');
   const ref=reference(a), axis=a%90===0;
   const leg='stroke="#63decc" stroke-width="3"', hyp='stroke="#ffcd77" stroke-width="3"';
-  const tag=(x,y,t)=>'<text class="ratio" text-anchor="middle" x="'+x+'" y="'+y+'">'+t+'</text>';
+  const tag=(x,y,t)=>'<foreignObject x="'+(x-25)+'" y="'+(y-18)+'" width="50" height="28"><div xmlns="http://www.w3.org/1999/xhtml" class="ratio-label">'+math(t)+'</div></foreignObject>';
   let triangle=line(0,0,x,y,hyp);
   let tip;
   if(axis){
@@ -154,12 +169,12 @@ function draw(q){
       line(0,0,x,0,leg)+line(x,0,x,y,leg)+
       '<path d="M '+(x-sx*8)+' 0 v '+(sy*8)+' h '+(sx*8)+'" stroke="#98c7bd" fill="none"/>'+
       ($('ratios').checked ? tag(x/2,sy<0?19:-8,adj)+tag(x+sx*20,y/2+5,opp)+tag(x/2-sx*14,y/2+sy*8,h) : '');
-    tip='基準角 '+ref+'°。'+($('ratios').checked?'辺の長さの比は '+(ref===45?'1：1：√2':'1：√3：2')+'。図の − は、原点から見て左向き・下向きであることを示す。':'')+fn+' は '+guides[fn]+'。';
+    tip='基準角 '+refLabel(q)+'。'+($('ratios').checked?'辺の長さの比は '+(ref===45?'1：1：√2':'1：√3：2')+'。図の − は、原点から見て左向き・下向きであることを示す。':'')+fn+' は '+guides[fn]+'。';
   }
   $('circle').innerHTML='<g stroke="#31505a" stroke-width=".7">'+grid+'</g><circle r="110" fill="none" stroke="#87acae" stroke-width="2"/><g stroke="#a6c0c5">'+line(-126,0,126,0,'')+line(0,-126,0,126,'')+'</g><text x="132" y="6">x</text><text x="-4" y="-131">y</text>'+triangle+'<circle cx="'+x+'" cy="'+y+'" r="4" fill="#fff4cc"/>';
   $('circle').setAttribute('aria-label',a+'度。'+tip+(axis || !$('ratios').checked?'':' 横の成分 '+sides(a)[0]+'、縦の成分 '+sides(a)[1]+'、斜辺の長さ '+sides(a)[2]));
   $('angle').innerHTML=math(label);
-  $('guide').textContent=tip;
+  $('guide').innerHTML=prose(tip);
 
 }
 let deck=[],index=0,score=0,misses=[],started=0,totalMs=0,locked=false;
@@ -182,7 +197,7 @@ function show(){
   locked=false;$('next').hidden=true;$('feedback').textContent='';
   $('step').textContent='第 '+(index+1)+' 問 ／ '+deck.length;$('points').textContent=score+' pt';
   $('meter').max=deck.length;$('meter').value=index;
-  $('formula').innerHTML='<span>'+q.fn+'</span> <span>'+math(q.label)+'</span>';$('formula').focus();
+  $('formula').innerHTML='<span>'+expr(q.fn)+'</span> <span>'+math(q.label)+'</span>';$('formula').focus();
   draw(q);$('panel').hidden=!$('hint').checked;
   const opposite=answer.startsWith('−')?answer.slice(1):'−'+answer;
   const pool=shuffle([...new Set(angles.map(a=>value(q.fn,a)))]);
@@ -225,10 +240,10 @@ function respond(v){
   }else{
     const [adj,opp,h]=sides(q.a), quotient=q.fn==='sin'?opp+' ÷ '+h:q.fn==='cos'?adj+' ÷ '+h:opp+' ÷ '+(adj.startsWith('−')?'('+adj+')':adj);
     const quadrant=Math.floor(q.a/90)+1;
-    why='基準角 '+reference(q.a)+'°。'+q.fn+' は '+guides[q.fn]+' = '+quotient+'。第'+quadrant+'象限では '+q.fn+' は'+(answer.startsWith('−')?'負':'正')+'。';
+    why='基準角 '+refLabel(q)+'。'+q.fn+' は '+guides[q.fn]+' = '+quotient+'。第'+quadrant+'象限では '+q.fn+' は'+(answer.startsWith('−')?'負':'正')+'。';
   }
   mistakes.set(q,{selected:v,why});
-  $('feedback').innerHTML='<strong>正解は '+math(answer)+'</strong><br>'+why;
+  $('feedback').innerHTML='<strong>正解は '+math(answer)+'</strong><br>'+prose(why);
   $('next').textContent=index+1===deck.length?'結果を見る（Enter）':'次の問題へ（Enter）';$('next').hidden=false;$('next').focus();
 }
 $('start').onclick=()=>{
@@ -283,12 +298,12 @@ function advance(){
 };
 function openReview(q,i){
   const mistake=mistakes.get(q);
-  $('reviewTitle').innerHTML='第'+(i+1)+'問　'+q.fn+' '+math(q.label);
+  $('reviewTitle').innerHTML='第'+(i+1)+'問　'+expr(q.fn)+' '+math(q.label);
   $('reviewAnswers').innerHTML='選んだ答え　'+math(mistake.selected)+'<br>正解　'+math(value(q.fn,q.a));
   draw(q);
   $('reviewCircle').innerHTML=$('circle').innerHTML;
   $('reviewCircle').setAttribute('aria-label',$('circle').getAttribute('aria-label'));
-  $('reviewWhy').textContent=mistake.why;
+  $('reviewWhy').innerHTML=prose(mistake.why);
   $('review').showModal();
 }
 $('again').onclick=()=>$('start').click();
@@ -301,6 +316,7 @@ function updatePreview(){
   $('circle').toggleAttribute('hidden',!visible);
   $('guide').hidden=!visible;
   const mode=document.querySelector('[name=mode]:checked').value;
+  document.querySelector('a[href*="trig-circle-guide"]').href='trig-circle-guide.html?unit='+(mode==='rad'?'rad':'deg');
   const label=mode==='rad'?radians[angles.indexOf(60)]:'60°';
   draw({a:60,fn:'sin',label});
 }
@@ -316,6 +332,8 @@ document.addEventListener('keydown',event=>{
   event.preventDefault();
   $('choices').children[Number(event.key)-1].click();
 });
-$('reset').onclick=()=>{setup();$('start').focus()};setup();
+$('reset').onclick=()=>{setup();$('start').focus()};
+if(new URLSearchParams(location.search).get('unit')==='rad')document.querySelector('[name=mode][value=rad]').checked=true;
+setup();
 </script>
 </html>
