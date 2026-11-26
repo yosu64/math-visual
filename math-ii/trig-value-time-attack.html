@@ -65,10 +65,10 @@ const guides = {sin:'対辺 ÷ 斜辺',cos:'隣辺 ÷ 斜辺',tan:'対辺 ÷ 隣
 function reference(a){return Math.min(a%180,180-a%180)}
 function sides(a){
   const ref=reference(a);
-  if(ref===45)return ['1','1','√2'];
-  return ref===30?['√3','1','2']:['1','√3','2'];
+  const adj=ref===30?'√3':'1';
+  const opp=ref===60?'√3':'1';
+  return [(a>90 && a<270?'−':'')+adj,(a>180?'−':'')+opp,ref===45?'√2':'2'];
 }
-const base = {sin:['0','1/2','1/√2','√3/2','1'],cos:['1','√3/2','1/√2','1/2','0'],tan:['0','1/√3','1','√3','定義されない']};
 function value(fn,a){
   const half = a%180, ref = Math.min(half,180-half);
   const magnitude = base[fn][[0,30,45,60,90].indexOf(ref)];
@@ -105,11 +105,11 @@ function draw(q){
     triangle='<polygon points="0,0 '+x+',0 '+x+','+y+'" fill="#42c4b3" fill-opacity=".16"/>'+triangle+
       line(0,0,x,0,leg)+line(x,0,x,y,leg)+
       '<path d="M '+(x-sx*8)+' 0 v '+(sy*8)+' h '+(sx*8)+'" stroke="#98c7bd" fill="none"/>'+
-      ($('ratios').checked ? tag(x/2,sy<0?19:-8,adj)+tag(x+sx*16,y/2+5,opp)+tag(x/2-sx*14,y/2+sy*8,h) : '');
-    tip='基準角 '+ref+'°。'+($('ratios').checked?'図の数は辺の長さの比。':'')+fn+' は '+guides[fn]+'。';
+      ($('ratios').checked ? tag(x/2,sy<0?19:-8,adj)+tag(x+sx*20,y/2+5,opp)+tag(x/2-sx*14,y/2+sy*8,h) : '');
+    tip='基準角 '+ref+'°。'+($('ratios').checked?'辺の比は左向き・下向きに − を付けて表示。':'')+fn+' は '+guides[fn]+'。';
   }
   $('circle').innerHTML='<g stroke="#31505a" stroke-width=".7">'+grid+'</g><circle r="110" fill="none" stroke="#87acae" stroke-width="2"/><g stroke="#a6c0c5">'+line(-126,0,126,0,'')+line(0,-126,0,126,'')+'</g><text x="132" y="6">x</text><text x="-4" y="-131">y</text>'+triangle+'<circle cx="'+x+'" cy="'+y+'" r="4" fill="#fff4cc"/>';
-  $('circle').setAttribute('aria-label',a+'度。'+tip+(axis || !$('ratios').checked?'':' 隣辺、対辺、斜辺の比は '+sides(a).join('対')));
+  $('circle').setAttribute('aria-label',a+'度。'+tip+(axis || !$('ratios').checked?'':' 横・縦の符号付き成分と斜辺の比は '+sides(a).join('対')));
   $('angle').innerHTML=math(label);
   $('guide').textContent=tip;
 
@@ -172,9 +172,9 @@ function respond(v){
     const x=value('cos',q.a),y=value('sin',q.a);
     why=q.fn==='tan'?(x==='0'?'横の成分が0。0で割れないので定義されない。':'縦の成分が0なので、傾きは0。'):'半径1の終点は ('+x+', '+y+')。'+(q.fn==='sin'?'縦':'横')+'の成分は '+answer+'。';
   }else{
-    const [adj,opp,h]=sides(q.a), magnitude=q.fn==='sin'?opp+' ÷ '+h:q.fn==='cos'?adj+' ÷ '+h:opp+' ÷ '+adj;
+    const [adj,opp,h]=sides(q.a), quotient=q.fn==='sin'?opp+' ÷ '+h:q.fn==='cos'?adj+' ÷ '+h:opp+' ÷ '+(adj.startsWith('−')?'('+adj+')':adj);
     const quadrant=Math.floor(q.a/90)+1;
-    why='基準角 '+reference(q.a)+'° で '+guides[q.fn]+' = '+magnitude+'。第'+quadrant+'象限では '+q.fn+' は'+(answer.startsWith('−')?'負':'正')+'。';
+    why='基準角 '+reference(q.a)+'° で '+guides[q.fn]+' = '+quotient+'。第'+quadrant+'象限では '+q.fn+' は'+(answer.startsWith('−')?'負':'正')+'。';
   }
   $('feedback').innerHTML='<strong>正解は '+math(answer)+'</strong><br>'+why;
   $('next').textContent=index+1===deck.length?'結果を見る →':'次の問題へ →';$('next').hidden=false;$('next').focus();
