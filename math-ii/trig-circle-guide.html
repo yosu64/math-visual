@@ -101,7 +101,7 @@ function diagram(deg){
   const tag=(u,v,t)=>'<foreignObject x="'+(u-40)+'" y="'+(v-19)+'" width="80" height="28"><div xmlns="http://www.w3.org/1999/xhtml" class="diagram-label">'+expr(t)+'</div></foreignObject>';
   let svg='<defs><marker id="angle-tip" viewBox="0 0 10 10" markerWidth="10" markerHeight="10" refX="10" refY="5" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 Z" fill="#ffcd78"/></marker><pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#30515a"/></pattern></defs><rect x="-145" y="-135" width="290" height="270" fill="url(#grid)"/><circle r="112" fill="none" stroke="#86a8ab" stroke-width="2"/>';
   svg+=line(-148,0,150,0,'#819d9f')+line(0,-132,0,132,'#819d9f')+tag(159,5,'x')+tag(-9,-136,'y')+tag(-10,18,'O');
-  svg+=line(0,0,139,0,'#ffcd78',3)+'<path d="M132 -4L141 0L132 4" fill="#ffcd78"/>';
+  svg+=line(0,0,139,0,'#acc0bd',2);
   if(deg>0){
     const arcR=32, mid=rad/2;
     svg+='<path d="M32 0 A32 32 0 0 0 '+arcR*Math.cos(mid)+' '+(-arcR*Math.sin(mid))+' A32 32 0 0 0 '+arcR*c+' '+arcR*s+'" marker-end="url(#angle-tip)" fill="none" stroke="#ffcd78" stroke-width="3"/>';
