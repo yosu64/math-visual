@@ -92,6 +92,11 @@ function sides(a){
   const opp=ref===60?'√3':'1';
   return [(a>90 && a<270?'−':'')+adj,(a>180?'−':'')+opp,ref===45?'√2':'2'];
 }
+const base = {
+  sin: ['0','1/2','1/√2','√3/2','1'],
+  cos: ['1','√3/2','1/√2','1/2','0'],
+  tan: ['0','1/√3','1','√3','定義されない']
+};
 function value(fn,a){
   const half = a%180, ref = Math.min(half,180-half);
   const magnitude = base[fn][[0,30,45,60,90].indexOf(ref)];
