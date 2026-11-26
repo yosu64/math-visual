@@ -27,7 +27,19 @@ button:focus-visible,a:focus-visible{outline:3px solid #d88121;outline-offset:3p
 #choices button{min-height:65px;background:white;font:24px Georgia,serif}
 #choices .right{background:#c6ebd6;border:2px solid #177454}
 #choices .wrong{background:#fae0d7;border:2px dashed #ae5134}
-#formula{font:clamp(34px,5vw,48px) Georgia,serif;text-align:center;margin:20px 0}
+#formula{
+  font:clamp(34px,5vw,48px)/1.2 Georgia,serif;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.25em;
+  min-height:2.55em;
+  margin:20px 0;
+  padding:.32em .25em;
+  border:1px solid #90aaa2;
+  border-radius:10px;
+}
+#formula:focus{outline:none;border-color:#196f62;box-shadow:inset 0 0 0 1px #196f62}
 .frac{display:inline-flex;vertical-align:middle;flex-direction:column;text-align:center;font-size:.83em;line-height:1.05}
 .frac span:first-child{border-bottom:1px solid;padding:0 .12em .08em}.frac span+span{padding-top:.06em}
 progress{width:100%;accent-color:#117968;height:8px}#feedback{margin-top:16px}
@@ -169,7 +181,7 @@ function show(){
   locked=false;$('next').hidden=true;$('feedback').textContent='';
   $('step').textContent='第 '+(index+1)+' 問 ／ '+deck.length;$('points').textContent=score+' pt';
   $('meter').max=deck.length;$('meter').value=index;
-  $('formula').innerHTML=q.fn+' '+math(q.label);$('formula').focus();
+  $('formula').innerHTML='<span>'+q.fn+'</span> <span>'+math(q.label)+'</span>';$('formula').focus();
   draw(q);$('panel').hidden=!$('hint').checked;
   const opposite=answer.startsWith('−')?answer.slice(1):'−'+answer;
   const pool=shuffle([...new Set(angles.map(a=>value(q.fn,a)))]);
